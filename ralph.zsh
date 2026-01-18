@@ -2,16 +2,18 @@
 # ═══════════════════════════════════════════════════════════════════
 # RALPH - Autonomous Coding Loop (Original Concept)
 # ═══════════════════════════════════════════════════════════════════
-# Usage: ralph [app] [max_iterations] [sleep_seconds] [-QN]
+# Usage: ralph [app] [max_iterations] [sleep_seconds] [-QN] [-S]
 # Examples:
 #   ralph 30 5 -QN         # Classic mode: ./PRD.md, current branch
 #   ralph expo 300         # App mode: apps/expo/PRD.md, feat/expo-work branch
 #   ralph public 300 -QN   # App mode with notifications
+#   ralph 100 -S           # Run with Sonnet model (faster, cheaper)
 #
 # Options:
 #   app  : Optional app name (expo, public, admin) - uses apps/{app}/PRD.md
 #   -QN  : Enable quiet notifications via ntfy app
-#   (no flag) : No notifications (default)
+#   -S   : Use Sonnet model (default: Opus)
+#   (no flag) : No notifications, Opus model (default)
 #
 # App Mode:
 #   - PRD: apps/{app}/PRD.md
@@ -33,6 +35,7 @@ function ralph() {
   local MAX=10
   local SLEEP=2
   local notify_enabled=false
+  local use_sonnet=false
   local RALPH_TMP="/tmp/ralph_output_$$.txt"
   local REPO_ROOT=$(pwd)
   local PRD_PATH="$REPO_ROOT/PRD.md"
@@ -51,6 +54,10 @@ function ralph() {
     case "$1" in
       -QN|--quiet-notify)
         notify_enabled=true
+        shift
+        ;;
+      -S|--sonnet)
+        use_sonnet=true
         shift
         ;;
       expo|public|admin)
@@ -234,6 +241,11 @@ function ralph() {
   fi
   echo "📂 Working in: $(pwd)"
   echo "📋 PRD: $(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?') tasks remaining"
+  if $use_sonnet; then
+    echo "🧠 Model: Sonnet (faster)"
+  else
+    echo "🧠 Model: Opus (default)"
+  fi
   if $notify_enabled; then
     echo "🔔 Notifications: ON (topic: $ntfy_topic)"
   else
@@ -255,8 +267,14 @@ function ralph() {
     local claude_success=false
 
     while [[ $retry_count -lt $max_retries ]]; do
+      # Build claude command with optional model flag
+      local claude_cmd="claude --chrome --dangerously-skip-permissions"
+      if $use_sonnet; then
+        claude_cmd="$claude_cmd --model sonnet"
+      fi
+
       # Stream output in real-time with tee, also save to temp file
-      claude --chrome --dangerously-skip-permissions -p "You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
+      eval "$claude_cmd" -p "You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
 ## Meta-Learnings
 Read docs.local/ralph-meta-learnings.md if it exists - contains critical patterns about avoiding loops and state management.
