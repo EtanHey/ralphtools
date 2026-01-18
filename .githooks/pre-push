@@ -1,0 +1,163 @@
+#!/usr/bin/env zsh
+#
+# Ralph Pre-Push Hook
+# Runs comprehensive checks before pushing to remote.
+# More thorough than pre-commit since pushes are less frequent.
+#
+# Install: git config core.hooksPath .githooks
+#
+
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+echo ""
+echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo "${CYAN}  🚀 Ralph Pre-Push Checks${NC}"
+echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+ERRORS=0
+
+# ═══════════════════════════════════════════════════════════════
+# 1. DRY RUN TEST - Source the file and check for immediate errors
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[1/4] Dry Run Test${NC}"
+
+# Create a temporary test file that sources ralph.zsh but doesn't execute
+TEST_SCRIPT=$(mktemp)
+cat > "$TEST_SCRIPT" << 'TESTEOF'
+#!/usr/bin/env zsh
+# Temporarily override functions to prevent execution
+ralph() { :; }
+ralph-init() { :; }
+ralph-status() { :; }
+ralph-archive() { :; }
+
+# Source the file - this will parse all functions
+source "$1" 2>&1
+echo "SOURCE_OK"
+TESTEOF
+
+if OUTPUT=$(zsh "$TEST_SCRIPT" "ralph.zsh" 2>&1); then
+  if echo "$OUTPUT" | grep -q "SOURCE_OK"; then
+    echo "  ${GREEN}✓${NC} ralph.zsh sources without errors"
+  else
+    echo "  ${RED}✗${NC} ralph.zsh failed to source cleanly"
+    echo "$OUTPUT"
+    ERRORS=$((ERRORS + 1))
+  fi
+else
+  echo "  ${RED}✗${NC} ralph.zsh has errors when sourced"
+  echo "$OUTPUT"
+  ERRORS=$((ERRORS + 1))
+fi
+rm -f "$TEST_SCRIPT"
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 2. FUNCTION COMPLETENESS CHECK
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[2/4] Function Completeness${NC}"
+
+# Check that all expected functions are defined
+EXPECTED_FUNCTIONS=("ralph" "ralph-init" "ralph-status" "ralph-archive")
+
+for func in "${EXPECTED_FUNCTIONS[@]}"; do
+  if grep -qE "^function $func\(\)|^$func\(\)" ralph.zsh 2>/dev/null; then
+    echo "  ${GREEN}✓${NC} Function '$func' is defined"
+  else
+    echo "  ${RED}✗${NC} Function '$func' is MISSING"
+    ERRORS=$((ERRORS + 1))
+  fi
+done
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 3. CRITICAL PATTERN VALIDATION
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[3/4] Critical Pattern Validation${NC}"
+
+# Check 1: Ensure pipestatus is used after pipes (not $?)
+if grep -n '\| tee' ralph.zsh | while read line; do
+  linenum=$(echo "$line" | cut -d: -f1)
+  # Check next 3 lines for proper pipestatus usage
+  nextlines=$(sed -n "$((linenum+1)),$((linenum+3))p" ralph.zsh)
+  if echo "$nextlines" | grep -q 'exit_code=\$?'; then
+    echo "  ${RED}✗${NC} Line $((linenum+1)): Using \$? after pipe - should use \${pipestatus[1]}"
+    exit 1
+  fi
+done; then
+  echo "  ${GREEN}✓${NC} pipestatus usage is correct after pipes"
+else
+  ERRORS=$((ERRORS + 1))
+fi
+
+# Check 2: Ensure all while loops have proper exit conditions
+WHILE_COUNT=$(grep -c 'while \[\[' ralph.zsh 2>/dev/null || echo 0)
+BREAK_COUNT=$(grep -c '\bbreak\b' ralph.zsh 2>/dev/null || echo 0)
+
+if [[ $WHILE_COUNT -gt 0 && $BREAK_COUNT -eq 0 ]]; then
+  echo "  ${YELLOW}⚠${NC} Found $WHILE_COUNT while loops but no break statements"
+else
+  echo "  ${GREEN}✓${NC} While loops have break statements ($WHILE_COUNT loops, $BREAK_COUNT breaks)"
+fi
+
+# Check 3: Ensure error handling exists
+if grep -qE 'set -e|trap.*ERR' ralph.zsh 2>/dev/null; then
+  echo "  ${GREEN}✓${NC} Error handling (set -e or trap) is present"
+else
+  echo "  ${YELLOW}⚠${NC} Consider adding 'set -e' or error trap for robustness"
+fi
+
+# Check 4: Check for debugging leftovers
+DEBUG_PATTERNS="echo.*DEBUG|print.*DEBUG|set -x"
+if grep -nE "$DEBUG_PATTERNS" ralph.zsh 2>/dev/null | grep -v '^#' | head -1 | grep -q .; then
+  echo "  ${YELLOW}⚠${NC} Possible debug code found - review before push"
+else
+  echo "  ${GREEN}✓${NC} No obvious debug code found"
+fi
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 4. DOCUMENTATION CHECK
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[4/4] Documentation Check${NC}"
+
+# Check README exists and has content
+if [[ -f "README.md" && -s "README.md" ]]; then
+  echo "  ${GREEN}✓${NC} README.md exists and has content"
+else
+  echo "  ${YELLOW}⚠${NC} README.md is missing or empty"
+fi
+
+# Check CLAUDE.md exists
+if [[ -f "CLAUDE.md" && -s "CLAUDE.md" ]]; then
+  echo "  ${GREEN}✓${NC} CLAUDE.md exists and has content"
+else
+  echo "  ${YELLOW}⚠${NC} CLAUDE.md is missing or empty"
+fi
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# SUMMARY
+# ═══════════════════════════════════════════════════════════════
+echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if [[ $ERRORS -gt 0 ]]; then
+  echo "${RED}  ✗ PUSH BLOCKED: $ERRORS critical error(s) found${NC}"
+  echo ""
+  echo "  Fix the errors above before pushing."
+  echo "  To bypass (not recommended): git push --no-verify"
+  echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  exit 1
+else
+  echo "${GREEN}  ✓ ALL PRE-PUSH CHECKS PASSED${NC}"
+  echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  exit 0
+fi

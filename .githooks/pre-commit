@@ -1,0 +1,219 @@
+#!/usr/bin/env zsh
+#
+# Ralph Pre-Commit Hook
+# Runs syntax checks, linting, and custom pattern analysis before each commit.
+#
+# Install: git config core.hooksPath .githooks
+# Or run: ./scripts/setup-hooks.sh
+#
+
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo "${BLUE}  🔍 Ralph Pre-Commit Checks${NC}"
+echo "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+ERRORS=0
+WARNINGS=0
+
+# Get list of staged .zsh files
+STAGED_ZSH_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.zsh$' || true)
+
+if [[ -z "$STAGED_ZSH_FILES" ]]; then
+  echo "${GREEN}✓ No .zsh files staged, skipping checks${NC}"
+  exit 0
+fi
+
+echo "Checking files: $STAGED_ZSH_FILES"
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 1. ZSH SYNTAX CHECK
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[1/5] ZSH Syntax Check${NC}"
+
+for file in ${(f)STAGED_ZSH_FILES}; do
+  if zsh -n "$file" 2>&1; then
+    echo "  ${GREEN}✓${NC} $file"
+  else
+    echo "  ${RED}✗${NC} $file has syntax errors"
+    ERRORS=$((ERRORS + 1))
+  fi
+done
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 2. SHELLCHECK (if available)
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[2/5] ShellCheck Linting${NC}"
+
+if command -v shellcheck &> /dev/null; then
+  for file in ${(f)STAGED_ZSH_FILES}; do
+    # Use bash shell type since shellcheck doesn't fully support zsh
+    # But it still catches many common issues
+    if shellcheck -s bash -e SC1071,SC2154,SC2296,SC2148,SC2034 "$file" 2>/dev/null; then
+      echo "  ${GREEN}✓${NC} $file"
+    else
+      echo "  ${YELLOW}⚠${NC} $file has shellcheck warnings (non-blocking)"
+      WARNINGS=$((WARNINGS + 1))
+    fi
+  done
+else
+  echo "  ${YELLOW}⚠${NC} shellcheck not installed, skipping (brew install shellcheck)"
+  WARNINGS=$((WARNINGS + 1))
+fi
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 3. CUSTOM PATTERN CHECKS (Bug Prevention)
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[3/5] Custom Bug Pattern Checks${NC}"
+
+for file in ${(f)STAGED_ZSH_FILES}; do
+  FILE_ERRORS=0
+
+  # Check 1: break/continue outside of loop control structures
+  # This catches the bug where 'break' was outside if-else in retry logic
+  if grep -n 'break$' "$file" | while read line; do
+    linenum=$(echo "$line" | cut -d: -f1)
+    # Get context: 5 lines before
+    context=$(sed -n "$((linenum-5)),$((linenum))p" "$file")
+    # Check if break is properly inside a conditional or case
+    if ! echo "$context" | grep -qE '(if|else|then|case|esac|\{)'; then
+      echo "  ${RED}✗${NC} $file:$linenum - 'break' may be outside conditional block"
+      FILE_ERRORS=$((FILE_ERRORS + 1))
+    fi
+  done; [[ $FILE_ERRORS -gt 0 ]]; then
+    ERRORS=$((ERRORS + FILE_ERRORS))
+  fi
+
+  # Check 2: Using $? after a command that might overwrite it
+  if grep -nE '\|\s*tee.*\n.*\$\?' "$file" 2>/dev/null | head -1 | grep -q .; then
+    echo "  ${YELLOW}⚠${NC} $file - Using \$? after pipe may capture wrong exit code (use \${pipestatus[1]})"
+    WARNINGS=$((WARNINGS + 1))
+  fi
+
+  # Check 3: Unquoted variable expansions in conditionals
+  if grep -nE '\[\[.*\$[a-zA-Z_][a-zA-Z0-9_]*[^"\]]' "$file" 2>/dev/null | head -3 | grep -q .; then
+    echo "  ${YELLOW}⚠${NC} $file - Potentially unquoted variables in [[ ]] (non-blocking)"
+    WARNINGS=$((WARNINGS + 1))
+  fi
+
+  # Check 4: eval usage (potential security issue)
+  if grep -n '\beval\b' "$file" 2>/dev/null | grep -v '^#' | head -1 | grep -q .; then
+    echo "  ${YELLOW}⚠${NC} $file - Uses 'eval' - consider using array expansion instead"
+    WARNINGS=$((WARNINGS + 1))
+  fi
+
+  # Check 5: Hardcoded sleep values > 30s (might indicate forgotten debug code)
+  if grep -nE 'sleep\s+[3-9][0-9]|sleep\s+[0-9]{3,}' "$file" 2>/dev/null | head -1 | grep -q .; then
+    echo "  ${YELLOW}⚠${NC} $file - Long sleep detected (>30s) - is this intentional?"
+    WARNINGS=$((WARNINGS + 1))
+  fi
+
+  # Check 6: TODO/FIXME/HACK/XXX comments
+  if grep -niE '(TODO|FIXME|HACK|XXX):?' "$file" 2>/dev/null | head -3 | grep -q .; then
+    echo "  ${YELLOW}⚠${NC} $file - Contains TODO/FIXME comments (non-blocking)"
+    WARNINGS=$((WARNINGS + 1))
+  fi
+
+  if [[ $FILE_ERRORS -eq 0 ]]; then
+    echo "  ${GREEN}✓${NC} $file - no critical patterns found"
+  fi
+done
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 4. RETRY LOGIC INTEGRITY CHECK
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[4/5] Retry Logic Integrity${NC}"
+
+for file in ${(f)STAGED_ZSH_FILES}; do
+  # Check that retry loops have proper structure
+  if grep -q 'while.*retry' "$file" 2>/dev/null; then
+    # Ensure there's a continue in the retry logic
+    if ! grep -qE 'continue\s*$' "$file" 2>/dev/null; then
+      echo "  ${RED}✗${NC} $file - Retry loop found but no 'continue' statement"
+      ERRORS=$((ERRORS + 1))
+    fi
+
+    # Ensure max_retries is defined
+    if ! grep -q 'max_retries' "$file" 2>/dev/null; then
+      echo "  ${RED}✗${NC} $file - Retry loop found but no 'max_retries' defined"
+      ERRORS=$((ERRORS + 1))
+    fi
+
+    # Ensure retry_count is incremented
+    if ! grep -qE 'retry_count=.*\+' "$file" 2>/dev/null; then
+      echo "  ${RED}✗${NC} $file - Retry loop found but retry_count not incremented"
+      ERRORS=$((ERRORS + 1))
+    fi
+
+    if [[ $ERRORS -eq 0 ]]; then
+      echo "  ${GREEN}✓${NC} $file - retry logic structure looks correct"
+    fi
+  else
+    echo "  ${GREEN}✓${NC} $file - no retry logic to check"
+  fi
+done
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# 5. FUNCTION BALANCE CHECK
+# ═══════════════════════════════════════════════════════════════
+echo "${YELLOW}[5/5] Brace/Bracket Balance${NC}"
+
+for file in ${(f)STAGED_ZSH_FILES}; do
+  # Count opening and closing braces
+  OPEN_BRACES=$(grep -o '{' "$file" | wc -l | tr -d ' ')
+  CLOSE_BRACES=$(grep -o '}' "$file" | wc -l | tr -d ' ')
+
+  if [[ "$OPEN_BRACES" -ne "$CLOSE_BRACES" ]]; then
+    echo "  ${RED}✗${NC} $file - Unbalanced braces: { = $OPEN_BRACES, } = $CLOSE_BRACES"
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  # Count opening and closing parentheses
+  OPEN_PARENS=$(grep -o '(' "$file" | wc -l | tr -d ' ')
+  CLOSE_PARENS=$(grep -o ')' "$file" | wc -l | tr -d ' ')
+
+  if [[ "$OPEN_PARENS" -ne "$CLOSE_PARENS" ]]; then
+    echo "  ${RED}✗${NC} $file - Unbalanced parentheses: ( = $OPEN_PARENS, ) = $CLOSE_PARENS"
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  if [[ "$OPEN_BRACES" -eq "$CLOSE_BRACES" && "$OPEN_PARENS" -eq "$CLOSE_PARENS" ]]; then
+    echo "  ${GREEN}✓${NC} $file - braces and parentheses balanced"
+  fi
+done
+echo ""
+
+# ═══════════════════════════════════════════════════════════════
+# SUMMARY
+# ═══════════════════════════════════════════════════════════════
+echo "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if [[ $ERRORS -gt 0 ]]; then
+  echo "${RED}  ✗ COMMIT BLOCKED: $ERRORS error(s) found${NC}"
+  echo "${YELLOW}  ⚠ $WARNINGS warning(s) (non-blocking)${NC}"
+  echo ""
+  echo "  Fix the errors above before committing."
+  echo "  To bypass (not recommended): git commit --no-verify"
+  echo "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  exit 1
+elif [[ $WARNINGS -gt 0 ]]; then
+  echo "${GREEN}  ✓ COMMIT ALLOWED (with $WARNINGS warning(s))${NC}"
+  echo "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  exit 0
+else
+  echo "${GREEN}  ✓ ALL CHECKS PASSED${NC}"
+  echo "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+  exit 0
+fi
