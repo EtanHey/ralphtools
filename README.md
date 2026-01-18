@@ -1,13 +1,55 @@
-# Ralph - Autonomous AI Coding Loop
+# Ralph - The Original AI Coding Loop
 
-Run Claude (or other LLMs) in an autonomous loop to execute PRD stories. Each iteration spawns a fresh Claude instance with clean context, ensuring consistent behavior across long coding sessions.
+> *"Ralph is a Bash loop"* — Geoffrey Huntley
 
-## Why Ralph?
+Run Claude (or any LLM) in an autonomous loop to execute PRD stories. Each iteration spawns a **fresh Claude instance** with clean context, ensuring consistent behavior across long coding sessions.
 
-- **Fresh context each iteration** - No context window bloat, no confused state
-- **PRD-driven development** - Stories are the contract, checkboxes are the proof
-- **Built-in guardrails** - Blocked task handling, browser verification, learning persistence
-- **Monorepo support** - Run multiple Ralphs on different apps simultaneously
+```
+┌─────────────────────────────────────────────────────────────┐
+│  while [ ] stories remain:                                  │
+│    1. Spawn fresh Claude                                    │
+│    2. Claude reads PRD.md, finds first [ ] story            │
+│    3. Claude implements ONE story                           │
+│    4. Claude marks [x], commits                             │
+│    5. Loop                                                  │
+│  done                                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 This is THE Original Ralph
+
+Ralph was created by [Geoffrey Huntley](https://ghuntley.com/ralph/) as a simple but powerful concept: **a bash loop that feeds the same prompt to an AI agent repeatedly until completion**.
+
+> **Note:** There's also a Claude Code plugin called `ralph-loop` that reimplements this concept using stop hooks inside a single Claude session. That's a different approach. **This repo is the original external bash loop** with additional features like PRD-driven development, fresh context per iteration, and learnings persistence.
+
+| Feature | This Ralph (Original) | Claude Code Plugin |
+|---------|----------------------|-------------------|
+| Fresh context each iteration | ✅ Yes | ❌ Same session |
+| PRD-driven with checkboxes | ✅ Yes | ❌ Single prompt |
+| Learnings persist across iterations | ✅ Yes | ❌ No |
+| Monorepo support | ✅ Yes | ❌ No |
+| Browser verification protocol | ✅ Yes | ❌ No |
+| Story splitting with consensus | ✅ Yes | ❌ No |
+| Blocked task handling | ✅ Yes | ❌ No |
+
+---
+
+## Why Fresh Context Matters
+
+When Claude runs in a long session, it accumulates context that can:
+- Cause confusion about what's already done
+- Create "hallucinated memory" of non-existent code
+- Lead to inconsistent behavior as context window fills
+
+Ralph solves this by **spawning a fresh Claude every iteration**. Each Claude:
+1. Reads the PRD.md file (the source of truth)
+2. Sees only checked `[x]` and unchecked `[ ]` boxes
+3. Works on ONE story, marks it done, commits
+4. Exits — next iteration is completely fresh
+
+The PRD file IS the memory. Checkboxes ARE the state.
 
 ---
 
@@ -19,11 +61,12 @@ git clone https://github.com/YOUR_USERNAME/ralph.git ~/.config/ralph
 echo '[[ -f ~/.config/ralph/ralph.zsh ]] && source ~/.config/ralph/ralph.zsh' >> ~/.zshrc
 source ~/.zshrc
 
-# 2. Create a PRD in your project
-ralph-init
+# 2. Generate a PRD with /prd command (see setup below)
+claude
+> /prd Add user authentication with JWT
 
 # 3. Run Ralph
-ralph 10  # 10 iterations
+ralph 20  # 20 iterations
 ```
 
 ---
@@ -33,7 +76,7 @@ ralph 10  # 10 iterations
 | Command | Description |
 |---------|-------------|
 | `ralph [N] [sleep]` | Run N iterations (default 10) on `./PRD.md` |
-| `ralph <app> N` | Run on `apps/<app>/PRD.md` with auto branch switching |
+| `ralph <app> N` | Run on `apps/<app>/PRD.md` with auto branch |
 | `ralph-init [app]` | Create PRD template |
 | `ralph-archive [app]` | Archive completed stories |
 | `ralph-status` | Show PRD status across all apps |
@@ -45,26 +88,51 @@ ralph 10  # 10 iterations
 | Flag | Description |
 |------|-------------|
 | `-QN` | Enable notifications via [ntfy](https://ntfy.sh) |
-| `-S` | Use Sonnet model (faster, cheaper than Opus) |
+| `-S` | Use Sonnet model (faster, cheaper) |
 
 ---
 
-## How It Works
+## The /prd Command
 
-### The Loop
+Ralph executes PRDs, but first you need to create one. The `/prd` command is a Claude Code skill that generates well-structured PRDs automatically.
+
+### What It Does
+
+1. Asks 3-5 clarifying questions about your feature
+2. Generates a complete PRD with properly-sized stories
+3. Saves `PRD.md` and `progress.txt` to your project root
+4. **Stops** — it does NOT implement (that's Ralph's job)
+
+### Setup
+
+```bash
+# 1. Create the commands directory
+mkdir -p ~/.claude/commands
+
+# 2. Copy the /prd skill
+cp ~/.config/ralph/skills/prd.md ~/.claude/commands/prd.md
+
+# 3. Use it in any project
+claude
+> /prd Build a todo app with drag-and-drop
+```
+
+### Workflow
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  1. Ralph reads PRD.md, finds first unchecked [ ] story     │
-│  2. Claude implements that ONE story                        │
-│  3. Claude updates checkboxes [ ] → [x]                     │
-│  4. Claude commits changes                                  │
-│  5. Loop: spawn fresh Claude, repeat from step 1            │
-│  6. Exit when all [x] or <promise>COMPLETE</promise>        │
+│  1. You: /prd "Add feature X"                               │
+│  2. Claude asks clarifying questions                        │
+│  3. Claude generates PRD.md + progress.txt                  │
+│  4. Claude says "PRD ready. Run Ralph to execute."          │
+│  5. You: ralph 20                                           │
+│  6. Ralph executes stories autonomously                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### PRD Format
+---
+
+## PRD Format
 
 ```markdown
 **Working Directory:** `src`
@@ -86,9 +154,129 @@ ralph 10  # 10 iterations
 ```
 
 Key rules:
-- **One story per iteration** - Ralph completes exactly one story, then respawns
-- **Stop markers** - `⏹️ STOP` prevents Claude from continuing to next story
-- **Checkboxes are truth** - Next Claude only sees what's in PRD.md
+- **One story per iteration** — Ralph completes exactly one story, then respawns
+- **Stop markers** — `⏹️ STOP` prevents Claude from continuing to next story
+- **Checkboxes are truth** — Next Claude only sees what's in PRD.md
+- **Verification stories** — V-XXX stories for visual verification
+
+---
+
+## Available Skills & Features
+
+Ralph can leverage these skills during execution. Each skill can be invoked with `/skill-name` in Claude Code, or Ralph can use them automatically when relevant.
+
+### Core Skills (Custom)
+
+| Skill | File | Description |
+|-------|------|-------------|
+| `/prd` | `~/.claude/commands/prd.md` | Generate PRDs for Ralph |
+| `/critique-waves` | `~/.claude/commands/critique-waves.md` | Multi-agent consensus verification |
+
+### Superpowers Skills (via Plugin)
+
+If you have the [Superpowers plugin](https://github.com/obra/superpowers) installed:
+
+| Skill | When to Use |
+|-------|-------------|
+| `superpowers:brainstorming` | Before creative work, exploring requirements |
+| `superpowers:systematic-debugging` | When encountering bugs or test failures |
+| `superpowers:test-driven-development` | Before implementing features |
+| `superpowers:verification-before-completion` | Before claiming work is done |
+| `superpowers:writing-plans` | When planning multi-step implementations |
+| `superpowers:executing-plans` | When executing written plans |
+| `superpowers:dispatching-parallel-agents` | For 2+ independent tasks |
+| `superpowers:subagent-driven-development` | Multi-agent implementation |
+| `superpowers:code-reviewer` | After completing major features |
+| `superpowers:using-git-worktrees` | For isolated feature work |
+
+### MCP Tools
+
+Ralph has access to these MCP tools when available:
+
+| Tool | Use Case |
+|------|----------|
+| **Figma MCP** | Compare implementation vs design |
+| **Browser Tools** | Screenshots, console logs, audits |
+| **Context7** | Up-to-date library documentation |
+| **Claude in Chrome** | Interactive browser testing |
+
+---
+
+## /critique-waves (Multi-Agent Consensus)
+
+For critical verification, use multi-agent consensus. This spawns multiple agents to verify the same criteria — if any disagree, the issue is flagged.
+
+### When to Use
+
+- Story splitting decisions (is this too big?)
+- RTL layout verification
+- Design comparison verification
+- Critical bug fixes
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Wave 1: 3 agents verify in parallel                        │
+│    Agent 1: PASS                                            │
+│    Agent 2: FAIL (found forbidden pattern)                  │
+│    Agent 3: PASS                                            │
+│  Result: 0 consecutive passes (reset due to failure)        │
+│                                                             │
+│  Fix the issue...                                           │
+│                                                             │
+│  Wave 2: 3 agents verify in parallel                        │
+│    All PASS → 3 consecutive passes                          │
+│                                                             │
+│  ...continue until 20 consecutive passes...                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Setup
+
+```bash
+cp ~/.config/ralph/skills/critique-waves.md ~/.claude/commands/critique-waves.md
+```
+
+---
+
+## docs.local/ Convention
+
+`docs.local/` is a convention we created for local-only project documentation. It's **not a standard** — we made it because we needed a place for:
+
+- Learnings that persist across Ralph iterations
+- Archived PRDs from completed features
+- Project-specific notes that shouldn't be in git
+
+### Structure
+
+```
+your-project/
+├── .gitignore          # Add: docs.local/
+├── PRD.md              # Active PRD (Ralph reads this)
+├── progress.txt        # Current iteration notes
+└── docs.local/         # Local-only, gitignored
+    ├── README.md       # Index of learnings
+    ├── learnings/      # Topic-specific files
+    │   ├── auth.md
+    │   └── rtl.md
+    └── prd-archive/    # Completed PRDs
+        └── 2024-01-feature-x.md
+```
+
+### Setup
+
+Add to your `.gitignore`:
+```
+docs.local/
+```
+
+### Why Gitignore?
+
+- Learnings are often specific to your local setup
+- Contains debug notes and experiments
+- Completed PRDs bloat the repo
+- You can always recover from git history
 
 ---
 
@@ -114,17 +302,22 @@ docs.local/
 # Check learnings status
 ralph-learnings
 
-# Search learnings (from within your project)
+# Search learnings
 grep -r "#auth" docs.local/learnings/
 ```
 
-Files over 200 lines are offered for archiving.
+### Promoting Learnings
+
+When a learning is important enough to persist globally:
+1. Mark it in progress.txt: `[PROMOTE] Learning about X`
+2. Add to project CLAUDE.md for project-wide knowledge
+3. Add to ~/.claude/CLAUDE.md for global knowledge
 
 ---
 
 ## Browser Verification
 
-Ralph integrates with [Claude-in-Chrome](https://github.com/anthropics/claude-code) for visual verification.
+Ralph integrates with Claude-in-Chrome for visual verification.
 
 ### Setup
 
@@ -134,40 +327,17 @@ Open two Chrome tabs before running Ralph:
 
 ### Protocol
 
-At each iteration, Ralph:
-1. Checks if browser tabs are available
-2. Reports status: "✓ Available" or "⚠️ Not available"
+At each iteration start, Ralph:
+1. Calls `mcp__claude-in-chrome__tabs_context_mcp`
+2. Reports: "✓ Browser tabs available" or "⚠️ Not available"
 3. If not available: marks browser steps as BLOCKED, continues other work
 
 ### Rules
 
-- Never resize viewport (use correct tab)
-- Always `left_click` (never `right_click`)
-- Take screenshots to verify visual changes
-- Check console for errors
-
----
-
-## Blocked Task Handling
-
-### What Blocks a Task
-
-- External API unavailable (need API key)
-- User decision required (ambiguous requirements)
-- MCP tools fail or return errors
-- Manual testing needed (no automation available)
-
-### Behavior
-
-When Ralph encounters a blocked task:
-1. Marks in PRD: `**Status:** ⏹️ BLOCKED: [reason]`
-2. Notes in progress.txt
-3. Moves to next incomplete task
-4. Commits the blocker note
-
-When ALL tasks are blocked:
-- Outputs `<promise>ALL_BLOCKED</promise>`
-- Loop stops for user intervention
+- **Never resize viewport** — use the correct tab
+- **Always `left_click`** — never `right_click`
+- **Take screenshots** to verify visual changes
+- **Check console** for errors
 
 ---
 
@@ -183,11 +353,34 @@ When a story is too big for one iteration, Ralph can split it.
 
 ### Process
 
-1. **Recognize** - Acknowledge the story is too big
-2. **Plan** - Break into substories (US-001a, US-001b, etc.)
-3. **Validate** - Run critique-waves for consensus
-4. **Write** - Insert substories to PRD
-5. **Exit** - Next iteration picks up first substory
+1. **Recognize** — Acknowledge the story is too big
+2. **Plan** — Break into substories (US-001a, US-001b, etc.)
+3. **Validate** — Run `/critique-waves` for consensus (20 passes)
+4. **Write** — Insert substories to PRD
+5. **Exit** — Next iteration picks up first substory
+
+---
+
+## Blocked Task Handling
+
+### What Blocks a Task
+
+- External API unavailable (need API key)
+- User decision required (ambiguous requirements)
+- MCP tools fail or return errors
+- Manual testing needed
+
+### Behavior
+
+When Ralph encounters a blocked task:
+1. Marks in PRD: `**Status:** ⏹️ BLOCKED: [reason]`
+2. Notes in progress.txt
+3. Moves to next incomplete task
+4. Commits the blocker note
+
+When ALL tasks are blocked:
+- Outputs `<promise>ALL_BLOCKED</promise>`
+- Loop stops for user intervention
 
 ---
 
@@ -230,10 +423,10 @@ Notifications sent:
 
 ## Pre-Commit Hooks
 
-This repo includes safety hooks:
+Safety hooks prevent common bugs:
 
 ### Pre-Commit
-- ZSH syntax check
+- ZSH syntax check (`zsh -n`)
 - Custom bug pattern detection
 - Retry logic integrity
 - Brace/bracket balance
@@ -253,16 +446,20 @@ This repo includes safety hooks:
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `RALPH_MODEL` | Default model | `opus` |
-| `RALPH_MAX_ITERATIONS` | Default iteration limit | `10` |
+| `RALPH_MAX_ITERATIONS` | Default limit | `10` |
 | `RALPH_SLEEP` | Seconds between iterations | `2` |
 
-### Customization
+### Files
 
-Edit `ralph.zsh` to customize:
-- Valid app names for monorepo mode
-- ntfy topic for notifications
-- Default iteration count
-- Browser verification rules in prompt
+```
+~/.config/ralph/
+├── ralph.zsh           # Main script (source this)
+├── skills/
+│   ├── prd.md          # /prd command
+│   └── critique-waves.md
+├── docs.local/         # Local docs (gitignored)
+└── .githooks/          # Pre-commit hooks
+```
 
 ---
 
@@ -271,8 +468,30 @@ Edit `ralph.zsh` to customize:
 - **zsh** (bash may work with modifications)
 - **Claude CLI** (`claude` command available)
 - **git** (for commits and branch management)
-- Optional: Chrome + Claude-in-Chrome extension for browser verification
+- Optional: Chrome + Claude-in-Chrome extension
 - Optional: ntfy app for notifications
+- Optional: Superpowers plugin for additional skills
+
+---
+
+## Philosophy
+
+Ralph embodies several principles from Geoffrey Huntley's original concept:
+
+### 1. Iteration > Perfection
+Don't aim for perfect on first try. Let the loop refine the work.
+
+### 2. Fresh Context = Consistent Behavior
+Each iteration starts clean. No accumulated confusion.
+
+### 3. PRD is Truth
+Checkboxes are the only state. If it's not in PRD.md, it didn't happen.
+
+### 4. Failures Are Data
+When Ralph fails, it leaves notes for the next iteration.
+
+### 5. Human Sets Direction, Ralph Executes
+The PRD is the contract. Ralph fulfills it.
 
 ---
 
@@ -283,7 +502,7 @@ Edit `ralph.zsh` to customize:
 3. Make changes (pre-commit hooks will validate)
 4. Submit PR
 
-The pre-commit hooks ensure code quality. Run `source ralph.zsh` to test changes locally.
+The pre-commit hooks ensure code quality.
 
 ---
 
@@ -293,13 +512,26 @@ MIT License - See LICENSE file
 
 ---
 
+## Credits
+
+- **Original Concept:** [Geoffrey Huntley](https://ghuntley.com/ralph/)
+- **Superpowers Plugin:** [obra/superpowers](https://github.com/obra/superpowers)
+- **This Implementation:** Built with learnings from production use
+
+---
+
 ## Changelog
+
+### v1.2.0
+- Comprehensive README with skills documentation
+- Clear distinction from Claude Code plugin
+- docs.local convention documented
+- /prd command setup instructions
 
 ### v1.1.0
 - Browser tab checking protocol
 - Learnings directory structure
 - Variable quoting for safety
-- Comprehensive documentation
 
 ### v1.0.0
 - Initial release
