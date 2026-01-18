@@ -273,9 +273,9 @@ function ralph() {
         claude_cmd_arr+=(--model sonnet)
       fi
 
-      # Stream output in real-time using script (captures immediately, unlike tee)
+      # Stream output in real-time using script with -F for immediate flush
       # Note: script adds some terminal codes, but works for real-time viewing
-      script -q "$RALPH_TMP" "${claude_cmd_arr[@]}" -p "You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
+      script -q -F "$RALPH_TMP" "${claude_cmd_arr[@]}" -p "You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
 ## Meta-Learnings
 Read docs.local/ralph-meta-learnings.md if it exists - contains critical patterns about avoiding loops and state management.
