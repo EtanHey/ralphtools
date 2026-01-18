@@ -408,7 +408,7 @@ At the end of EVERY iteration, provide an expressive summary:
 After completing task, check PRD.md:
 - ALL [x]: output <promise>COMPLETE</promise>
 - ALL remaining [ ] are BLOCKED: output <promise>ALL_BLOCKED</promise>
-- Some [ ] actionable: end response (next iteration continues)" 2>&1 | tee "$RALPH_TMP"
+- Some [ ] actionable: end response (next iteration continues)" 2>&1 | stdbuf -oL tee "$RALPH_TMP"
 
       # Capture exit code of claude command (not tee)
       # In zsh, pipestatus is lowercase and 1-indexed
