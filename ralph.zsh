@@ -328,14 +328,27 @@ A task is BLOCKED only when MCP tools FAIL or return errors:
 
 ## Browser Rules (IMPORTANT)
 
-**TWO browser tabs are ALREADY open: desktop (1440px) and mobile (375px). Do NOT change viewport settings.**
+**🚨 CHECK TABS FIRST - BEFORE ANY BROWSER WORK 🚨**
 
-When verifying in browser:
-1. Call tabs_context_mcp FIRST to see both tabs
-2. CHOOSE the correct tab (desktop or mobile based on what you're testing)
-3. Navigate to the test URL if needed
-4. Take screenshot with: mcp__claude-in-chrome__computer action='screenshot' tabId=<chosen_tab_id>
-5. Describe what you see in the screenshot
+At the START of any iteration that needs browser verification:
+1. Call \`mcp__claude-in-chrome__tabs_context_mcp\` IMMEDIATELY
+2. **If tabs exist:** Report \"✓ Browser tabs available (desktop: tabId X, mobile: tabId Y)\" and proceed
+3. **If NO tabs / error / extension not connected:**
+   - Report: \"⚠️ Browser tabs not available. Need user to open Chrome with extension.\"
+   - Mark the browser verification step as BLOCKED
+   - Continue with non-browser parts of the story
+   - Do NOT keep retrying - the user will open tabs and run Ralph again
+
+**Expected Setup (user provides this):**
+- Tab 1: Desktop viewport (1440px+)
+- Tab 2: Mobile viewport (375px)
+- Chrome extension: Claude-in-Chrome running
+
+**When tabs ARE available:**
+1. CHOOSE the correct tab (desktop or mobile based on what you're testing)
+2. Navigate to the test URL if needed
+3. Take screenshot with: mcp__claude-in-chrome__computer action='screenshot' tabId=<chosen_tab_id>
+4. Describe what you see in the screenshot
 
 **Click rules:**
 - ALWAYS use action='left_click' - NEVER 'right_click'
@@ -343,10 +356,11 @@ When verifying in browser:
 - ALWAYS include tabId parameter
 
 **Do NOT:**
-- Create new tabs (two already exist - reuse them)
-- Resize window or change viewport
-- Open DevTools (already configured)
+- Create new tabs (reuse existing ones)
+- Resize window or change viewport - NEVER
+- Open DevTools
 - Right-click anything
+- Keep retrying if tabs aren't available
 
 ## Completion Rules (CRITICAL)
 
@@ -614,58 +628,89 @@ function ralph-archive() {
   fi
 }
 
-# ralph-learnings - Archive learnings when they get too long (>300 lines)
+# ralph-learnings - Show status of learnings in docs.local/learnings/
 function ralph-learnings() {
-  local learnings_file="docs.local/learnings.md"
+  local learnings_dir="docs.local/learnings"
   local archive_dir="docs.local/learnings-archive"
-  local max_lines=300
+  local max_lines_per_file=200
 
-  if [[ ! -f "$learnings_file" ]]; then
-    echo "ℹ️  No learnings file found at $learnings_file"
-    echo "   Create one with: mkdir -p docs.local && touch docs.local/learnings.md"
+  # Check if learnings directory exists
+  if [[ ! -d "$learnings_dir" ]]; then
+    echo "ℹ️  No learnings directory found at $learnings_dir"
+    echo ""
+    echo "   Create structure with:"
+    echo "   mkdir -p docs.local/learnings"
+    echo "   touch docs.local/learnings/example-topic.md"
+    echo ""
+    echo "   Or run '/prd' skill which creates this automatically"
     return 0
   fi
 
-  local line_count=$(wc -l < "$learnings_file" | tr -d ' ')
+  # Count files and total lines
+  local file_count=$(find "$learnings_dir" -name "*.md" -type f | wc -l | tr -d ' ')
+  local total_lines=0
+  local large_files=()
 
-  if [[ $line_count -gt $max_lines ]]; then
-    echo "📚 Learnings file has $line_count lines (max: $max_lines)"
+  echo "📚 Learnings Status: $learnings_dir/"
+  echo "═══════════════════════════════════════════════════════════════"
+  echo ""
 
-    # Create archive directory
-    mkdir -p "$archive_dir"
+  # List all learning files with line counts
+  for file in "$learnings_dir"/*.md(N); do
+    if [[ -f "$file" ]]; then
+      local basename=$(basename "$file")
+      local lines=$(wc -l < "$file" | tr -d ' ')
+      total_lines=$((total_lines + lines))
 
-    # Generate archive filename
-    local month=$(date +%Y-%m)
-    local archive_file="$archive_dir/${month}-learnings.md"
-
-    # If archive for this month exists, append
-    if [[ -f "$archive_file" ]]; then
-      echo "" >> "$archive_file"
-      echo "---" >> "$archive_file"
-      echo "" >> "$archive_file"
-      echo "## Archived $(date '+%Y-%m-%d %H:%M')" >> "$archive_file"
-      cat "$learnings_file" >> "$archive_file"
-    else
-      echo "# Learnings Archive - $month" > "$archive_file"
-      echo "" >> "$archive_file"
-      cat "$learnings_file" >> "$archive_file"
+      if [[ $lines -gt $max_lines_per_file ]]; then
+        echo "  ⚠️  $basename: $lines lines (over $max_lines_per_file)"
+        large_files+=("$file")
+      else
+        echo "  ✓ $basename: $lines lines"
+      fi
     fi
+  done
 
-    # Keep only the most recent ~100 lines in learnings.md
-    local keep_lines=100
-    echo "# Learnings" > "$learnings_file.new"
-    echo "" >> "$learnings_file.new"
-    echo "(Older learnings archived to $archive_dir/)" >> "$learnings_file.new"
-    echo "" >> "$learnings_file.new"
-    echo "---" >> "$learnings_file.new"
-    echo "" >> "$learnings_file.new"
-    tail -n $keep_lines "$learnings_file" >> "$learnings_file.new"
-    mv "$learnings_file.new" "$learnings_file"
+  echo ""
+  echo "───────────────────────────────────────────────────────────────"
+  echo "  📁 Total files: $file_count"
+  echo "  📝 Total lines: $total_lines"
+  echo ""
 
-    echo "✅ Archived to: $archive_file"
-    echo "   Kept last $keep_lines lines in $learnings_file"
+  # If there are large files, offer to archive
+  if [[ ${#large_files[@]} -gt 0 ]]; then
+    echo "  ⚠️  ${#large_files[@]} file(s) exceed $max_lines_per_file lines"
+    echo ""
+    read -q "REPLY?Archive large files? (y/n) "
+    echo ""
+
+    if [[ "$REPLY" == "y" ]]; then
+      mkdir -p "$archive_dir"
+      local month=$(date +%Y-%m)
+
+      for file in "${large_files[@]}"; do
+        local basename=$(basename "$file")
+        local archive_file="$archive_dir/${month}-${basename}"
+
+        # Archive the file
+        cp "$file" "$archive_file"
+
+        # Keep only last 50 lines in original
+        local keep_lines=50
+        echo "# ${basename%.md}" > "$file.new"
+        echo "" >> "$file.new"
+        echo "(Older content archived to $archive_dir/)" >> "$file.new"
+        echo "" >> "$file.new"
+        echo "---" >> "$file.new"
+        echo "" >> "$file.new"
+        tail -n $keep_lines "$file" >> "$file.new"
+        mv "$file.new" "$file"
+
+        echo "  ✅ Archived: $basename → $archive_file"
+      done
+    fi
   else
-    echo "✅ Learnings file OK: $line_count lines (max: $max_lines)"
+    echo "  ✅ All files within limits"
   fi
 }
 
