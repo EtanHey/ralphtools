@@ -171,26 +171,28 @@ echo ""
 echo "${YELLOW}[5/5] Brace/Bracket Balance${NC}"
 
 for file in ${(f)STAGED_ZSH_FILES}; do
-  # Count opening and closing braces
+  # Count opening and closing braces (important for function definitions)
   OPEN_BRACES=$(grep -o '{' "$file" | wc -l | tr -d ' ')
   CLOSE_BRACES=$(grep -o '}' "$file" | wc -l | tr -d ' ')
 
   if [[ "$OPEN_BRACES" -ne "$CLOSE_BRACES" ]]; then
+    # Braces are critical - error
     echo "  ${RED}✗${NC} $file - Unbalanced braces: { = $OPEN_BRACES, } = $CLOSE_BRACES"
     ERRORS=$((ERRORS + 1))
+  else
+    echo "  ${GREEN}✓${NC} $file - braces balanced"
   fi
 
-  # Count opening and closing parentheses
+  # Parentheses often appear in regex/strings - warn only, don't block
   OPEN_PARENS=$(grep -o '(' "$file" | wc -l | tr -d ' ')
   CLOSE_PARENS=$(grep -o ')' "$file" | wc -l | tr -d ' ')
+  PAREN_DIFF=$((OPEN_PARENS - CLOSE_PARENS))
+  PAREN_DIFF=${PAREN_DIFF#-}  # absolute value
 
-  if [[ "$OPEN_PARENS" -ne "$CLOSE_PARENS" ]]; then
-    echo "  ${RED}✗${NC} $file - Unbalanced parentheses: ( = $OPEN_PARENS, ) = $CLOSE_PARENS"
-    ERRORS=$((ERRORS + 1))
-  fi
-
-  if [[ "$OPEN_BRACES" -eq "$CLOSE_BRACES" && "$OPEN_PARENS" -eq "$CLOSE_PARENS" ]]; then
-    echo "  ${GREEN}✓${NC} $file - braces and parentheses balanced"
+  if [[ "$PAREN_DIFF" -gt 5 ]]; then
+    # Only warn if difference is significant (>5 indicates likely real issue)
+    echo "  ${YELLOW}⚠${NC} $file - Parentheses imbalance: ( = $OPEN_PARENS, ) = $CLOSE_PARENS (may be regex/strings)"
+    WARNINGS=$((WARNINGS + 1))
   fi
 done
 echo ""
