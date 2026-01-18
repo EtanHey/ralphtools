@@ -267,14 +267,14 @@ function ralph() {
     local claude_success=false
 
     while [[ $retry_count -lt $max_retries ]]; do
-      # Build claude command with optional model flag
-      local claude_cmd="claude --chrome --dangerously-skip-permissions"
+      # Build claude command as array (avoids eval parsing issues)
+      local -a claude_cmd_arr=(claude --chrome --dangerously-skip-permissions)
       if $use_sonnet; then
-        claude_cmd="$claude_cmd --model sonnet"
+        claude_cmd_arr+=(--model sonnet)
       fi
 
       # Stream output in real-time with tee, also save to temp file
-      eval "$claude_cmd" -p "You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
+      "${claude_cmd_arr[@]}" -p "You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
 ## Meta-Learnings
 Read docs.local/ralph-meta-learnings.md if it exists - contains critical patterns about avoiding loops and state management.
@@ -339,7 +339,7 @@ When verifying in browser:
 
 **Click rules:**
 - ALWAYS use action='left_click' - NEVER 'right_click'
-- Use ref='ref_X' from read_page, or coordinate=[x,y] from screenshot
+- Use ref='ref_X' from read_page, or coordinate=\[x,y\] from screenshot
 - ALWAYS include tabId parameter
 
 **Do NOT:**
@@ -386,7 +386,7 @@ The next Ralph is a FRESH instance with NO MEMORY of your work. The ONLY way the
 
 At the end of EVERY iteration, provide an expressive summary:
 - \"I completed [story ID] which was about [what it accomplished/changed]\"
-- \"Next I think I should work on [next story ID] which is [what it will do]. I'm planning to [specific actions X, Y, Z]\"
+- \"Next I think I should work on \[next story ID\] which is \[what it will do\]. I'm planning to \[specific actions X, Y, Z\]\"
 - Be descriptive and conversational about what you did and what's next, not just checkboxes
 
 ## End Condition
@@ -396,20 +396,23 @@ After completing task, check PRD.md:
 - ALL remaining [ ] are BLOCKED: output <promise>ALL_BLOCKED</promise>
 - Some [ ] actionable: end response (next iteration continues)" 2>&1 | tee "$RALPH_TMP"
 
-      # Check for transient API errors
-      if grep -q "No messages returned" "$RALPH_TMP" 2>/dev/null; then
+      # Capture exit code
+      local exit_code=$?
+
+      # Check for transient API errors (in output OR non-zero exit)
+      if grep -qE "No messages returned|EAGAIN|ECONNRESET|fetch failed|API error" "$RALPH_TMP" 2>/dev/null || [[ $exit_code -ne 0 ]]; then
         retry_count=$((retry_count + 1))
         if [[ $retry_count -lt $max_retries ]]; then
           echo ""
-          echo "  ⚠️  API Error: 'No messages returned' - Retrying ($retry_count/$max_retries)..."
-          echo "  ⏳ Waiting 5 seconds before retry..."
-          sleep 5
+          echo "  ⚠️  Error detected (exit code: $exit_code) - Retrying ($retry_count/$max_retries)..."
+          echo "  ⏳ Waiting 10 seconds before retry..."
+          sleep 10
           continue
         else
           echo ""
-          echo "  ❌ API Error persisted after $max_retries retries. Skipping iteration."
+          echo "  ❌ Error persisted after $max_retries retries. Skipping iteration."
           if $notify_enabled; then
-            curl -s -d "Ralph ❌ API error after $max_retries retries on iteration $i" "ntfy.sh/${ntfy_topic}" > /dev/null
+            curl -s -d "Ralph ❌ Error after $max_retries retries on iteration $i" "ntfy.sh/${ntfy_topic}" > /dev/null
           fi
         fi
       else
