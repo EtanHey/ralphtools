@@ -415,11 +415,12 @@ After completing task, check PRD.md:
           if $notify_enabled; then
             curl -s -d "Ralph ❌ Error after $max_retries retries on iteration $i" "ntfy.sh/${ntfy_topic}" > /dev/null
           fi
+          break  # Only break after exhausting retries
         fi
       else
         claude_success=true
+        break  # Success - break out of retry loop
       fi
-      break
     done
 
     echo ""
