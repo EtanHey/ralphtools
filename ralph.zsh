@@ -452,26 +452,44 @@ Read docs.local/ralph-meta-learnings.md if it exists - contains critical pattern
       # Run Claude with output capture (tee for checking promises)
       "${claude_cmd_arr[@]}" -p "${ralph_prompt}
 
+## Dev Server Rules (CRITICAL)
+
+**START DEV SERVER YOURSELF if needed for browser verification:**
+1. Check if dev server is running: \`curl -s http://localhost:3001\`
+2. If NOT running, start it: \`bun run dev\` (run in background)
+3. Wait 5 seconds for startup, then verify it's up
+4. Only proceed with browser verification after dev server is confirmed running
+
+**INFRASTRUCTURE BLOCKERS = END ITERATION IMMEDIATELY:**
+If you hit a blocker that affects ALL remaining stories (like no dev server and you can't start it):
+1. Mark the CURRENT story as blocked
+2. Do NOT skip to the next story
+3. END the iteration immediately
+4. The next iteration will retry with fresh context
+
+This prevents wasting one iteration marking ALL stories as blocked.
+
 ## Blocked Task Rules (CRITICAL - Prevents Infinite Loops)
 
-**FIRST: Try to use available MCPs!**
-You have access to: Figma, Linear, Supabase, browser-tools, Context7.
-- For Figma tasks: Try mcp__figma__ or mcp__figma-remote__ tools
-- For Linear tasks: Use mcp__linear__ to create issues yourself
-- For database: Use mcp__supabase__ for migrations
+**FIRST: Try to fix the blocker yourself!**
+- Dev server not running? Start it with \`bun run dev\`
+- Browser tabs not available? Check mcp__claude-in-chrome__tabs_context_mcp
+- Use available MCPs: Figma, Linear, Supabase, browser-tools, Context7
 
-A task is BLOCKED only when MCP tools FAIL or return errors:
+A task is BLOCKED only when you CANNOT fix it yourself:
 - Figma: node not found, permission denied, MCP timeout
 - Linear: API error, missing permissions
 - Manual device testing (needs iOS/Android simulator - no MCP for this)
 - User decision required (ambiguous requirements)
 - External API unavailable
+- Dev server fails to start after trying
 
 **When you find a BLOCKED task:**
 1. In the story JSON, set blockedBy field: \`\"blockedBy\": \"[specific reason]\"\`
-2. Add note to progress.txt: \"[STORY-ID] BLOCKED: [reason]. Moving to next story.\"
-3. Move to the NEXT incomplete task (do NOT keep trying the blocked one)
-4. Commit the blocker note
+2. Add note to progress.txt: \"[STORY-ID] BLOCKED: [reason].\"
+3. If it's an INFRASTRUCTURE blocker (affects all stories): END ITERATION NOW
+4. If it's a STORY-SPECIFIC blocker: move to next story
+5. Commit the blocker note
 
 **When ALL remaining tasks are BLOCKED:**
 1. List all blocked stories and their blockers in progress.txt
@@ -479,6 +497,7 @@ A task is BLOCKED only when MCP tools FAIL or return errors:
 3. This stops the Ralph loop so the user can address blockers
 
 **Do NOT:**
+- Skip through ALL stories marking them blocked for the same infrastructure issue
 - Keep retrying a blocked task iteration after iteration
 - Output the same \"all tasks blocked\" message without the ALL_BLOCKED promise
 - Wait for external resources that won't appear
