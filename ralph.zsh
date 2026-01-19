@@ -353,7 +353,14 @@ function ralph() {
     echo "📱 App: $app_mode (branch: $target_branch)"
   fi
   echo "📂 Working in: $(pwd)"
-  echo "📋 PRD: $(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?') tasks remaining"
+  # Count tasks based on mode
+  local task_count
+  if [[ "$use_json_mode" == "true" ]]; then
+    task_count=$(_ralph_json_remaining_count "$PRD_JSON_DIR")
+  else
+    task_count=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
+  fi
+  echo "📋 PRD: $task_count tasks remaining"
   if $use_sonnet; then
     echo "🧠 Model: Sonnet (faster)"
   else
@@ -375,7 +382,7 @@ function ralph() {
     echo ""
 
     # Retry logic for transient API errors like "No messages returned"
-    local max_retries=3
+    local max_retries=5
     local retry_count=0
     local claude_success=false
 
@@ -573,13 +580,28 @@ After completing task, check PRD state:
       fi
 
       # Check for transient API errors (in output OR non-zero exit)
-      if grep -qE "No messages returned|EAGAIN|ECONNRESET|fetch failed|API error" "$RALPH_TMP" 2>/dev/null || [[ "$exit_code" -ne 0 ]]; then
+      # Patterns: API errors, network errors, promise rejections, empty responses
+      local error_patterns="No messages returned|EAGAIN|ECONNRESET|fetch failed|API error|promise rejected|UnhandledPromiseRejection|ETIMEDOUT|socket hang up|ENOTFOUND|rate limit|overloaded|529|503|502"
+      local has_error=false
+
+      # Check if output file exists and has error patterns
+      if [[ -f "$RALPH_TMP" ]] && grep -qiE "$error_patterns" "$RALPH_TMP" 2>/dev/null; then
+        has_error=true
+      fi
+
+      # Also treat non-zero exit or empty output as error
+      if [[ "$exit_code" -ne 0 ]] || [[ ! -s "$RALPH_TMP" ]]; then
+        has_error=true
+      fi
+
+      if $has_error; then
         retry_count=$((retry_count + 1))
         if [[ "$retry_count" -lt "$max_retries" ]]; then
           echo ""
           echo "  ⚠️  Error detected (exit code: $exit_code) - Retrying ($retry_count/$max_retries)..."
-          echo "  ⏳ Waiting 10 seconds before retry..."
-          sleep 10
+          [[ -f "$RALPH_TMP" ]] && tail -3 "$RALPH_TMP" 2>/dev/null | head -2
+          echo "  ⏳ Waiting 15 seconds before retry..."
+          sleep 15
           continue
         else
           echo ""
@@ -632,7 +654,12 @@ After completing task, check PRD state:
     fi
 
     # Show remaining tasks
-    local remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
+    local remaining
+    if [[ "$use_json_mode" == "true" ]]; then
+      remaining=$(_ralph_json_remaining_count "$PRD_JSON_DIR")
+    else
+      remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
+    fi
     echo "───────────────────────────────────────────────────────────────"
     echo "  📋 Tasks remaining: $remaining"
     echo "  ⏳ Pausing ${SLEEP}s before next iteration..."
@@ -649,10 +676,17 @@ After completing task, check PRD state:
   echo ""
   echo "═══════════════════════════════════════════════════════════════"
   echo "  ⚠️  REACHED MAX ITERATIONS ($MAX)"
-  echo "  📋 Tasks remaining: $(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')"
+  # Count remaining for final message
+  local final_remaining
+  if [[ "$use_json_mode" == "true" ]]; then
+    final_remaining=$(_ralph_json_remaining_count "$PRD_JSON_DIR")
+  else
+    final_remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
+  fi
+  echo "  📋 Tasks remaining: $final_remaining"
   echo "═══════════════════════════════════════════════════════════════"
   # Send notification if enabled
-  local remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
+  local remaining="$final_remaining"
   if $notify_enabled; then
     curl -s -d "Ralph ⚠️ Max iterations ($MAX). $remaining tasks remaining" "ntfy.sh/${ntfy_topic}" > /dev/null
   fi

@@ -57,12 +57,20 @@
       "critical": true
     },
     "updateCheckboxes": {
-      "description": "Update story JSON after completing criteria",
+      "description": "Update story JSON IMMEDIATELY after completing EACH criterion",
       "critical": true,
       "jsonMode": {
-        "action": "Set acceptanceCriteria[n].checked = true",
+        "action": "Set acceptanceCriteria[n].checked = true IMMEDIATELY after completing that criterion",
         "final": "Set passes = true when ALL criteria checked"
-      }
+      },
+      "howTo": [
+        "1. Complete a criterion (e.g., run curl, verify output)",
+        "2. IMMEDIATELY edit the story JSON to set that criterion's checked = true",
+        "3. Continue to next criterion",
+        "4. Repeat until all criteria done",
+        "5. Set passes = true only after ALL criteria are checked"
+      ],
+      "rationale": "Incremental updates let users monitor progress during long iterations"
     },
     "commitStateChanges": {
       "description": "Commit after marking checkboxes",
