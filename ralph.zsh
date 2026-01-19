@@ -626,9 +626,35 @@ After completing task, check PRD state:
 
       if $has_error; then
         retry_count=$((retry_count + 1))
+
+        # Log detailed error info for debugging
+        local error_log="/tmp/ralph_error_$(date +%Y%m%d_%H%M%S).log"
+        {
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "RALPH ERROR LOG - $(date)"
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "Iteration: $i"
+          echo "Exit code: $exit_code"
+          echo "Retry count: $retry_count / $max_retries"
+          echo "Working dir: $(pwd)"
+          echo "Current story: $(_ralph_json_next_story "$PRD_JSON_DIR" 2>/dev/null || echo "unknown")"
+          echo ""
+          echo "--- Last 30 lines of output ---"
+          [[ -f "$RALPH_TMP" ]] && tail -30 "$RALPH_TMP"
+          echo ""
+          echo "--- Error patterns searched ---"
+          echo "$error_patterns"
+          echo ""
+          echo "--- Pattern matches found ---"
+          [[ -f "$RALPH_TMP" ]] && grep -iE "$error_patterns" "$RALPH_TMP" 2>/dev/null || echo "(none)"
+          echo ""
+          echo "═══════════════════════════════════════════════════════════════"
+        } > "$error_log"
+
         if [[ "$retry_count" -lt "$max_retries" ]]; then
           echo ""
           echo "  ⚠️  Error detected (exit code: $exit_code) - Retrying ($retry_count/$max_retries)..."
+          echo "  📝 Error log: $error_log"
           [[ -f "$RALPH_TMP" ]] && tail -3 "$RALPH_TMP" 2>/dev/null | head -2
           echo "  ⏳ Waiting 15 seconds before retry..."
           sleep 15
@@ -636,8 +662,9 @@ After completing task, check PRD state:
         else
           echo ""
           echo "  ❌ Error persisted after $max_retries retries. Skipping iteration."
+          echo "  📝 Full error log: $error_log"
           if $notify_enabled; then
-            curl -s -d "Ralph ❌ Error after $max_retries retries on iteration $i" "ntfy.sh/${ntfy_topic}" > /dev/null
+            curl -s -d "Ralph ❌ Error after $max_retries retries on iteration $i - see $error_log" "ntfy.sh/${ntfy_topic}" > /dev/null
           fi
           break  # Only break after exhausting retries
         fi
@@ -1509,5 +1536,80 @@ _ralph_show_prd_json() {
   fi
   [[ "$story_num" -eq 0 ]] && echo "      ${GREEN}🎉 All stories complete!${NC}"
   echo ""
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# RALPH-AUTO - Auto-restart wrapper for Ralph
+# ═══════════════════════════════════════════════════════════════════
+# Usage: ralph-auto [same args as ralph]
+# Automatically restarts Ralph if it crashes due to API errors
+# ═══════════════════════════════════════════════════════════════════
+
+function ralph-auto() {
+  local max_crashes=10
+  local crash_count=0
+  local restart_delay=20
+
+  echo "🔄 Ralph Auto-Restart Mode"
+  echo "   Max crashes before giving up: $max_crashes"
+  echo "   Restart delay: ${restart_delay}s"
+  echo ""
+
+  while [[ "$crash_count" -lt "$max_crashes" ]]; do
+    # Run ralph with all passed arguments
+    ralph "$@"
+    local exit_code=$?
+
+    # Check exit codes
+    case $exit_code in
+      0)
+        echo ""
+        echo "✅ Ralph completed successfully!"
+        return 0
+        ;;
+      2)
+        echo ""
+        echo "⏹️ Ralph stopped - all tasks blocked"
+        return 2
+        ;;
+      130)
+        echo ""
+        echo "🛑 Ralph stopped by user (Ctrl+C)"
+        return 130
+        ;;
+      *)
+        crash_count=$((crash_count + 1))
+
+        # Log the crash
+        local crash_log="/tmp/ralph_crash_$(date +%Y%m%d_%H%M%S).log"
+        {
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "RALPH CRASH LOG - $(date)"
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "Exit code: $exit_code"
+          echo "Crash count: $crash_count / $max_crashes"
+          echo "Working dir: $(pwd)"
+          echo "Args: $@"
+          echo ""
+          echo "--- Last error output ---"
+          [[ -f /tmp/ralph_output.md ]] && tail -50 /tmp/ralph_output.md
+          echo ""
+        } > "$crash_log"
+
+        echo ""
+        echo "  💥 Ralph crashed! (exit code: $exit_code)"
+        echo "  📝 Crash log: $crash_log"
+        echo "  🔄 Auto-restarting in ${restart_delay}s... (crash $crash_count/$max_crashes)"
+        echo ""
+
+        sleep $restart_delay
+        ;;
+    esac
+  done
+
+  echo ""
+  echo "❌ Ralph crashed $max_crashes times. Giving up."
+  echo "   Check /tmp/ralph_crash_*.log and /tmp/ralph_error_*.log for details"
+  return 1
 }
 
