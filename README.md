@@ -224,14 +224,51 @@ If you have the [Superpowers plugin](https://github.com/obra/superpowers) instal
 
 ### MCP Tools
 
-Ralph has access to these MCP tools when available:
+Ralph can use these MCP (Model Context Protocol) tools for enhanced verification. MCPs are optional but recommended for visual/browser testing.
 
-| Tool | Use Case |
-|------|----------|
-| **Figma MCP** | Compare implementation vs design |
-| **Browser Tools** | Screenshots, console logs, audits |
-| **Context7** | Up-to-date library documentation |
-| **Claude in Chrome** | Interactive browser testing |
+| Tool | Use Case | Source |
+|------|----------|--------|
+| **Claude in Chrome** | Browser automation, screenshots, clicking, form filling | [Claude Code Docs](https://code.claude.com/docs/en/chrome) |
+| **Browser Tools** | Console logs, network errors, accessibility audits | [AgentDeskAI/browser-tools-mcp](https://github.com/AgentDeskAI/browser-tools-mcp) |
+| **Context7** | Up-to-date library documentation lookup | [upstash/context7](https://github.com/upstash/context7) |
+| **Figma MCP** | Compare implementation vs Figma designs | [Figma MCP Guide](https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server) |
+
+### MCP Setup
+
+**Claude in Chrome** (built into Claude Code):
+1. Install the [Claude in Chrome extension](https://chromewebstore.google.com/detail/claude-in-chrome/) from Chrome Web Store
+2. Open Chrome and Claude Code - they connect automatically
+3. See [full docs](https://code.claude.com/docs/en/chrome) for details
+
+**Browser Tools** (console logs, audits):
+```bash
+# Install the Chrome extension from:
+# https://github.com/AgentDeskAI/browser-tools-mcp
+
+# Add to Claude Code:
+claude mcp add browser-tools -- npx @anthropic/browser-tools-mcp@latest
+```
+
+**Context7** (library documentation):
+```bash
+# Add to Claude Code (requires API key from upstash.com):
+claude mcp add context7 -- npx -y @upstash/context7-mcp
+
+# Usage: Add "use context7" to prompts for up-to-date docs
+```
+
+**Figma MCP** (design comparison):
+```bash
+# Add Figma's official remote server:
+claude mcp add --transport http figma https://mcp.figma.com/mcp
+
+# Or install the plugin:
+claude plugin install figma@claude-plugins-official
+
+# Requires Figma account - see setup guide above
+```
+
+> **Note:** Ralph works without MCPs, but browser verification stories (V-XXX) require Claude in Chrome or Browser Tools to take screenshots and verify UI.
 
 ---
 
