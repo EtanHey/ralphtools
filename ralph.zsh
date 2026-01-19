@@ -4,25 +4,25 @@
 # ═══════════════════════════════════════════════════════════════════
 # Usage: ralph [app] [max_iterations] [sleep_seconds] [-QN] [-S]
 # Examples:
-#   ralph 30 5 -QN         # Classic mode: ./PRD.md, current branch
-#   ralph expo 300         # App mode: apps/expo/PRD.md, feat/expo-work branch
+#   ralph 30 5 -QN         # Classic mode: ./prd-json/, current branch
+#   ralph expo 300         # App mode: apps/expo/prd-json/, feat/expo-work branch
 #   ralph public 300 -QN   # App mode with notifications
 #   ralph 100 -S           # Run with Sonnet model (faster, cheaper)
 #
 # Options:
-#   app  : Optional app name - uses apps/{app}/PRD.md
+#   app  : Optional app name - uses apps/{app}/prd-json/
 #   -QN  : Enable quiet notifications via ntfy app
 #   -S   : Use Sonnet model (default: Opus)
 #   (no flag) : No notifications, Opus model (default)
 #
 # App Mode:
-#   - PRD: apps/{app}/PRD.md
+#   - PRD: apps/{app}/prd-json/
 #   - Branch: feat/{app}-work (creates if needed)
 #   - Notifications: {project}-{app} topic
 #   - Multiple can run simultaneously on different branches
 #
 # Prerequisites:
-# 1. Create PRD.md with user stories (use /prd skill or manually)
+# 1. Create prd-json/ with user stories (use /prd skill)
 # 2. Each story should be small (completable in one context window)
 # 3. Run `ralph` from project root
 #
