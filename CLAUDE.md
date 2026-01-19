@@ -33,9 +33,3 @@ After editing `ralph.zsh`, reload in current shell:
 ```bash
 source ~/.config/ralph/ralph.zsh
 ```
-
-# My personal notes
-ntfy_topic=etans-ralph
-email: etan@example.com
-path: /Users/etanheyman/projects/
-
