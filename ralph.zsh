@@ -696,15 +696,16 @@ function ralph-help() {
   local CYAN='\033[0;36m'
   local BOLD='\033[1m'
   local GRAY='\033[0;90m'
+  local GREEN='\033[0;32m'
   local NC='\033[0m'
 
   echo ""
   echo "${CYAN}${BOLD}Ralph Commands${NC}"
   echo ""
-  echo "  ${BOLD}ralph [N] [sleep]${NC}     Run N iterations (default 10) on PRD.md"
-  echo "  ${BOLD}ralph <app> N${NC}         Run on apps/<app>/PRD.md with auto branch"
+  echo "  ${BOLD}ralph [N] [sleep]${NC}     Run N iterations (default 10)"
+  echo "  ${BOLD}ralph <app> N${NC}         Run on apps/<app>/ with auto branch"
   echo ""
-  echo "  ${BOLD}ralph-init [app]${NC}      Create PRD template (root or apps/<app>/)"
+  echo "  ${BOLD}ralph-init [app]${NC}      Create PRD JSON structure (prd-json/)"
   echo "  ${BOLD}ralph-archive [app]${NC}   Archive completed stories to docs.local/"
   echo "  ${BOLD}ralph-status${NC}          Show PRD progress, blocked stories, next story"
   echo "  ${BOLD}ralph-learnings${NC}       Manage learnings in docs.local/learnings/"
@@ -714,6 +715,10 @@ function ralph-help() {
   echo "${GRAY}Flags:${NC}"
   echo "  ${BOLD}-QN${NC}                   Enable ntfy notifications"
   echo "  ${BOLD}-S${NC}                    Use Sonnet model (faster)"
+  echo ""
+  echo "${GREEN}JSON Mode:${NC}"
+  echo "  Ralph auto-detects prd-json/ folder for JSON mode."
+  echo "  Falls back to PRD.md if prd-json/ not found."
   echo ""
 }
 
@@ -795,15 +800,15 @@ function ralph-watch() {
 # ralph-init [app] - Create PRD from template for an app
 function ralph-init() {
   local app="$1"
-  local prd_path
+  local prd_dir
 
   # Help text
   if [[ "$app" == "-h" || "$app" == "--help" ]]; then
     echo "Usage: ralph-init [app]"
     echo ""
-    echo "Create a PRD template file."
-    echo "  No args:     Creates PRD.md in current directory"
-    echo "  With app:    Creates apps/<app>/PRD.md"
+    echo "Create a PRD JSON structure."
+    echo "  No args:     Creates prd-json/ in current directory"
+    echo "  With app:    Creates apps/<app>/prd-json/"
     echo ""
     echo "Example: ralph-init frontend"
     return 0
@@ -817,14 +822,14 @@ function ralph-init() {
   fi
 
   if [[ -n "$app" ]]; then
-    prd_path="apps/$app/PRD.md"
+    prd_dir="apps/$app/prd-json"
     mkdir -p "apps/$app"
   else
-    prd_path="PRD.md"
+    prd_dir="prd-json"
   fi
 
-  if [[ -f "$prd_path" ]]; then
-    echo "❌ PRD already exists: $prd_path"
+  if [[ -d "$prd_dir" ]]; then
+    echo "❌ PRD already exists: $prd_dir"
     read -q "REPLY?Overwrite? (y/n) "
     echo ""
     if [[ "$REPLY" != "y" ]]; then
@@ -832,71 +837,175 @@ function ralph-init() {
     fi
   fi
 
-  cat > "$prd_path" << 'EOF'
-# PRD: [Project/Feature Name]
+  # Create directory structure
+  mkdir -p "$prd_dir/stories"
 
-**Working Directory:** `apps/[app]`
-**Created:** $(date +%Y-%m-%d)
-
----
-
-## User Stories
-
-### US-001: [Story Title]
-
-**Description:** [What this story accomplishes]
-
-**Acceptance Criteria:**
-- [ ] First criterion
-- [ ] Second criterion
-- [ ] Typecheck passes
-
----
-
-### US-002: [Next Story]
-
-**Description:** [What this story accomplishes]
-
-**Acceptance Criteria:**
-- [ ] First criterion
-- [ ] Typecheck passes
-
+  # Create index.json
+  cat > "$prd_dir/index.json" << EOF
+{
+  "\$schema": "https://ralph.dev/schemas/prd-index.schema.json",
+  "generatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "projectName": "[Project Name]",
+  "workingDirectory": ".",
+  "stats": {
+    "total": 2,
+    "completed": 0,
+    "pending": 2,
+    "blocked": 0
+  },
+  "nextStory": "US-001",
+  "storyOrder": ["US-001", "V-001"],
+  "blocked": [],
+  "pending": ["US-001", "V-001"]
+}
 EOF
 
-  # Replace date placeholder
-  sed -i '' "s/\$(date +%Y-%m-%d)/$(date +%Y-%m-%d)/" "$prd_path"
+  # Create sample story
+  cat > "$prd_dir/stories/US-001.json" << 'EOF'
+{
+  "id": "US-001",
+  "title": "[Story Title]",
+  "description": "[What this story accomplishes]",
+  "acceptanceCriteria": [
+    {"text": "First criterion", "checked": false},
+    {"text": "Second criterion", "checked": false},
+    {"text": "Typecheck passes", "checked": false}
+  ],
+  "passes": false,
+  "blockedBy": null
+}
+EOF
 
-  echo "✅ Created PRD template: $prd_path"
-  echo "   Edit the file to add your user stories"
+  # Create sample verification story
+  cat > "$prd_dir/stories/V-001.json" << 'EOF'
+{
+  "id": "V-001",
+  "title": "Verify US-001",
+  "description": "Visual verification that US-001 works correctly",
+  "acceptanceCriteria": [
+    {"text": "Take screenshot of feature", "checked": false},
+    {"text": "Verify expected behavior", "checked": false}
+  ],
+  "passes": false,
+  "blockedBy": null
+}
+EOF
+
+  # Create progress.txt
+  cat > "progress.txt" << 'EOF'
+# Progress Log
+
+## Learnings
+(Mark with [DONE] when promoted to CLAUDE.md)
+
+---
+
+## Current Iteration
+(Continue from here)
+EOF
+
+  echo "✅ Created PRD JSON structure: $prd_dir/"
+  echo "   ├── index.json"
+  echo "   └── stories/"
+  echo "       ├── US-001.json"
+  echo "       └── V-001.json"
+  echo ""
+  echo "   Edit the JSON files to add your user stories"
 }
 
 # ralph-archive [app] - Archive completed stories to docs.local
 function ralph-archive() {
   local app="$1"
-  local prd_path
+  local prd_dir
   local archive_dir="docs.local/prd-archive"
 
+  # Determine path
   if [[ -n "$app" ]]; then
-    prd_path="apps/$app/PRD.md"
+    prd_dir="apps/$app/prd-json"
   else
-    prd_path="PRD.md"
+    prd_dir="prd-json"
   fi
 
-  if [[ ! -f "$prd_path" ]]; then
-    echo "❌ PRD not found: $prd_path"
+  # Check for JSON mode first, fall back to markdown
+  if [[ -d "$prd_dir" ]]; then
+    _ralph_archive_json "$prd_dir" "$app"
+  elif [[ -f "${prd_dir%prd-json}PRD.md" ]]; then
+    _ralph_archive_md "${prd_dir%prd-json}PRD.md" "$app"
+  else
+    echo "❌ PRD not found: $prd_dir or PRD.md"
     return 1
   fi
+}
 
-  # Create archive directory
+# Archive JSON PRD
+_ralph_archive_json() {
+  local prd_dir="$1"
+  local app="$2"
+  local archive_dir="docs.local/prd-archive"
+  local index_file="$prd_dir/index.json"
+
   mkdir -p "$archive_dir"
 
   # Generate archive filename
   local date_suffix=$(date +%Y%m%d-%H%M%S)
   local app_prefix=""
   [[ -n "$app" ]] && app_prefix="${app}-"
+  local archive_subdir="$archive_dir/${app_prefix}${date_suffix}"
+
+  # Copy entire prd-json to archive
+  cp -r "$prd_dir" "$archive_subdir"
+
+  echo "✅ Archived to: $archive_subdir/"
+
+  # Ask if user wants to clear completed stories
+  read -q "REPLY?Remove completed stories from prd-json/ for next sprint? (y/n) "
+  echo ""
+  if [[ "$REPLY" == "y" ]]; then
+    # Get completed stories and remove them
+    local completed=$(jq -r '.storyOrder[] | select(. as $id |
+      (input_filename | sub(".*/"; "") | sub("\\.json$"; "")) == $id)' \
+      "$prd_dir/stories"/*.json 2>/dev/null | while read id; do
+        if jq -e '.passes == true' "$prd_dir/stories/${id}.json" >/dev/null 2>&1; then
+          echo "$id"
+        fi
+      done)
+
+    for story_id in $completed; do
+      rm -f "$prd_dir/stories/${story_id}.json"
+      echo "   Removed: $story_id"
+    done
+
+    # Update index.json
+    local pending=$(jq -r '.pending[]' "$index_file" 2>/dev/null)
+    local new_order=$(echo "$pending" | jq -R -s 'split("\n") | map(select(length > 0))')
+    local new_count=$(echo "$new_order" | jq 'length')
+
+    jq --argjson order "$new_order" --argjson count "$new_count" '
+      .storyOrder = $order |
+      .pending = $order |
+      .stats.total = $count |
+      .stats.pending = $count |
+      .stats.completed = 0 |
+      .nextStory = ($order[0] // null)
+    ' "$index_file" > "${index_file}.tmp" && mv "${index_file}.tmp" "$index_file"
+
+    echo "✅ Completed stories archived and removed"
+  fi
+}
+
+# Archive Markdown PRD (legacy)
+_ralph_archive_md() {
+  local prd_path="$1"
+  local app="$2"
+  local archive_dir="docs.local/prd-archive"
+
+  mkdir -p "$archive_dir"
+
+  local date_suffix=$(date +%Y%m%d-%H%M%S)
+  local app_prefix=""
+  [[ -n "$app" ]] && app_prefix="${app}-"
   local archive_file="$archive_dir/${app_prefix}completed-${date_suffix}.md"
 
-  # Extract completed stories (sections with all [x] checkboxes)
   echo "# Archived PRD Stories" > "$archive_file"
   echo "" >> "$archive_file"
   echo "**Archived:** $(date '+%Y-%m-%d %H:%M:%S')" >> "$archive_file"
@@ -904,17 +1013,13 @@ function ralph-archive() {
   echo "" >> "$archive_file"
   echo "---" >> "$archive_file"
   echo "" >> "$archive_file"
-
-  # Copy the entire PRD for archival (keeps context)
   cat "$prd_path" >> "$archive_file"
 
   echo "✅ Archived to: $archive_file"
 
-  # Ask if user wants to clear completed stories from PRD
   read -q "REPLY?Clear PRD.md for next sprint? (y/n) "
   echo ""
   if [[ "$REPLY" == "y" ]]; then
-    # Create fresh PRD with just header
     local working_dir=$(grep '^\*\*Working Directory:\*\*' "$prd_path" 2>/dev/null)
     echo "# PRD: Next Sprint" > "$prd_path"
     echo "" >> "$prd_path"
@@ -1227,103 +1332,18 @@ function ralph-status() {
   echo "${BLUE}╚═══════════════════════════════════════════════════════════════╝${NC}"
   echo ""
 
-  # Helper function to show PRD status for a single file
-  _ralph_show_prd() {
-    local prd_file="$1"
-    local label="$2"
+  # Check for JSON mode first
+  if [[ -f "prd-json/index.json" ]]; then
+    _ralph_show_prd_json "prd-json" "📁 prd-json/ (JSON mode)"
+  elif [[ -f "PRD.md" ]]; then
+    _ralph_show_prd "PRD.md" "📁 Root PRD.md"
+  fi
 
-    [[ ! -f "$prd_file" ]] && return
-
-    local pending=$(grep -c '\- \[ \]' "$prd_file" 2>/dev/null || echo 0)
-    local done=$(grep -c '\- \[x\]' "$prd_file" 2>/dev/null || echo 0)
-    local total=$((pending + done))
-    local percent=0
-    [[ "$total" -gt 0 ]] && percent=$((done * 100 / total))
-
-    # Progress bar (30 chars)
-    local bar_filled=$((percent * 30 / 100))
-    local bar_empty=$((30 - bar_filled))
-    local progress_bar="${GREEN}"
-    for ((i=0; i<bar_filled; i++)); do progress_bar+="█"; done
-    progress_bar+="${GRAY}"
-    for ((i=0; i<bar_empty; i++)); do progress_bar+="░"; done
-    progress_bar+="${NC}"
-
-    echo "${CYAN}${BOLD}$label${NC}"
-    echo "   ${progress_bar} ${BOLD}${percent}%${NC}"
-    echo "   ${GREEN}✅ $done${NC} completed  │  ${YELLOW}⏳ $pending${NC} pending  │  📊 $total total"
-    echo ""
-
-    # Count stories (not just criteria)
-    local story_count=$(grep -cE '^### (US|V)-' "$prd_file" 2>/dev/null || echo 0)
-
-    # Find BLOCKED stories
-    local blocked_stories=()
-    while IFS= read -r line; do
-      [[ -n "$line" ]] && blocked_stories+=("$line")
-    done < <(grep -B3 'BLOCKED' "$prd_file" 2>/dev/null | grep -oE '(US|V)-[A-Z0-9-]+' | sort -u | head -5)
-
-    if [[ ${#blocked_stories[@]} -gt 0 ]]; then
-      echo "   ${RED}🚫 BLOCKED (${#blocked_stories[@]}):${NC}"
-      for story in "${blocked_stories[@]}"; do
-        echo "      ${RED}•${NC} $story"
-      done
-      echo ""
-    fi
-
-    # Find next story (first with pending criteria, not blocked)
-    local next_found=0
-    while IFS= read -r story_line; do
-      local story_id=$(echo "$story_line" | sed 's/^### //' | cut -d: -f1)
-      # Get story section and check for pending + not blocked
-      local has_pending=$(sed -n "/^### ${story_id}:/,/^### /p" "$prd_file" 2>/dev/null | grep -c '\- \[ \]')
-      local is_blocked=$(sed -n "/^### ${story_id}:/,/^### /p" "$prd_file" 2>/dev/null | grep -c 'BLOCKED')
-      if [[ "$has_pending" -gt 0 && "$is_blocked" -eq 0 ]]; then
-        local story_title=$(echo "$story_line" | sed 's/^### //')
-        echo "   ${GREEN}▶ NEXT STORY:${NC}"
-        echo "      ${BOLD}$story_title${NC}"
-        local criteria_pending=$(sed -n "/^### ${story_id}:/,/^### /p" "$prd_file" 2>/dev/null | grep -c '\- \[ \]')
-        echo "      ${GRAY}($criteria_pending acceptance criteria remaining)${NC}"
-        echo ""
-        next_found=1
-        break
-      fi
-    done < <(grep -E '^### (US|V)-' "$prd_file" 2>/dev/null)
-
-    # List pending stories (up to 8)
-    echo "   ${YELLOW}📝 Pending Stories:${NC}"
-    local story_num=0
-    while IFS= read -r story_line; do
-      local story_id=$(echo "$story_line" | sed 's/^### //' | cut -d: -f1)
-      local has_pending=$(sed -n "/^### ${story_id}:/,/^### /p" "$prd_file" 2>/dev/null | grep -c '\- \[ \]')
-      local is_blocked=$(sed -n "/^### ${story_id}:/,/^### /p" "$prd_file" 2>/dev/null | grep -c 'BLOCKED')
-      if [[ "$has_pending" -gt 0 ]]; then
-        story_num=$((story_num + 1))
-        local story_title=$(echo "$story_line" | sed 's/^### //' | cut -d: -f2- | sed 's/^ *//')
-        local prefix="${GRAY}$story_num.${NC}"
-        if [[ "$is_blocked" -gt 0 ]]; then
-          prefix="${RED}⏹${NC}"
-          story_title="${GRAY}$story_title (BLOCKED)${NC}"
-        fi
-        if [[ "$story_num" -le 8 ]]; then
-          echo "      $prefix $story_id: $story_title ${GRAY}[$has_pending]${NC}"
-        fi
-      fi
-    done < <(grep -E '^### (US|V)-' "$prd_file" 2>/dev/null)
-
-    if [[ "$story_num" -gt 8 ]]; then
-      echo "      ${GRAY}... and $((story_num - 8)) more pending stories${NC}"
-    fi
-    [[ "$story_num" -eq 0 ]] && echo "      ${GREEN}🎉 All stories complete!${NC}"
-    echo ""
-  }
-
-  # Check root PRD
-  _ralph_show_prd "PRD.md" "📁 Root PRD.md"
-
-  # Check app-specific PRDs
+  # Check app-specific PRDs (markdown only for now)
   for app in expo public admin frontend backend mobile; do
-    if [[ -f "apps/$app/PRD.md" ]]; then
+    if [[ -f "apps/$app/prd-json/index.json" ]]; then
+      _ralph_show_prd_json "apps/$app/prd-json" "📱 apps/$app/prd-json/"
+    elif [[ -f "apps/$app/PRD.md" ]]; then
       local branch_info=""
       if git show-ref --verify --quiet "refs/heads/feat/${app}-work" 2>/dev/null; then
         branch_info="  ${GREEN}🌿 feat/${app}-work${NC}"
@@ -1332,97 +1352,98 @@ function ralph-status() {
     fi
   done
 
-  # Current Iteration - find story with progress OR show next if Ralph is running
+  # Current Iteration info
   echo "${BLUE}───────────────────────────────────────────────────────────────${NC}"
 
   # Check if Ralph is currently running
   local ralph_running=$(pgrep -f "tee /tmp/ralph_output" 2>/dev/null | head -1)
+  if [[ -n "$ralph_running" ]]; then
+    echo "${GREEN}🔄 Ralph is currently running (PID: $ralph_running)${NC}"
+  else
+    echo "${GRAY}Ralph is not running. Use 'ralph [N]' to start.${NC}"
+  fi
+  echo ""
+}
 
-  if [[ -f "PRD.md" ]]; then
-    local current_story=""
-    local current_done=0
-    local current_pending=0
-    local show_as_running=false
+# Helper function to show PRD status from JSON
+_ralph_show_prd_json() {
+  local json_dir="$1"
+  local label="$2"
+  local index_file="$json_dir/index.json"
 
-    # First, find story that's in progress (has both [x] and [ ])
-    while IFS= read -r story_line; do
-      local story_id=$(echo "$story_line" | sed 's/^### //' | cut -d: -f1)
-      local story_section=$(sed -n "/^### ${story_id}:/,/^### /p" PRD.md 2>/dev/null)
-      local done_count=$(echo "$story_section" | grep '\- \[x\]' | wc -l | tr -d ' ')
-      local pending_count=$(echo "$story_section" | grep '\- \[ \]' | wc -l | tr -d ' ')
-      local is_blocked=$(echo "$story_section" | grep -c 'BLOCKED' | tr -d ' ')
+  [[ ! -f "$index_file" ]] && return
 
-      # In progress = has some done AND some pending, not blocked
-      if [[ "$done_count" -gt 0 && "$pending_count" -gt 0 && "$is_blocked" -eq 0 ]]; then
-        current_story="$story_id"
-        current_done="$done_count"
-        current_pending="$pending_count"
-        show_as_running=true
-        break
-      fi
-    done < <(grep -E '^### (US|V)-' PRD.md 2>/dev/null)
+  # Read stats from index.json
+  local total=$(jq -r '.stats.total // 0' "$index_file" 2>/dev/null)
+  local done=$(jq -r '.stats.completed // 0' "$index_file" 2>/dev/null)
+  local pending=$(jq -r '.stats.pending // 0' "$index_file" 2>/dev/null)
+  local blocked=$(jq -r '.stats.blocked // 0' "$index_file" 2>/dev/null)
+  local next_story=$(jq -r '.nextStory // "none"' "$index_file" 2>/dev/null)
 
-    # If no in-progress story but Ralph is running, show next story
-    if [[ -z "$current_story" && -n "$ralph_running" ]]; then
-      while IFS= read -r story_line; do
-        local story_id=$(echo "$story_line" | sed 's/^### //' | cut -d: -f1)
-        local story_section=$(sed -n "/^### ${story_id}:/,/^### /p" PRD.md 2>/dev/null)
-        local pending_count=$(echo "$story_section" | grep '\- \[ \]' | wc -l | tr -d ' ')
-        local is_blocked=$(echo "$story_section" | grep -c 'BLOCKED' | tr -d ' ')
+  local percent=0
+  [[ "$total" -gt 0 ]] && percent=$((done * 100 / total))
 
-        if [[ "$pending_count" -gt 0 && "$is_blocked" -eq 0 ]]; then
-          current_story="$story_id"
-          current_done=0
-          current_pending="$pending_count"
-          show_as_running=true
-          break
-        fi
-      done < <(grep -E '^### (US|V)-' PRD.md 2>/dev/null)
-    fi
+  # Progress bar (30 chars)
+  local bar_filled=$((percent * 30 / 100))
+  local bar_empty=$((30 - bar_filled))
+  local progress_bar="${GREEN}"
+  for ((i=0; i<bar_filled; i++)); do progress_bar+="█"; done
+  progress_bar+="${GRAY}"
+  for ((i=0; i<bar_empty; i++)); do progress_bar+="░"; done
+  progress_bar+="${NC}"
 
-    if [[ -n "$current_story" && "$show_as_running" == "true" ]]; then
-      local current_total=$((current_done + current_pending))
-      local story_title=$(grep "^### ${current_story}:" PRD.md | sed 's/^### //')
-      local story_section=$(sed -n "/^### ${current_story}:/,/^### /p" PRD.md 2>/dev/null)
+  echo "${CYAN}${BOLD}$label${NC}"
+  echo "   ${progress_bar} ${BOLD}${percent}%${NC}"
+  echo "   ${GREEN}✅ $done${NC} completed  │  ${YELLOW}⏳ $pending${NC} pending  │  ${RED}🚫 $blocked${NC} blocked  │  📊 $total total"
+  echo ""
 
-      # Get last completed task and next pending task
-      local last_done=$(echo "$story_section" | grep '\- \[x\]' | tail -1 | sed 's/.*\[x\] //')
-      local next_pending=$(echo "$story_section" | grep '\- \[ \]' | head -1 | sed 's/.*\[ \] //')
+  # Show blocked stories
+  local blocked_list=$(jq -r '.blocked[]?.id // empty' "$index_file" 2>/dev/null)
+  if [[ -n "$blocked_list" ]]; then
+    echo "   ${RED}🚫 BLOCKED:${NC}"
+    while IFS= read -r story_id; do
+      local reason=$(jq -r --arg id "$story_id" '.blocked[] | select(.id == $id) | .reason // "unknown"' "$index_file" 2>/dev/null)
+      echo "      ${RED}•${NC} $story_id: ${GRAY}$reason${NC}"
+    done <<< "$blocked_list"
+    echo ""
+  fi
 
-      echo "${CYAN}🔄 Current Iteration:${NC} ${GREEN}● Ralph running${NC}"
-      echo "   ${YELLOW}${BOLD}$current_story${NC} ${YELLOW}$current_done/$current_total done${NC} ${GRAY}(updates on commit)${NC}"
-      [[ -n "$last_done" ]] && echo "   ${GREEN}✓ $last_done${NC}"
-      [[ -n "$next_pending" ]] && echo "   ${GRAY}○ $next_pending${NC}"
+  # Show next story
+  if [[ "$next_story" != "none" && "$next_story" != "null" ]]; then
+    local story_file="$json_dir/stories/${next_story}.json"
+    if [[ -f "$story_file" ]]; then
+      local story_title=$(jq -r '.title // "Untitled"' "$story_file" 2>/dev/null)
+      local criteria_count=$(jq '[.acceptanceCriteria[] | select(.checked == false)] | length' "$story_file" 2>/dev/null)
+      echo "   ${GREEN}▶ NEXT STORY:${NC}"
+      echo "      ${BOLD}$next_story: $story_title${NC}"
+      echo "      ${GRAY}($criteria_count acceptance criteria remaining)${NC}"
       echo ""
     fi
   fi
 
-  # Last completed (from git)
-  local last_story=$(git log --oneline -n 20 2>/dev/null | grep -oE '(US|V)-[A-Z0-9-]+' | head -1)
-  if [[ -n "$last_story" ]]; then
-    local last_commit=$(git log --oneline -n 20 2>/dev/null | grep "$last_story" | head -1)
-    local last_hash=$(echo "$last_commit" | cut -d' ' -f1)
-    local last_msg=$(echo "$last_commit" | cut -d' ' -f2-)
-    local last_time=$(git log -1 --format="%ar" "$last_hash" 2>/dev/null)
-    echo "${CYAN}✅ Last Completed:${NC}"
-    echo "   ${GREEN}${BOLD}$last_story${NC} ${GRAY}($last_time)${NC}"
-    echo "   ${GRAY}$last_msg${NC}"
-    echo ""
+  # Show pending stories (up to 8)
+  echo "   ${YELLOW}📝 Pending Stories:${NC}"
+  local pending_list=$(jq -r '.pending[]? // empty' "$index_file" 2>/dev/null)
+  local story_num=0
+  while IFS= read -r story_id; do
+    [[ -z "$story_id" ]] && continue
+    story_num=$((story_num + 1))
+    local story_file="$json_dir/stories/${story_id}.json"
+    local story_title="Unknown"
+    local criteria_count=0
+    if [[ -f "$story_file" ]]; then
+      story_title=$(jq -r '.title // "Untitled"' "$story_file" 2>/dev/null)
+      criteria_count=$(jq '[.acceptanceCriteria[] | select(.checked == false)] | length' "$story_file" 2>/dev/null)
+    fi
+    if [[ "$story_num" -le 8 ]]; then
+      echo "      ${GRAY}$story_num.${NC} $story_id: $story_title ${GRAY}[$criteria_count]${NC}"
+    fi
+  done <<< "$pending_list"
+
+  if [[ "$story_num" -gt 8 ]]; then
+    echo "      ${GRAY}... and $((story_num - 8)) more pending stories${NC}"
   fi
-
-  # Recently completed stories (from commits with story IDs)
-  echo "${CYAN}✅ Recently Completed:${NC}"
-  local completed_lines=$(git log --oneline -n 20 2>/dev/null | grep -E '(US|V)-[A-Z0-9-]+' | head -5)
-  echo "$completed_lines" | while read -r line; do
-    [[ -z "$line" ]] && continue
-    local hash=$(echo "$line" | cut -d' ' -f1)
-    local story_id=$(echo "$line" | grep -oE '(US|V)-[A-Z0-9-]+' | head -1)
-    local msg=$(echo "$line" | cut -d' ' -f2- | sed -E 's/feat\([^)]+\): //' | sed -E 's/verify\([^)]+\): //')
-    printf "   ${GRAY}%s${NC} ${GREEN}%-15s${NC} %s\n" "$hash" "$story_id" "$msg"
-  done
+  [[ "$story_num" -eq 0 ]] && echo "      ${GREEN}🎉 All stories complete!${NC}"
   echo ""
-
-  # Unset helper function
-  unset -f _ralph_show_prd
 }
 
