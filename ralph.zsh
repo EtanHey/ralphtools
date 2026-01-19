@@ -31,6 +31,107 @@
 # Output streams in REAL-TIME so you can watch Claude work.
 # ═══════════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════════
+# JSON MODE HELPERS
+# ═══════════════════════════════════════════════════════════════════
+
+# Get next incomplete story from prd-json/
+_ralph_json_next_story() {
+  local json_dir="$1"
+  local index_file="$json_dir/index.json"
+
+  if [[ ! -f "$index_file" ]]; then
+    echo ""
+    return 1
+  fi
+
+  # Get pending stories from index.json
+  local next_id=$(jq -r '.pending[0] // empty' "$index_file" 2>/dev/null)
+
+  if [[ -z "$next_id" ]]; then
+    echo ""
+    return 1
+  fi
+
+  echo "$next_id"
+}
+
+# Get story details from JSON file
+_ralph_json_get_story() {
+  local json_dir="$1"
+  local story_id="$2"
+  local story_file="$json_dir/stories/${story_id}.json"
+
+  if [[ ! -f "$story_file" ]]; then
+    echo ""
+    return 1
+  fi
+
+  cat "$story_file"
+}
+
+# Mark story criteria as checked in JSON
+_ralph_json_check_criterion() {
+  local json_dir="$1"
+  local story_id="$2"
+  local criterion_index="$3"
+  local story_file="$json_dir/stories/${story_id}.json"
+
+  if [[ ! -f "$story_file" ]]; then
+    return 1
+  fi
+
+  # Update the specific criterion
+  local tmp_file=$(mktemp)
+  jq ".acceptanceCriteria[$criterion_index].checked = true" "$story_file" > "$tmp_file"
+  mv "$tmp_file" "$story_file"
+
+  # Check if all criteria are now checked
+  local all_checked=$(jq '[.acceptanceCriteria[].checked] | all' "$story_file")
+  if [[ "$all_checked" == "true" ]]; then
+    jq '.passes = true' "$story_file" > "$tmp_file"
+    mv "$tmp_file" "$story_file"
+  fi
+}
+
+# Mark entire story as complete
+_ralph_json_complete_story() {
+  local json_dir="$1"
+  local story_id="$2"
+  local story_file="$json_dir/stories/${story_id}.json"
+  local index_file="$json_dir/index.json"
+
+  if [[ ! -f "$story_file" ]]; then
+    return 1
+  fi
+
+  # Mark all criteria as checked and story as passing
+  local tmp_file=$(mktemp)
+  jq '.acceptanceCriteria = [.acceptanceCriteria[] | .checked = true] | .passes = true' "$story_file" > "$tmp_file"
+  mv "$tmp_file" "$story_file"
+
+  # Update index.json - remove from pending
+  if [[ -f "$index_file" ]]; then
+    jq --arg id "$story_id" '.pending = [.pending[] | select(. != $id)] | .stats.completed += 1 | .stats.pending -= 1 | .nextStory = (.pending[0] // "COMPLETE")' "$index_file" > "$tmp_file"
+    mv "$tmp_file" "$index_file"
+  fi
+}
+
+# Get count of remaining stories
+_ralph_json_remaining_count() {
+  local json_dir="$1"
+  local index_file="$json_dir/index.json"
+
+  if [[ ! -f "$index_file" ]]; then
+    echo "0"
+    return
+  fi
+
+  jq -r '.stats.pending // 0' "$index_file"
+}
+
+# ═══════════════════════════════════════════════════════════════════
+
 function ralph() {
   local MAX=10
   local SLEEP=2
@@ -39,6 +140,8 @@ function ralph() {
   local RALPH_TMP="/tmp/ralph_output_$$.txt"
   local REPO_ROOT=$(pwd)
   local PRD_PATH="$REPO_ROOT/PRD.md"
+  local PRD_JSON_DIR="$REPO_ROOT/prd-json"
+  local use_json_mode=false
   local project_key="ralph"
   local ntfy_topic="etans-ralph"
   local app_mode=""
@@ -115,8 +218,18 @@ function ralph() {
   # Remove ALL notification configs to prevent per-iteration notifications
   (setopt NULL_GLOB; rm -f /tmp/.claude_notify_config_*.json) 2>/dev/null
 
-  if [[ ! -f "$PRD_PATH" ]]; then
-    echo "❌ No PRD.md found in current directory"
+  # Check for JSON mode (prd-json/ directory with index.json)
+  if [[ -n "$app_mode" ]]; then
+    PRD_JSON_DIR="$REPO_ROOT/apps/$app_mode/prd-json"
+  fi
+
+  if [[ -f "$PRD_JSON_DIR/index.json" ]]; then
+    use_json_mode=true
+    echo "📋 JSON mode detected: $PRD_JSON_DIR"
+  fi
+
+  if [[ "$use_json_mode" != "true" ]] && [[ ! -f "$PRD_PATH" ]]; then
+    echo "❌ No PRD.md or prd-json/ found in current directory"
     echo ""
     echo "Create one first:"
     echo "  1. Run 'claude' and use '/prd' to generate a PRD"
@@ -273,8 +386,41 @@ function ralph() {
         claude_cmd_arr+=(--model sonnet)
       fi
 
-      # Run Claude with output capture (tee for checking promises)
-      "${claude_cmd_arr[@]}" -p "You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
+      # Build the prompt based on JSON vs Markdown mode
+      local ralph_prompt=""
+      if [[ "$use_json_mode" == "true" ]]; then
+        # JSON MODE PROMPT
+        ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
+
+## Meta-Learnings
+Read docs.local/ralph-meta-learnings.md if it exists - contains critical patterns about avoiding loops and state management.
+
+## Paths (JSON MODE)
+- PRD Index: $PRD_JSON_DIR/index.json
+- Stories: $PRD_JSON_DIR/stories/*.json
+- Working Dir: $(pwd)
+
+## Steps (JSON MODE)
+1. Read prd-json/index.json - find nextStory field for the story to work on
+2. Read prd-json/stories/{nextStory}.json - get acceptanceCriteria
+3. Read progress.txt - check Learnings section for patterns
+4. Check if story has blockedBy field (see Blocked Task Rules below)
+5. If blocked: move to next in pending array
+6. If actionable: implement that ONE task only
+7. Run typecheck to verify
+8. If 'verify in browser': take a screenshot (see Browser Rules below)
+9. **CRITICAL**: Update the story JSON file:
+   - Set acceptanceCriteria[n].checked = true for each completed criterion
+   - Set passes = true when ALL criteria are checked
+10. **CRITICAL**: Update prd-json/index.json:
+    - Remove story from pending array
+    - Update stats.completed and stats.pending counts
+    - Set nextStory to first remaining pending item
+11. Commit prd-json/ AND progress.txt together
+12. Verify commit succeeded before ending iteration"
+      else
+        # MARKDOWN MODE PROMPT (legacy)
+        ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
 ## Meta-Learnings
 Read docs.local/ralph-meta-learnings.md if it exists - contains critical patterns about avoiding loops and state management.
@@ -293,7 +439,11 @@ Read docs.local/ralph-meta-learnings.md if it exists - contains critical pattern
 7. If 'verify in browser': take a screenshot (see Browser Rules below)
 8. **CRITICAL**: Update PRD.md checkboxes ([ ] → [x]) for completed acceptance criteria
 9. **CRITICAL**: Commit PRD.md AND progress.txt together
-10. Verify commit succeeded before ending iteration
+10. Verify commit succeeded before ending iteration"
+      fi
+
+      # Run Claude with output capture (tee for checking promises)
+      "${claude_cmd_arr[@]}" -p "${ralph_prompt}
 
 ## Blocked Task Rules (CRITICAL - Prevents Infinite Loops)
 
@@ -311,7 +461,7 @@ A task is BLOCKED only when MCP tools FAIL or return errors:
 - External API unavailable
 
 **When you find a BLOCKED task:**
-1. In PRD.md, add to the story: \`**Status:** ⏹️ BLOCKED: [specific reason]\`
+1. In the story JSON, set blockedBy field: \`\"blockedBy\": \"[specific reason]\"\`
 2. Add note to progress.txt: \"[STORY-ID] BLOCKED: [reason]. Moving to next story.\"
 3. Move to the NEXT incomplete task (do NOT keep trying the blocked one)
 4. Commit the blocker note
@@ -365,28 +515,29 @@ At the START of any iteration that needs browser verification:
 ## Completion Rules (CRITICAL)
 
 **🚨 YOU DIE AFTER THIS ITERATION 🚨**
-The next Ralph is a FRESH instance with NO MEMORY of your work. The ONLY way the next Ralph knows what you did is by reading PRD.md checkboxes and git commits.
+The next Ralph is a FRESH instance with NO MEMORY of your work. The ONLY way the next Ralph knows what you did is by reading the PRD state and git commits.
 
-**If you complete work but DON'T update checkboxes:**
-→ Next Ralph sees [ ] unchecked
+**If you complete work but DON'T update the PRD state:**
+→ Next Ralph sees incomplete task
 → Next Ralph thinks work is incomplete
 → Next Ralph re-does the EXACT SAME STORY
 → Infinite loop forever
 
-**If typecheck PASSES:**
-1. **UPDATE PRD.md**: Change [ ] to [x] for EVERY criterion you completed
-2. **UPDATE progress.txt**: Add iteration summary
-3. **COMMIT BOTH**: git add PRD.md progress.txt && git commit -m \"feat: [story-id] [description]\"
-4. **VERIFY**: git log -1 (confirm commit succeeded)
-5. If commit fails, STOP and report error
+**If typecheck PASSES (JSON mode):**
+1. **UPDATE story JSON**: Set checked=true for completed criteria, passes=true if all done
+2. **UPDATE index.json**: Remove from pending, update stats, set nextStory
+3. **UPDATE progress.txt**: Add iteration summary
+4. **COMMIT**: git add prd-json/ progress.txt && git commit -m \"feat: [story-id] [description]\"
+5. **VERIFY**: git log -1 (confirm commit succeeded)
+6. If commit fails, STOP and report error
 
 **If typecheck FAILS:**
-- Do NOT mark complete in PRD.md
+- Do NOT mark complete
 - Do NOT commit
 - Append failure to progress.txt
 - Create blocker story (US-NNN-A) if infrastructure issue
 
-**Remember:** Git commits = audit trail. PRD.md checkboxes = what next Ralph sees.
+**Remember:** Git commits = audit trail. PRD state = what next Ralph sees.
 
 ## Progress Format
 
@@ -405,10 +556,10 @@ At the end of EVERY iteration, provide an expressive summary:
 
 ## End Condition
 
-After completing task, check PRD.md:
-- ALL [x]: output <promise>COMPLETE</promise>
-- ALL remaining [ ] are BLOCKED: output <promise>ALL_BLOCKED</promise>
-- Some [ ] actionable: end response (next iteration continues)" 2>&1 | tee "$RALPH_TMP"
+After completing task, check PRD state:
+- ALL stories have passes=true (or pending array empty): output <promise>COMPLETE</promise>
+- ALL remaining stories are blocked: output <promise>ALL_BLOCKED</promise>
+- Some stories still pending: end response (next iteration continues)" 2>&1 | tee "$RALPH_TMP"
 
       # Capture exit code of Claude (PIPESTATUS[0] gets first command in pipe)
       local exit_code=${PIPESTATUS[0]}

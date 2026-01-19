@@ -36,6 +36,27 @@ echo "${YELLOW}Making hooks executable...${NC}"
 chmod +x .githooks/pre-commit 2>/dev/null && echo "  ${GREEN}✓${NC} pre-commit" || echo "  ${YELLOW}⚠${NC} pre-commit not found"
 chmod +x .githooks/pre-push 2>/dev/null && echo "  ${GREEN}✓${NC} pre-push" || echo "  ${YELLOW}⚠${NC} pre-push not found"
 
+# Setup Claude Code integration
+echo ""
+echo "${YELLOW}Setting up Claude Code integration...${NC}"
+CLAUDE_COMMANDS_DIR="$HOME/.claude/commands"
+if [[ -d "$CLAUDE_COMMANDS_DIR" ]]; then
+  # Create symlink for /prd command
+  if [[ -L "$CLAUDE_COMMANDS_DIR/prd.md" ]]; then
+    echo "  ${GREEN}✓${NC} prd.md symlink already exists"
+  elif [[ -f "$CLAUDE_COMMANDS_DIR/prd.md" ]]; then
+    # Backup existing file and create symlink
+    mv "$CLAUDE_COMMANDS_DIR/prd.md" "$CLAUDE_COMMANDS_DIR/prd.md.backup"
+    ln -s "$REPO_DIR/skills/prd.md" "$CLAUDE_COMMANDS_DIR/prd.md"
+    echo "  ${GREEN}✓${NC} prd.md symlinked (backup: prd.md.backup)"
+  else
+    ln -s "$REPO_DIR/skills/prd.md" "$CLAUDE_COMMANDS_DIR/prd.md"
+    echo "  ${GREEN}✓${NC} prd.md symlinked"
+  fi
+else
+  echo "  ${YELLOW}⚠${NC} ~/.claude/commands not found (Claude Code not installed?)"
+fi
+
 # Check for recommended tools
 echo ""
 echo "${YELLOW}Checking recommended tools...${NC}"

@@ -15,7 +15,10 @@ Create detailed Product Requirements Documents that are clear, actionable, and s
 2. Ask 3-5 essential clarifying questions (with lettered options)
 3. Generate a structured PRD based on answers
 4. **Find git root**: `git rev-parse --show-toplevel`
-5. Save `PRD.md` at git root (NOT in subdirectory)
+5. **Create JSON output** at git root:
+   - `prd-json/index.json` - Story order and stats
+   - `prd-json/stories/{US-XXX}.json` - One file per story
+   - `prd-json/metadata.json` - Project metadata (optional)
 6. Create `progress.txt` at git root
 7. **STOP and tell user: "PRD ready. Run Ralph to execute."**
 
@@ -580,150 +583,159 @@ A browser instance should be open with:
 
 ---
 
-## PRD Template
+## PRD JSON Templates
 
-```markdown
-# PRD: [Feature Name]
+### index.json Template
 
-**Working Directory:** `[path]`
-
----
-
-## 🚨 ITERATION RULES (READ THIS FIRST) 🚨
-
-**CRITICAL: Each user story = ONE iteration. NO EXCEPTIONS.**
-
-**📊 CHECK PROGRESS FIRST:**
-- See **PROGRESS SUMMARY** section below for current status
-- Only stories with `- [ ]` unchecked criteria need work
-- **DO NOT re-do completed stories** - check if archived
-
-**🚨 VERIFICATION STORIES ARE NOT OPTIONAL 🚨**
-Do NOT output `<promise>COMPLETE</promise>` until ALL V-* stories are done.
-
-1. **ONE STORY PER ITERATION**: Complete exactly ONE user story, then STOP.
-2. **TYPECHECK IS MANDATORY**: Run before marking complete.
-4. **VERIFY VISUALLY**: Check in browser before marking complete.
-5. **DO NOT BATCH**: Each story is a SEPARATE iteration.
-6. **V-* STORIES ARE MANDATORY**: Must execute ALL verification stories.
-7. **NO INLINE COLORS**: Use Tailwind preset tokens (primary-50, etc.), never arbitrary hex.
-8. **NO ARBITRARY PIXELS**: Use Tailwind scale (gap-4, py-12) or @theme CSS variables.
-
----
-
-## 📊 PROGRESS SUMMARY
-
-| Metric | Count |
-|--------|-------|
-| ✅ **Stories Complete** | 0 |
-| 🔄 **Stories Remaining** | X |
-| ☑️ **Criteria Checked** | 0 / Y (0%) |
-
-**Archive:** Completed stories will be moved to `docs.local/feat-{branch}/prd-completed-archive.md`
-
-**Next Story:** Find first `- [ ]` below and complete it.
-
----
-
-## Browser Setup
-
-- Viewport: [mobile 375px / desktop 1440px]
-- Test URL: `http://localhost:3000/[path]`
-
----
-
-## Introduction
-
-[Brief description of feature and problem it solves]
-
-**Figma Reference:** [link if available]
-
----
-
-## [Any Special Rules for This Project]
-
-[RTL rules, component library rules, etc.]
-
----
-
-## User Stories
-
-### US-001: [Title]
-**Description:** [What and why]
-
-**Figma Reference:** Node `XXX-YYY` (if applicable)
-
-**Acceptance Criteria:**
-- [ ] [Specific, verifiable criterion]
-- [ ] [Use START/END for layout: "at START of screen" or "at END"]
-- [ ] Typecheck passes
-- [ ] Verify changes work in browser
-
-**⏹️ STOP - END OF US-001. Do not continue to US-002.**
-
----
-
-### US-002: [Title]
-...
-
----
-
-## Verification Stories
-
-**🚨 MANDATORY - NOT OPTIONAL 🚨**
-Do NOT claim COMPLETE until ALL V-* stories are executed.
-
-### V-001: Verify US-001
-- [ ] [Verification steps]
-- [ ] Compare with Figma node `XXX`
-
-**⏹️ STOP - END OF V-001**
-
----
-
-## Non-Goals
-
-- [What this feature will NOT include]
-
----
-
-## Technical Notes
-
-**Files to modify:**
-- `path/to/file.tsx`
-
-**Required imports:**
-```tsx
-import { X } from 'package';
+```json
+{
+  "$schema": "https://ralph.dev/schemas/prd-index.schema.json",
+  "generatedAt": "2026-01-19T12:00:00Z",
+  "projectName": "[Feature Name]",
+  "workingDirectory": "[path]",
+  "stats": {
+    "total": 4,
+    "completed": 0,
+    "pending": 4,
+    "blocked": 0
+  },
+  "nextStory": "US-001",
+  "storyOrder": ["US-001", "US-002", "V-001", "V-002"],
+  "blocked": [],
+  "pending": ["US-001", "US-002", "V-001", "V-002"],
+  "browserSetup": {
+    "viewport": "mobile 375px",
+    "testUrl": "http://localhost:3000/[path]"
+  },
+  "figmaLink": "[optional figma link]"
+}
 ```
+
+### Story JSON Template (prd-json/stories/US-XXX.json)
+
+```json
+{
+  "id": "US-001",
+  "title": "[Story Title]",
+  "description": "[What and why - brief description]",
+  "figmaNode": "XXX-YYY",
+  "acceptanceCriteria": [
+    {"text": "[Specific, verifiable criterion]", "checked": false},
+    {"text": "[Use START/END for layout positions]", "checked": false},
+    {"text": "Typecheck passes", "checked": false},
+    {"text": "Verify changes work in browser", "checked": false}
+  ],
+  "passes": false,
+  "blockedBy": null
+}
+```
+
+### Verification Story Template (prd-json/stories/V-XXX.json)
+
+```json
+{
+  "id": "V-001",
+  "title": "Verify US-001",
+  "description": "Visual verification that US-001 matches design",
+  "acceptanceCriteria": [
+    {"text": "Take screenshot of implemented feature", "checked": false},
+    {"text": "Compare with Figma node XXX", "checked": false},
+    {"text": "[Specific visual criteria]", "checked": false}
+  ],
+  "passes": false,
+  "blockedBy": null
+}
+```
+
+### metadata.json Template (Optional)
+
+```json
+{
+  "projectName": "[Feature Name]",
+  "description": "[Brief description]",
+  "workingDirectory": "[path]",
+  "figmaLink": "[link if available]",
+  "rules": {
+    "rtl": false,
+    "noInlineColors": true,
+    "noArbitraryPixels": true
+  },
+  "nonGoals": ["[What this will NOT include]"]
+}
 ```
 
 ---
 
 ## Output
 
-**🚨 CRITICAL: Save PRD.md at the REPOSITORY ROOT, not in a subdirectory.**
+**🚨 CRITICAL: Output JSON to `prd-json/` at REPOSITORY ROOT.**
 
 ```bash
 # Find git root
 git rev-parse --show-toplevel
 ```
 
-Even if you're working in `apps/jem/`, save to:
-- ✅ `/repo-root/PRD.md`
-- ❌ `/repo-root/apps/jem/PRD.md`
+### JSON File Structure
 
-The `Working Directory` field inside the PRD tells Ralph where to `cd` for implementation.
+```
+repo-root/
+├── prd-json/
+│   ├── index.json        # Story order, stats, pending list
+│   ├── metadata.json     # Project metadata (optional)
+│   └── stories/
+│       ├── US-001.json   # One file per story
+│       ├── US-002.json
+│       ├── V-001.json    # Verification stories too
+│       └── ...
+├── progress.txt          # Learning log
+└── PRD.md                # Legacy (optional, for human reading)
+```
 
-Also create `progress.txt` at the same root:
+### index.json Format
+
+```json
+{
+  "$schema": "https://ralph.dev/schemas/prd-index.schema.json",
+  "generatedAt": "2026-01-19T12:00:00Z",
+  "stats": {
+    "total": 10,
+    "completed": 0,
+    "pending": 10,
+    "blocked": 0
+  },
+  "nextStory": "US-001",
+  "storyOrder": ["US-001", "US-002", "V-001", "V-002"],
+  "blocked": [],
+  "pending": ["US-001", "US-002", "V-001", "V-002"]
+}
+```
+
+### Story JSON Format
+
+```json
+{
+  "id": "US-001",
+  "title": "Story Title",
+  "description": "What this story does and why",
+  "acceptanceCriteria": [
+    {"text": "Criterion 1 (specific, verifiable)", "checked": false},
+    {"text": "Typecheck passes", "checked": false},
+    {"text": "Verify in browser", "checked": false}
+  ],
+  "passes": false,
+  "blockedBy": null
+}
+```
+
+### Also create `progress.txt`:
 ```markdown
 # Progress Log
 
 ## Learnings
 (Mark with [DONE] when promoted to CLAUDE.md)
 
-- NO INLINE COLORS: Use Tailwind preset tokens (primary-50, etc.), never arbitrary hex like bg-[#E9EFFD]
-- NO ARBITRARY PIXELS: Use Tailwind scale (gap-4, py-12) or @theme CSS variables
+- NO INLINE COLORS: Use Tailwind preset tokens, never arbitrary hex
+- NO ARBITRARY PIXELS: Use Tailwind scale or @theme CSS variables
 
 ---
 
@@ -731,16 +743,15 @@ Also create `progress.txt` at the same root:
 (Continue from here)
 ```
 
-**Archive System:** When PRD gets too large (>2000 lines):
-1. Archive completed stories to `docs.local/feat-{branch}/prd-completed-archive.md`
-2. Keep only incomplete stories in PRD.md
-3. Add PROGRESS SUMMARY section showing completion stats
+### Legacy PRD.md (Optional)
 
-**Documentation:** See `docs.local/README.md` for branch folder conventions, progress tracking, and cross-branch learning search patterns. Ralph should document learnings in `docs.local/feat-{branch}/ralph-learnings.md` after each story.
+For human readability, you may also generate a `PRD.md` markdown file. But Ralph reads from `prd-json/` for execution.
+
+**Documentation:** See `docs.local/README.md` for branch folder conventions, progress tracking, and cross-branch learning search patterns.
 
 **Then say this EXACT message and STOP:**
 
-> ✅ PRD saved to `PRD.md` with X stories + X verification stories.
+> ✅ PRD saved to `prd-json/` with X stories + X verification stories.
 >
 > Run Ralph to execute. I will not implement - that's Ralph's job.
 
@@ -748,22 +759,17 @@ Also create `progress.txt` at the same root:
 
 ## Checklist Before Saving
 
-- [ ] **PRD.md saved at REPOSITORY ROOT** (not in subdirectory)
+- [ ] **prd-json/ folder created at REPOSITORY ROOT**
+- [ ] **index.json has valid JSON** with stats, storyOrder, pending, nextStory
+- [ ] **Each story has its own JSON file** in prd-json/stories/
 - [ ] Asked clarifying questions (including Figma/design)
-- [ ] Included ITERATION RULES section at top (with "check progress first" and "verification not optional")
-- [ ] **Included PROGRESS SUMMARY section** with stories/criteria counts
-- [ ] Each story has STOP marker at end (e.g., `⏹️ STOP - END OF US-001`)
-- [ ] **NO "ALL STORIES COMPLETE" markers mid-document** - Only story-level stops
-- [ ] Stories ordered by dependency
+- [ ] Stories ordered by dependency in storyOrder array
 - [ ] All criteria are verifiable (screen positions, not DOM order)
-- [ ] Every story has "Typecheck passes"
-- [ ] UI stories have "Verify changes work in browser"
+- [ ] Every story has "Typecheck passes" criterion
+- [ ] UI stories have "Verify changes work in browser" criterion
 - [ ] Modal states are separate stories (not one big "build modal" story)
 - [ ] **VERIFICATION STORIES INCLUDED** - Every US-XXX has a V-XXX (MANDATORY)
-- [ ] Verification section has "NOT OPTIONAL" warning
-- [ ] Working directory specified
+- [ ] Working directory specified in index.json
 - [ ] Figma node IDs included (if designs exist)
-- [ ] RTL/LTR rules included (if applicable)
-- [ ] Dynamic state testing rule included (if modals/states exist)
-- [ ] Included NO INLINE COLORS and NO ARBITRARY PIXELS rules
-- [ ] Saved PRD.md and progress.txt
+- [ ] RTL/LTR rules in metadata.json (if applicable)
+- [ ] Created progress.txt at repo root

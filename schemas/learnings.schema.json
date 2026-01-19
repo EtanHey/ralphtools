@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ralph.dev/schemas/learnings.schema.json",
+  "title": "Ralph Learnings Schema",
+  "description": "JSON Schema for Ralph learnings/knowledge base files",
+  "type": "object",
+  "required": ["learnings"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "projectName": { "type": "string" },
+        "lastUpdated": { "type": "string", "format": "date" },
+        "totalLearnings": { "type": "integer" }
+      }
+    },
+    "learnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "content", "tags"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^L-[0-9]+$",
+            "description": "Learning ID (e.g., L-001)"
+          },
+          "content": {
+            "type": "string",
+            "description": "The learning content"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^#[a-z0-9-]+$"
+            },
+            "description": "Tags for searchability (e.g., #rtl, #tailwind)"
+          },
+          "source": {
+            "type": "string",
+            "description": "Where this learning came from (story ID, file, etc.)"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "When the learning was documented"
+          },
+          "promoted": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether promoted to CLAUDE.md"
+          },
+          "promotedTo": {
+            "type": "string",
+            "description": "Path where promoted (e.g., ~/.claude/CLAUDE.md)"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "important", "nice-to-know"],
+            "default": "important"
+          },
+          "context": {
+            "type": "string",
+            "description": "Additional context about when this applies"
+          }
+        }
+      }
+    },
+    "categories": {
+      "type": "object",
+      "description": "Tag categories for organization",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    }
+  }
+}

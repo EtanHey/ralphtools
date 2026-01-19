@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ralph.dev/schemas/prd.schema.json",
+  "title": "Ralph PRD Schema",
+  "description": "JSON Schema for Ralph PRD (Product Requirements Document) files",
+  "type": "object",
+  "required": ["projectName", "userStories"],
+  "properties": {
+    "projectName": {
+      "type": "string",
+      "description": "Name of the project"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the feature/project"
+    },
+    "workingDirectory": {
+      "type": "string",
+      "description": "Directory where Ralph should execute (relative to git root)"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "figmaLink": { "type": "string", "format": "uri" },
+        "testUrl": { "type": "string" },
+        "viewport": {
+          "type": "string",
+          "enum": ["mobile", "desktop"],
+          "default": "desktop"
+        },
+        "createdAt": { "type": "string", "format": "date" },
+        "updatedAt": { "type": "string", "format": "date" }
+      }
+    },
+    "iterationRules": {
+      "type": "array",
+      "description": "Rules that apply to every iteration",
+      "items": { "type": "string" }
+    },
+    "userStories": {
+      "type": "array",
+      "description": "User stories to implement",
+      "items": { "$ref": "#/$defs/story" }
+    },
+    "verificationStories": {
+      "type": "array",
+      "description": "V-* verification stories",
+      "items": { "$ref": "#/$defs/story" }
+    },
+    "blockedStories": {
+      "type": "array",
+      "description": "Stories blocked by external factors",
+      "items": { "$ref": "#/$defs/story" }
+    },
+    "completedStories": {
+      "type": "array",
+      "description": "Archived completed stories",
+      "items": { "$ref": "#/$defs/story" }
+    },
+    "nonGoals": {
+      "type": "array",
+      "description": "What this feature will NOT include",
+      "items": { "type": "string" }
+    },
+    "technicalNotes": {
+      "type": "object",
+      "properties": {
+        "filesToModify": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "story": {
+      "type": "object",
+      "required": ["id", "title", "acceptanceCriteria"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(US|V)-[A-Z0-9-]+$",
+          "description": "Story ID (e.g., US-001, V-001, US-LOAD-FIX)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Story title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of what and why"
+        },
+        "figmaNode": {
+          "type": "string",
+          "description": "Figma node ID for visual reference"
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "description": "List of acceptance criteria",
+          "items": {
+            "type": "object",
+            "required": ["text", "checked"],
+            "properties": {
+              "text": { "type": "string" },
+              "checked": { "type": "boolean", "default": false }
+            }
+          }
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"],
+          "default": "medium"
+        },
+        "passes": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether all criteria are checked"
+        },
+        "failedAttempts": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of failed iteration attempts"
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Story IDs this depends on"
+        },
+        "blockedBy": {
+          "type": "string",
+          "description": "Reason if blocked by external factor"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes or learnings"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the story was completed"
+        },
+        "commitHash": {
+          "type": "string",
+          "description": "Git commit hash when completed"
+        }
+      }
+    }
+  }
+}
