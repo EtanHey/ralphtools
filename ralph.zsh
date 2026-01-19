@@ -117,17 +117,48 @@ _ralph_json_complete_story() {
   fi
 }
 
-# Get count of remaining stories
+# Apply queued updates from update.json (allows external processes to queue changes)
+_ralph_apply_update_queue() {
+  local json_dir="$1"
+  local update_file="$json_dir/update.json"
+  local index_file="$json_dir/index.json"
+
+  if [[ -f "$update_file" ]] && [[ -f "$index_file" ]]; then
+    # Merge update.json into index.json using jq
+    local tmp_file=$(mktemp)
+    if jq -s '.[0] * .[1]' "$index_file" "$update_file" > "$tmp_file" 2>/dev/null; then
+      mv "$tmp_file" "$index_file"
+      rm -f "$update_file"
+      echo "  📥 Applied queued updates from update.json"
+    else
+      rm -f "$tmp_file"
+    fi
+  fi
+}
+
+# Get count of remaining stories AND criteria
 _ralph_json_remaining_count() {
   local json_dir="$1"
   local index_file="$json_dir/index.json"
 
   if [[ ! -f "$index_file" ]]; then
-    echo "0"
+    echo "0 stories (0 criteria)"
     return
   fi
 
-  jq -r '.stats.pending // 0' "$index_file"
+  local stories=$(jq -r '.stats.pending // 0' "$index_file")
+
+  # Count total unchecked criteria across all pending stories using while read
+  local criteria=0
+  while IFS= read -r story_id; do
+    local story_file="$json_dir/stories/${story_id}.json"
+    if [[ -f "$story_file" ]]; then
+      local unchecked=$(jq '[.acceptanceCriteria[] | select(.checked == false)] | length' "$story_file" 2>/dev/null || echo 0)
+      criteria=$((criteria + unchecked))
+    fi
+  done < <(jq -r '.pending[]' "$index_file" 2>/dev/null)
+
+  echo "$stories stories ($criteria criteria)"
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -590,6 +621,7 @@ At the end of EVERY iteration, provide an expressive summary:
 - \"I completed [story ID] which was about [what it accomplished/changed]\"
 - \"Next I think I should work on \[next story ID\] which is \[what it will do\]. I'm planning to \[specific actions X, Y, Z\]\"
 - Be descriptive and conversational about what you did and what's next, not just checkboxes
+- Do NOT output 'remaining=N' or task counts - the script handles displaying remaining tasks
 
 ## End Condition
 
@@ -711,6 +743,11 @@ After completing task, check PRD state:
       return 2  # Different exit code for blocked vs complete
     fi
 
+    # Apply any queued updates before showing remaining
+    if [[ "$use_json_mode" == "true" ]]; then
+      _ralph_apply_update_queue "$PRD_JSON_DIR"
+    fi
+
     # Show remaining tasks
     local remaining
     if [[ "$use_json_mode" == "true" ]]; then
@@ -719,7 +756,7 @@ After completing task, check PRD state:
       remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
     fi
     echo "───────────────────────────────────────────────────────────────"
-    echo "  📋 Tasks remaining: $remaining"
+    echo "  📋 Remaining: $remaining"
     echo "  ⏳ Pausing ${SLEEP}s before next iteration..."
     echo "───────────────────────────────────────────────────────────────"
 
@@ -734,14 +771,17 @@ After completing task, check PRD state:
   echo ""
   echo "═══════════════════════════════════════════════════════════════"
   echo "  ⚠️  REACHED MAX ITERATIONS ($MAX)"
-  # Count remaining for final message
+  # Apply queued updates and count remaining for final message
+  if [[ "$use_json_mode" == "true" ]]; then
+    _ralph_apply_update_queue "$PRD_JSON_DIR"
+  fi
   local final_remaining
   if [[ "$use_json_mode" == "true" ]]; then
     final_remaining=$(_ralph_json_remaining_count "$PRD_JSON_DIR")
   else
     final_remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
   fi
-  echo "  📋 Tasks remaining: $final_remaining"
+  echo "  📋 Remaining: $final_remaining"
   echo "═══════════════════════════════════════════════════════════════"
   # Send notification if enabled
   local remaining="$final_remaining"
@@ -1614,3 +1654,18 @@ function ralph-auto() {
   return 1
 }
 
+
+# ═══════════════════════════════════════════════════════════════════
+# CONVEX DEPLOY WRAPPER - Auto-clean JS artifacts
+# ═══════════════════════════════════════════════════════════════════
+# Usage: convex-deploy [args...]
+# Cleans duplicate JS files before deploying to avoid esbuild errors
+function convex-deploy() {
+  echo "🧹 Cleaning convex/*.js artifacts..."
+  rm -f convex/*.js 2>/dev/null
+  echo "🚀 Running convex deploy..."
+  npx convex deploy "$@"
+  echo "🧹 Post-deploy cleanup..."
+  rm -f convex/*.js 2>/dev/null
+  echo "✅ Done"
+}
