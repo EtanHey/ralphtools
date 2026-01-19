@@ -610,12 +610,13 @@ After completing task, check PRD state:
       fi
 
       # Check for transient API errors (in output OR non-zero exit)
-      # Patterns: API errors, network errors, promise rejections, empty responses
-      local error_patterns="No messages returned|EAGAIN|ECONNRESET|fetch failed|API error|promise rejected|UnhandledPromiseRejection|ETIMEDOUT|socket hang up|ENOTFOUND|rate limit|overloaded|529|503|502"
+      # IMPORTANT: Only check LAST 10 lines to avoid false positives from prose text
+      # Patterns must be specific to actual errors, not mentions in summaries
+      local error_patterns="No messages returned|EAGAIN|ECONNRESET|fetch failed|API error|promise rejected|UnhandledPromiseRejection|ETIMEDOUT|socket hang up|ENOTFOUND|rate limit|overloaded|Error: 5[0-9][0-9]|status.*(5[0-9][0-9])|HTTP.*5[0-9][0-9]"
       local has_error=false
 
-      # Check if output file exists and has error patterns
-      if [[ -f "$RALPH_TMP" ]] && grep -qiE "$error_patterns" "$RALPH_TMP" 2>/dev/null; then
+      # Check ONLY the last 10 lines for error patterns (avoids false positives from prose)
+      if [[ -f "$RALPH_TMP" ]] && tail -10 "$RALPH_TMP" 2>/dev/null | grep -qiE "$error_patterns"; then
         has_error=true
       fi
 
