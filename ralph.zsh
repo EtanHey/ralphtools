@@ -124,9 +124,10 @@ _ralph_json_complete_story() {
     return 1
   fi
 
-  # Mark all criteria as checked and story as passing
+  # Mark all criteria as checked and story as passing, with completion timestamp
   local tmp_file=$(mktemp)
-  jq '.acceptanceCriteria = [.acceptanceCriteria[] | .checked = true] | .passes = true' "$story_file" > "$tmp_file"
+  local completed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  jq --arg ts "$completed_at" '.acceptanceCriteria = [.acceptanceCriteria[] | .checked = true] | .passes = true | .completedAt = $ts' "$story_file" > "$tmp_file"
   mv "$tmp_file" "$story_file"
 
   # Update index.json - remove from pending
