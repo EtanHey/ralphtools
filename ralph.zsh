@@ -780,8 +780,8 @@ After completing task, check PRD state:
 
     echo ""
 
-    # Check if all tasks complete
-    if grep -qE "^<promise>COMPLETE</promise>$" "$RALPH_TMP" 2>/dev/null; then
+    # Check if all tasks complete (search anywhere in output, not just on own line)
+    if grep -q "<promise>COMPLETE</promise>" "$RALPH_TMP" 2>/dev/null; then
       echo ""
       echo "═══════════════════════════════════════════════════════════════"
       echo "  ✅ ALL TASKS COMPLETE after $i iterations!"
@@ -795,8 +795,8 @@ After completing task, check PRD state:
       return 0
     fi
 
-    # Check if all remaining tasks are blocked
-    if grep -qE "^<promise>ALL_BLOCKED</promise>$" "$RALPH_TMP" 2>/dev/null; then
+    # Check if all remaining tasks are blocked (search anywhere in output, not just on own line)
+    if grep -q "<promise>ALL_BLOCKED</promise>" "$RALPH_TMP" 2>/dev/null; then
       echo ""
       echo "═══════════════════════════════════════════════════════════════"
       echo "  ⏹️  ALL REMAINING TASKS BLOCKED after $i iterations"
