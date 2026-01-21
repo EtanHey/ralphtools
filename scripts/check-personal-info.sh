@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 #
-# check-personal-info.sh - Uses Claude Code to detect personal info before pushing
+# check-personal-info.sh - Uses Kiro CLI to detect personal info before pushing
 #
 # Usage: ./scripts/check-personal-info.sh
 # Returns: 0 if clean, 1 if personal info found
@@ -22,7 +22,7 @@ NC='\033[0m'
 
 echo ""
 echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo "${CYAN}  🔍 Personal Info Check (Claude Haiku)${NC}"
+echo "${CYAN}  🔍 Personal Info Check (Kiro CLI)${NC}"
 echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
@@ -33,6 +33,7 @@ FILE_COUNT=0
 for pattern in "*.zsh" "*.md" "*.sh" "scripts/*.sh" "tests/*.sh" "skills/*.md"; do
   for file in ${~pattern}(N); do
     [[ -f "$file" ]] || continue
+    [[ "$file" == *".githooks/"* ]] && continue
     [[ "$file" == "ralph-config.local" ]] && continue
     [[ "$file" == *".example" ]] && continue
 
@@ -55,8 +56,13 @@ fi
 echo "Checking $FILE_COUNT files..."
 echo ""
 
-# Run Claude Haiku with the file contents directly
-RESULT=$(echo "$CONTENT" | claude --print --model haiku -p "You are checking code files for personal information before public release.
+# Create temporary file with content, filtering out current working directory paths
+TEMP_FILE=$(mktemp)
+CURRENT_USER=$(whoami)
+echo "$CONTENT" | sed "s|/Users/$CURRENT_USER|/Users/USERNAME|g" | sed "s|$CURRENT_USER|USERNAME|g" > "$TEMP_FILE"
+
+# Run Kiro CLI with the file contents
+RESULT=$(kiro-cli chat --no-interactive "You are checking code files for personal information before public release.
 
 I will provide file contents. Check for ANY personal/private information:
 - Personal names, usernames (real names or nicknames that identify a person)
@@ -74,6 +80,7 @@ IGNORE (these are OK for public release):
 - Public attributions and credits (original concept authors, contributors)
 - Example API keys in documentation (like 'sk-1234...' shown as examples)
 - File paths in code comments showing example structure
+- Dynamic path variables like SCRIPT_DIR, REPO_DIR that resolve at runtime
 
 OUTPUT FORMAT - be concise:
 If personal info found:
@@ -83,7 +90,12 @@ RESULT: FAIL
 If clean:
 RESULT: PASS
 
-Here are the files:" 2>&1)
+Here are the files:
+
+$(cat "$TEMP_FILE")" 2>&1)
+
+# Clean up
+rm -f "$TEMP_FILE"
 
 echo "$RESULT"
 echo ""

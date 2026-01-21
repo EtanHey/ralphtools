@@ -10,8 +10,25 @@ Ralph can use MCP (Model Context Protocol) tools for enhanced verification. MCPs
 | **Browser Tools** | Console logs, network errors, accessibility audits | [AgentDeskAI/browser-tools-mcp](https://github.com/AgentDeskAI/browser-tools-mcp) |
 | **Context7** | Up-to-date library documentation lookup | [upstash/context7](https://github.com/upstash/context7) |
 | **Figma MCP** | Compare implementation vs Figma designs | [Figma MCP Guide](https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server) |
+| **Brave Manager** | Fallback browser automation (Local) | \`scripts/brave-manager.js\` |
 
 ## Setup Instructions
+
+### Brave Browser Manager (Internal Fallback)
+
+This tool is a repository-local fallback for when standard browser MCPs (like \`claude-in-chrome\`) are unavailable or incompatible. It uses Puppeteer to control a live Brave browser.
+
+**Requirements:**
+- Brave Browser installed at \`/Applications/Brave Browser.app\`
+- Node.js and \`puppeteer\` installed (\`npm install\` in project root)
+
+**How to use:**
+Ralph is automatically configured to use this tool via the \`Skill: Brave Browser Management\` injected into the system prompt. It can perform:
+- Tab switching
+- DOM inspection (\`html\`)
+- Interactions (\`click\`, \`type\`, \`hover\`)
+- Auditing (Console logs + Network activity)
+- Screenshots
 
 ### Claude in Chrome (built into Claude Code)
 

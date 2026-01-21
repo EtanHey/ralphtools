@@ -60,7 +60,7 @@ Specify up to two model flags: **first = main stories**, **second = verification
 | `-O` | Claude Opus (default) | ✅ |
 | `-S` | Claude Sonnet | ✅ |
 | `-H` | Claude Haiku | ✅ |
-| `-K` | [Kiro CLI](https://kiro.dev/) | ❌ |
+| `-K` | [Kiro CLI](https://kiro.dev/) | ⚡️ (Internal Fallback) |
 | `-G` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | ✅ |
 
 ### Examples
@@ -87,6 +87,8 @@ Long sessions accumulate confusion. Ralph solves this by **spawning fresh Claude
 
 [Kiro CLI](https://kiro.dev/) is AWS's agentic coding assistant — good when you're out of Claude tokens. Ralph uses the CLI (not the IDE) so it can run Kiro in a loop just like Claude Code.
 
+**Note:** Ralph includes an internal **Brave Browser Manager** (`scripts/brave-manager.js`) that allows Kiro to perform browser verification even though it lacks native MCP support.
+
 ### Free Credits Deal
 
 New users get **500 bonus credits** (30 days) when signing up with:
@@ -100,11 +102,9 @@ ralph -K 20    # Run with Kiro instead of Claude
 
 | Feature | Claude Code | Kiro |
 |---------|-------------|------|
-| MCP tools | Full support | Limited |
+| MCP tools | Full support | Limited (Ralph Fallback ✅) |
 | Context window | Large | Smaller |
 | Cost | Per-token | Credit-based |
-
-**Pricing:** Free (50/mo) → Pro $19 (1,000) → Pro+ $39 (3,000)
 
 ---
 
@@ -112,32 +112,7 @@ ralph -K 20    # Run with Kiro instead of Claude
 
 [Gemini CLI](https://github.com/google-gemini/gemini-cli) is Google's AI terminal agent. Unlike Kiro, it **has browser MCPs** via chrome-devtools-mcp, so it can handle V-* verification stories.
 
-### Setup
-
-```bash
-npm install -g @google/gemini-cli
-```
-
-Configure MCP servers in `~/.gemini/settings.json`:
-
-```json
-{
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["chrome-devtools-mcp@latest", "--browserUrl", "http://127.0.0.1:9222"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    }
-  }
-}
-```
-
-**Note:** Start Brave/Chrome with remote debugging: `brave --remote-debugging-port=9222`
-
-**Pricing:** Free (60 req/min, 1,000 req/day) with personal Google account.
+**Note:** If the native MCP fails (common with Brave), Ralph will automatically fall back to the internal **Brave Browser Manager**.
 
 ---
 
@@ -182,6 +157,12 @@ Detailed docs for AI agents in [`docs/`](docs/):
 ---
 
 ## Changelog
+
+### v1.4.0
+- Internal Brave Browser Manager fallback (`scripts/brave-manager.js`)
+- Kiro browser verification support via fallback
+- Dynamic Gemini model selection (`-G-gemini-3-flash-preview`)
+- Model-aware completions (`completedBy` field in JSON)
 
 ### v1.3.0
 - JSON-based PRD format (`prd-json/`)

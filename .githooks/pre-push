@@ -123,14 +123,14 @@ fi
 echo ""
 
 # ═══════════════════════════════════════════════════════════════
-# 4. PERSONAL INFO CHECK (uses Claude Code for smart detection)
+# 4. PERSONAL INFO CHECK (uses Kiro CLI for smart detection)
 # ═══════════════════════════════════════════════════════════════
-echo "${YELLOW}[4/5] Personal Info Check (Claude Code)${NC}"
+echo "${YELLOW}[4/5] Personal Info Check (Kiro CLI)${NC}"
 
 # Run the Claude-powered check script
 if [[ -x "scripts/check-personal-info.sh" ]]; then
   if ! scripts/check-personal-info.sh; then
-    echo "  ${RED}✗${NC} Personal info detected by Claude Code"
+    echo "  ${RED}✗${NC} Personal info detected by Kiro CLI"
     ERRORS=$((ERRORS + 1))
   fi
 else

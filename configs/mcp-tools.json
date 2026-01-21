@@ -37,6 +37,16 @@
         {"name": "mcp__claude-in-chrome__read_page", "use": "Read page accessibility tree"}
       ],
       "useFor": ["Interactive testing", "Filling forms", "Triggering modals"]
+    },
+    "braveManager": {
+      "description": "Internal Brave browser automation fallback",
+      "functions": [
+        {"name": "scripts/brave-manager.js audit", "use": "Logs and network activity"},
+        {"name": "scripts/brave-manager.js screenshot", "use": "Visual verification"},
+        {"name": "scripts/brave-manager.js html", "use": "DOM structure inspection"},
+        {"name": "scripts/brave-manager.js click/type", "use": "Interactive automation"}
+      ],
+      "useFor": ["Fallback automation", "Brave-specific testing", "Network/Log auditing"]
     }
   }
 }

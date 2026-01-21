@@ -252,11 +252,18 @@ function ralph() {
         fi
         shift
         ;;
-      -G|--gemini)
+      -G*|--gemini*)
+        local g_model="gemini"
+        if [[ "$1" == -G-* ]]; then
+          g_model="${1#-G-}"
+        elif [[ "$1" == --gemini=* ]]; then
+          g_model="${1#--gemini=}"
+        fi
+        
         if [[ -z "$primary_model" ]]; then
-          primary_model="gemini"
+          primary_model="$g_model"
         else
-          verify_model="gemini"
+          verify_model="$g_model"
         fi
         shift
         ;;
@@ -535,8 +542,13 @@ function ralph() {
           cli_cmd_arr=(kiro-cli chat --trust-all-tools --no-interactive)
           prompt_flag=""  # Kiro takes prompt as positional argument
           ;;
-        gemini)
+        gemini*)
           cli_cmd_arr=(gemini -y)
+          if [[ "$active_model" != "gemini" ]]; then
+            cli_cmd_arr+=(--model "$active_model")
+          elif [[ -n "$RALPH_GEMINI_MODEL" ]]; then
+            cli_cmd_arr+=(--model "$RALPH_GEMINI_MODEL")
+          fi
           prompt_flag=""  # Gemini takes prompt as positional argument
           ;;
         haiku|sonnet)
@@ -550,12 +562,26 @@ function ralph() {
 
       # Build the prompt based on JSON vs Markdown mode
       local ralph_prompt=""
+      local brave_skill=""
+      [[ -f "$RALPH_CONFIG_DIR/skills/brave.md" ]] && brave_skill=$(cat "$RALPH_CONFIG_DIR/skills/brave.md")
+
       if [[ "$use_json_mode" == "true" ]]; then
         # JSON MODE PROMPT
         ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
+${brave_skill}
+
+## Model Information
+You are running on model: **${active_model}**
+
 ## Meta-Learnings
 Read docs.local/ralph-meta-learnings.md if it exists - contains critical patterns about avoiding loops and state management.
+
+## File Access (CRITICAL)
+If \`read_file\` or \`write_file\` fail due to \"ignored by configured ignore patterns\", you MUST use shell commands to access them:
+- To read: \`run_shell_command(\"cat <path>\")\`
+- To write: \`run_shell_command(\"printf '...content...' > <path>\")\`
+Always prioritize standard tools, but use shell as a fallback for \`progress.txt\` and \`prd-json/\` files.
 
 ## Paths (JSON MODE)
 - PRD Index: $PRD_JSON_DIR/index.json
@@ -596,6 +622,11 @@ Example workflow:
         # MARKDOWN MODE PROMPT (legacy)
         ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
+${private_skills}
+
+## Model Information
+You are running on model: **${active_model}**
+
 ## Meta-Learnings
 Read docs.local/ralph-meta-learnings.md if it exists - contains critical patterns about avoiding loops and state management.
 
@@ -612,7 +643,7 @@ Read docs.local/ralph-meta-learnings.md if it exists - contains critical pattern
 6. Run typecheck to verify
 7. If 'verify in browser': take a screenshot (see Browser Rules below)
 8. **CRITICAL**: Update PRD.md checkboxes ([ ] → [x]) for completed acceptance criteria
-9. **CRITICAL**: Commit PRD.md AND progress.txt together
+9. **CRITICAL**: Commit PRD.md AND progress.txt together (Iteration Summary MUST include model name)
 10. Verify commit succeeded before ending iteration"
       fi
 
@@ -726,7 +757,7 @@ The next Ralph is a FRESH instance with NO MEMORY of your work. The ONLY way the
 → Infinite loop forever
 
 **If typecheck PASSES (JSON mode):**
-1. **UPDATE story JSON**: Set checked=true for completed criteria, passes=true if all done, AND add completedAt with ISO timestamp (e.g. \"completedAt\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\")
+1. **UPDATE story JSON**: Set checked=true for completed criteria, passes=true if all done, AND add completedAt with ISO timestamp AND completedBy with the model name (e.g. \"completedAt\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"completedBy\": \"${active_model}\")
 2. **UPDATE index.json**: Remove from pending, update stats, set nextStory
 3. **UPDATE progress.txt**: Add iteration summary
 4. **COMMIT**: git add prd-json/ progress.txt && git commit -m \"feat: [story-id] [description]\"
@@ -744,6 +775,7 @@ The next Ralph is a FRESH instance with NO MEMORY of your work. The ONLY way the
 ## Progress Format
 
 ## Iteration - [Task Name]
+- Model: ${active_model}
 - What was done
 - Learnings for next iteration
 ---
