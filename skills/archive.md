@@ -3,15 +3,13 @@ name: archive
 description: Archive completed PRD stories to docs.local/
 ---
 
-# Archiving Completed Stories
+# Archive Completed Stories
 
-To archive completed PRD stories, run this shell command:
+Run `ralph-archive` to archive completed PRD stories to `docs.local/prd-archive/`.
 
-```bash
-ralph-archive        # Archive from prd-json/
-ralph-archive <app>  # Archive from apps/<app>/prd-json/ (monorepo)
-```
+## Instructions
 
-This moves completed stories to `docs.local/prd-archive/` with a timestamped folder.
+1. If user specifies an app (e.g., `/archive frontend`), run: `ralph-archive <app>`
+2. Otherwise, run: `ralph-archive`
 
-**Note:** This is a shell command, not something Claude executes. Run it in your terminal when you're ready to archive a completed PRD.
+Execute the command now.
