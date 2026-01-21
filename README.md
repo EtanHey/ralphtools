@@ -52,7 +52,7 @@ ralph 20                      # Execute 20 iterations
 | `-QN` | Enable [ntfy](https://ntfy.sh) notifications |
 | `-S` | Use Sonnet (faster, cheaper) |
 | `-H` | Use Haiku (fastest, cheapest) |
-| `-K` | Use [Kiro](https://kiro.dev/) for US-*/BUG-* stories |
+| `-K` | Use [Kiro CLI](https://kiro.dev/) for US-*/BUG-* stories |
 
 ### Model Routing
 
@@ -75,9 +75,9 @@ Long sessions accumulate confusion. Ralph solves this by **spawning fresh Claude
 
 ---
 
-## Alternative: Kiro
+## Alternative: Kiro CLI
 
-[Kiro](https://kiro.dev/) is AWS's agentic AI IDE — good when you're out of Claude tokens.
+[Kiro CLI](https://kiro.dev/) is AWS's agentic coding assistant — good when you're out of Claude tokens. Ralph uses the CLI (not the IDE) so it can run Kiro in a loop just like Claude Code.
 
 ### Free Credits Deal
 
@@ -103,7 +103,7 @@ ralph -K 20    # Run with Kiro instead of Claude
 ## Requirements
 
 - **zsh** (bash may work)
-- **Claude CLI** or **Kiro**
+- **Claude CLI** or **Kiro CLI**
 - **git**
 - Optional: Chrome + Claude-in-Chrome, ntfy, [Superpowers plugin](https://github.com/obra/superpowers)
 
