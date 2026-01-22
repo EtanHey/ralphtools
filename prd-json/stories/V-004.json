@@ -1,0 +1,17 @@
+{
+  "id": "V-004",
+  "title": "Verify 1Password integration",
+  "description": "Test 1Password setup and migration commands work correctly.",
+  "acceptanceCriteria": [
+    { "text": "Source ralph.zsh successfully", "checked": false },
+    { "text": "Run ralph-secrets status (should show not configured or configured)", "checked": false },
+    { "text": "Run ralph-secrets setup, configure vault name", "checked": false },
+    { "text": "Verify config.json has secrets.provider and secrets.vault", "checked": false },
+    { "text": "Create test .env with dummy values", "checked": false },
+    { "text": "Run ralph-secrets migrate --dry-run on test .env", "checked": false },
+    { "text": "Verify .env.template would be generated with op:// references", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

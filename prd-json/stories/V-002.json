@@ -1,0 +1,16 @@
+{
+  "id": "V-002",
+  "title": "Verify parallel verification works",
+  "description": "Test parallel verification with multiple agents on a V-* story.",
+  "acceptanceCriteria": [
+    { "text": "Set parallelVerification: true in config.json", "checked": false },
+    { "text": "Set parallelAgents: 2 in config.json", "checked": false },
+    { "text": "Create a test V-TEST story", "checked": false },
+    { "text": "Run ralph on V-TEST story", "checked": false },
+    { "text": "Verify two Claude processes spawn simultaneously", "checked": false },
+    { "text": "Verify results are aggregated correctly", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

@@ -1,0 +1,17 @@
+{
+  "id": "US-006",
+  "title": "Implement parallel agent spawning for V-* stories",
+  "description": "When parallelVerification is enabled in config, spawn multiple agents for V-* stories.",
+  "acceptanceCriteria": [
+    { "text": "Read parallelVerification and parallelAgents from config.json", "checked": false },
+    { "text": "Add _ralph_run_parallel_verification() function", "checked": false },
+    { "text": "Spawn N background Claude processes with different viewport prompts", "checked": false },
+    { "text": "Agent 1: Desktop viewport (1920x1080)", "checked": false },
+    { "text": "Agent 2: Mobile viewport (375x812)", "checked": false },
+    { "text": "Agent 3 (if parallelAgents >= 3): Accessibility focus", "checked": false },
+    { "text": "Each agent writes result to temp file", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

@@ -1,0 +1,15 @@
+{
+  "id": "US-004",
+  "title": "Enhanced changelog with full history",
+  "description": "Improve ralph-whatsnew to show full version history and support --all flag.",
+  "acceptanceCriteria": [
+    { "text": "Add RALPH_CHANGELOG associative array with version -> changes mapping", "checked": false },
+    { "text": "ralph-whatsnew shows current version details by default", "checked": false },
+    { "text": "ralph-whatsnew --all shows all versions from newest to oldest", "checked": false },
+    { "text": "Include at least v1.0.0, v1.1.0, v1.2.0, v1.3.0 in changelog", "checked": false },
+    { "text": "Format output with box drawing characters for nice display", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

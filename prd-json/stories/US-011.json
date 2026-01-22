@@ -1,0 +1,16 @@
+{
+  "id": "US-011",
+  "title": "Add ralph secrets command for 1Password setup",
+  "description": "Create ralph-secrets command to configure 1Password integration for project secrets.",
+  "acceptanceCriteria": [
+    { "text": "Add ralph-secrets() function with subcommands: setup, status, migrate", "checked": false },
+    { "text": "ralph-secrets setup: configure 1Password vault name in config.json", "checked": false },
+    { "text": "ralph-secrets status: show if 1Password is configured and signed in", "checked": false },
+    { "text": "Check if op CLI is installed, prompt to install if missing", "checked": false },
+    { "text": "Verify user is signed into 1Password (op account list)", "checked": false },
+    { "text": "Store secrets.provider and secrets.vault in config.json", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

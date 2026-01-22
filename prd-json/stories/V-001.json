@@ -1,0 +1,15 @@
+{
+  "id": "V-001",
+  "title": "Verify interactive setup flow",
+  "description": "Test that ralph config and first-run detection work correctly.",
+  "acceptanceCriteria": [
+    { "text": "Source ralph.zsh successfully", "checked": false },
+    { "text": "Run ralph-config and verify gum prompts appear (or fallback works)", "checked": false },
+    { "text": "Verify config.json is created with correct structure", "checked": false },
+    { "text": "Delete config.json, run ralph 1, verify first-run prompt appears", "checked": false },
+    { "text": "Test ralph 1 -y creates default config without prompting", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

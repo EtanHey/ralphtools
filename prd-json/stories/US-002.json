@@ -1,0 +1,17 @@
+{
+  "id": "US-002",
+  "title": "Create ralph config interactive flow",
+  "description": "Implement `ralph config` command with gum-based interactive prompts for model strategy, notifications, and defaults.",
+  "acceptanceCriteria": [
+    { "text": "Add ralph-config() function", "checked": false },
+    { "text": "Use gum choose for model strategy: smart vs single", "checked": false },
+    { "text": "Use gum choose for default model: opus/sonnet/haiku", "checked": false },
+    { "text": "Use gum confirm for notifications enabled", "checked": false },
+    { "text": "Use gum input for ntfy topic if notifications enabled", "checked": false },
+    { "text": "Save results to ~/.config/ralphtools/config.json", "checked": false },
+    { "text": "Fall back to simple read prompts if gum not installed", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

@@ -1,0 +1,16 @@
+{
+  "id": "US-008",
+  "title": "Add ralph projects add/remove/list commands",
+  "description": "Manage projects registry at ~/.config/ralphtools/projects.json for launcher generation.",
+  "acceptanceCriteria": [
+    { "text": "Add ralph-projects() function with subcommands: add, remove, list", "checked": false },
+    { "text": "ralph-projects add <name> <path> adds project to projects.json", "checked": false },
+    { "text": "ralph-projects remove <name> removes project from registry", "checked": false },
+    { "text": "ralph-projects list shows all registered projects", "checked": false },
+    { "text": "Validate path exists before adding", "checked": false },
+    { "text": "Store: name, path, mcps (optional array), created timestamp", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

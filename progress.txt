@@ -1,0 +1,14 @@
+# Ralph Progress - ralphtools v1.4 Implementation
+
+## Project
+- Repo: ~/Desktop/Gits/ralphtools
+- PRD: prd-json/
+
+## Learnings
+- (None yet - Ralph will add learnings as iterations progress)
+
+---
+
+## Iterations
+
+(Ralph will log iterations here)

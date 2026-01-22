@@ -1,0 +1,16 @@
+{
+  "id": "US-010",
+  "title": "Per-project MCP configuration",
+  "description": "Allow specifying which MCPs each project uses, configure them in {name}Claude launcher.",
+  "acceptanceCriteria": [
+    { "text": "ralph-projects add supports --mcps flag: ralph-projects add union ~/union --mcps figma,linear", "checked": false },
+    { "text": "Store mcps array in projects.json entry", "checked": false },
+    { "text": "{name}Claude launcher sets up specified MCPs before running claude", "checked": false },
+    { "text": "Support common MCPs: figma, linear, supabase, browser-tools, context7", "checked": false },
+    { "text": "Add _ralph_setup_mcps() helper function", "checked": false },
+    { "text": "MCP setup reads credentials from 1Password if configured, else env vars", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

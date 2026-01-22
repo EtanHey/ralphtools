@@ -1,0 +1,16 @@
+{
+  "id": "US-012",
+  "title": "Add .env to 1Password migration",
+  "description": "Migrate existing .env file secrets to 1Password vault.",
+  "acceptanceCriteria": [
+    { "text": "ralph-secrets migrate <.env path> reads .env file", "checked": false },
+    { "text": "For each KEY=VALUE, create 1Password item in configured vault", "checked": false },
+    { "text": "Generate .env.template with op:// references", "checked": false },
+    { "text": "Show summary: X secrets migrated to 1Password", "checked": false },
+    { "text": "Prompt before overwriting existing 1Password items", "checked": false },
+    { "text": "Support --dry-run to preview without making changes", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}
