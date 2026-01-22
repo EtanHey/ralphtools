@@ -666,6 +666,61 @@ For users with 1Password - secrets live in vault, injected at runtime. Not requi
 
 This ensures flawless 1Password setup for users who choose it.
 
+### 1Password for MCP Server Credentials
+
+**Reference:** https://1password.com/blog/securing-mcp-servers-with-1password-stop-credential-exposure-in-your-agent
+
+Instead of hardcoding MCP credentials in Claude's config:
+
+```json
+// BAD: Hardcoded in ~/.claude.json
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase", "--access-token", "sbp_xxx"]
+    }
+  }
+}
+```
+
+Use 1Password secret references:
+
+```json
+// GOOD: 1Password reference
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase", "--access-token", "op://vault/supabase/token"]
+    },
+    "linear": {
+      "env": {
+        "LINEAR_API_TOKEN": "op://vault/linear/api-token"
+      }
+    }
+  }
+}
+```
+
+Then run Claude with `op run` to inject secrets:
+
+```bash
+op run -- claude
+```
+
+**Benefits:**
+- No credentials in config files (safe to commit)
+- Single source of truth in 1Password
+- Touch ID/biometric auth
+- Audit trail of credential access
+- Works for ALL MCP servers (Supabase, Linear, Figma, etc.)
+
+**Ralph integration:**
+- `ralph config` can help set up MCP credentials in 1Password
+- Generate `.claude.json` with `op://` references
+- Wrap claude calls with `op run --` automatically
+
 **Setup:**
 1. Install 1Password CLI: `brew install 1password-cli`
 2. Create a vault item "ralphtools" with fields for each token
