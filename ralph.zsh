@@ -691,6 +691,7 @@ At the START of any iteration that needs browser verification:
 
       # Run CLI with output capture (tee for checking promises)
       # Note: Claude uses -p flag, Kiro uses positional argument (${prompt_flag:+...} expands only if non-empty)
+      echo "  [DEBUG] Running: ${cli_cmd_arr[*]} (output → $RALPH_TMP)"
       "${cli_cmd_arr[@]}" ${prompt_flag:+$prompt_flag} "${ralph_prompt}
 
 ## Dev Server Rules (CRITICAL)
@@ -798,11 +799,15 @@ After completing task, check PRD state:
 - Some stories still pending: end response (next iteration continues)" 2>&1 | tee "$RALPH_TMP"
 
       # Capture exit code of Claude (PIPESTATUS[0] gets first command in pipe)
-      local exit_code=${PIPESTATUS[0]}
+      local exit_code=${PIPESTATUS[0]:-999}
 
-      # Debug: show exit code
+      # Debug: show exit code and output info
       echo ""
       echo "  [DEBUG] Exit code: $exit_code"
+      echo "  [DEBUG] Output file: $RALPH_TMP"
+      echo "  [DEBUG] Output size: $(wc -c < "$RALPH_TMP" 2>/dev/null || echo 0) bytes"
+      echo "  [DEBUG] Output lines: $(wc -l < "$RALPH_TMP" 2>/dev/null || echo 0)"
+      [[ -f "$RALPH_TMP" ]] && echo "  [DEBUG] First line: $(head -1 "$RALPH_TMP" 2>/dev/null | cut -c1-80)"
 
       # Check for Ctrl+C (exit code 130 = SIGINT)
       if [[ "$exit_code" -eq 130 ]]; then
@@ -818,13 +823,18 @@ After completing task, check PRD state:
       local error_patterns="No messages returned|EAGAIN|ECONNRESET|fetch failed|API error|promise rejected|UnhandledPromiseRejection|ETIMEDOUT|socket hang up|ENOTFOUND|rate limit|overloaded|Error: 5[0-9][0-9]|status.*(5[0-9][0-9])|HTTP.*5[0-9][0-9]"
       local has_error=false
 
-      # Check ONLY the last 10 lines for error patterns (avoids false positives from prose)
-      if [[ -f "$RALPH_TMP" ]] && tail -10 "$RALPH_TMP" 2>/dev/null | grep -qiE "$error_patterns"; then
-        has_error=true
+      # Check first 5 AND last 10 lines for error patterns (avoids false positives from prose)
+      # Promise rejections often appear at the start, API errors at the end
+      if [[ -f "$RALPH_TMP" ]]; then
+        if head -5 "$RALPH_TMP" 2>/dev/null | grep -qiE "$error_patterns"; then
+          has_error=true
+        elif tail -10 "$RALPH_TMP" 2>/dev/null | grep -qiE "$error_patterns"; then
+          has_error=true
+        fi
       fi
 
-      # Also treat non-zero exit or empty output as error
-      if [[ "$exit_code" -ne 0 ]] || [[ ! -s "$RALPH_TMP" ]]; then
+      # Also treat non-zero exit, empty exit code, or empty output as error
+      if [[ -z "$exit_code" ]] || [[ "$exit_code" -ne 0 ]] || [[ ! -s "$RALPH_TMP" ]]; then
         has_error=true
       fi
 
