@@ -5,10 +5,21 @@
 - PRD: prd-json/
 
 ## Learnings
-- (None yet - Ralph will add learnings as iterations progress)
+- zsh subshells don't share global variables with parent - use temp files for result tracking
 
 ---
 
 ## Iterations
 
-(Ralph will log iterations here)
+## Iteration 1 - TEST-001 Test Framework
+- Model: opus
+- Created tests/test-ralph.zsh with full zsh test framework
+- Added assertion helpers: assert_equals, assert_contains, assert_exit_code, assert_not_empty, assert_file_exists
+- Added test output functions: test_start, test_pass, test_fail
+- Implemented file-based result tracking for reliable pass/fail counts
+- Test runner discovers and runs all test_* functions
+- Summary shows "X passed, Y failed" at end
+- Exit code 0 on success, 1 on failure
+- zsh -n syntax check passes
+- Framework includes 5 self-validation tests that all pass
+---

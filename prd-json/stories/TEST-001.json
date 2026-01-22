@@ -3,15 +3,17 @@
   "title": "Create test framework in tests/test-ralph.zsh",
   "description": "Set up basic zsh test framework for ralph functions with assertions and test runner.",
   "acceptanceCriteria": [
-    { "text": "Create tests/ directory", "checked": false },
-    { "text": "Create tests/test-ralph.zsh with test runner logic", "checked": false },
-    { "text": "Add assert_equals, assert_contains, assert_exit_code helpers", "checked": false },
-    { "text": "Add test_start, test_pass, test_fail functions for output", "checked": false },
-    { "text": "Add summary at end: X passed, Y failed", "checked": false },
-    { "text": "Exit code 0 if all pass, 1 if any fail", "checked": false },
-    { "text": "Running ./tests/test-ralph.zsh executes all tests", "checked": false },
-    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": false }
+    { "text": "Create tests/ directory", "checked": true },
+    { "text": "Create tests/test-ralph.zsh with test runner logic", "checked": true },
+    { "text": "Add assert_equals, assert_contains, assert_exit_code helpers", "checked": true },
+    { "text": "Add test_start, test_pass, test_fail functions for output", "checked": true },
+    { "text": "Add summary at end: X passed, Y failed", "checked": true },
+    { "text": "Exit code 0 if all pass, 1 if any fail", "checked": true },
+    { "text": "Running ./tests/test-ralph.zsh executes all tests", "checked": true },
+    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T02:45:00Z",
+  "completedBy": "opus"
 }
