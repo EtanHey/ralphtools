@@ -1,0 +1,17 @@
+{
+  "id": "TEST-002",
+  "title": "Add unit tests for config functions",
+  "description": "Test config loading, validation, and default handling.",
+  "acceptanceCriteria": [
+    { "text": "Test _ralph_load_config with valid config.json", "checked": false },
+    { "text": "Test _ralph_load_config with missing file (uses defaults)", "checked": false },
+    { "text": "Test _ralph_load_config with malformed JSON (error handling)", "checked": false },
+    { "text": "Test _ralph_get_model_for_story returns correct model per prefix", "checked": false },
+    { "text": "Test US-* returns sonnet, V-* returns haiku, etc.", "checked": false },
+    { "text": "Test unknown prefix uses unknownTaskType fallback", "checked": false },
+    { "text": "All tests pass", "checked": false },
+    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

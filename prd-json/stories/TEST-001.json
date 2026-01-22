@@ -1,0 +1,17 @@
+{
+  "id": "TEST-001",
+  "title": "Create test framework in tests/test-ralph.zsh",
+  "description": "Set up basic zsh test framework for ralph functions with assertions and test runner.",
+  "acceptanceCriteria": [
+    { "text": "Create tests/ directory", "checked": false },
+    { "text": "Create tests/test-ralph.zsh with test runner logic", "checked": false },
+    { "text": "Add assert_equals, assert_contains, assert_exit_code helpers", "checked": false },
+    { "text": "Add test_start, test_pass, test_fail functions for output", "checked": false },
+    { "text": "Add summary at end: X passed, Y failed", "checked": false },
+    { "text": "Exit code 0 if all pass, 1 if any fail", "checked": false },
+    { "text": "Running ./tests/test-ralph.zsh executes all tests", "checked": false },
+    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

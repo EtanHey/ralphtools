@@ -1,0 +1,17 @@
+{
+  "id": "TEST-004",
+  "title": "Add unit tests for notification functions",
+  "description": "Test ntfy notification formatting and event handling.",
+  "acceptanceCriteria": [
+    { "text": "Test _ralph_ntfy builds correct body with project name", "checked": false },
+    { "text": "Test event types set correct title and priority", "checked": false },
+    { "text": "Test 'complete' event has priority=high", "checked": false },
+    { "text": "Test 'error' event has priority=urgent", "checked": false },
+    { "text": "Test 'iteration' event has priority=low", "checked": false },
+    { "text": "Test empty topic returns early (no curl call)", "checked": false },
+    { "text": "All tests pass", "checked": false },
+    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

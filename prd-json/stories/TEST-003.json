@@ -1,0 +1,16 @@
+{
+  "id": "TEST-003",
+  "title": "Add unit tests for cost tracking",
+  "description": "Test cost calculation, session token extraction, and costs.json updates.",
+  "acceptanceCriteria": [
+    { "text": "Test _ralph_init_costs creates valid costs.json structure", "checked": false },
+    { "text": "Test _ralph_log_cost adds entry to costs.json", "checked": false },
+    { "text": "Test cost calculation with known token counts", "checked": false },
+    { "text": "Test haiku/sonnet/opus have correct pricing", "checked": false },
+    { "text": "Test _ralph_get_session_tokens returns 0 0 0 0 for missing session", "checked": false },
+    { "text": "All tests pass", "checked": false },
+    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}
