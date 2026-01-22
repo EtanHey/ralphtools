@@ -165,6 +165,51 @@ _ralph_apply_update_queue() {
   fi
 }
 
+# Auto-unblock stories whose blockers are now complete
+_ralph_auto_unblock() {
+  local json_dir="$1"
+  local index_file="$json_dir/index.json"
+  local stories_dir="$json_dir/stories"
+
+  [[ -f "$index_file" ]] || return 0
+
+  # Get blocked stories
+  local blocked_stories=$(jq -r '.blocked[]? // empty' "$index_file" 2>/dev/null)
+  [[ -z "$blocked_stories" ]] && return 0
+
+  local unblocked_any=false
+
+  for story_id in $blocked_stories; do
+    local story_file="$stories_dir/${story_id}.json"
+    [[ -f "$story_file" ]] || continue
+
+    # Get the blocker story ID
+    local blocker_id=$(jq -r '.blockedBy // empty' "$story_file" 2>/dev/null)
+    [[ -z "$blocker_id" ]] && continue
+
+    # Check if blocker is complete
+    local blocker_file="$stories_dir/${blocker_id}.json"
+    if [[ -f "$blocker_file" ]]; then
+      local blocker_passes=$(jq -r '.passes // false' "$blocker_file" 2>/dev/null)
+      if [[ "$blocker_passes" == "true" ]]; then
+        # Unblock: remove blockedBy from story
+        jq 'del(.blockedBy)' "$story_file" > "${story_file}.tmp" && mv "${story_file}.tmp" "$story_file"
+
+        # Move from blocked to pending in index
+        jq --arg id "$story_id" '
+          .blocked = [.blocked[] | select(. != $id)] |
+          .pending = (.pending + [$id]) |
+          .stats.blocked = (.blocked | length) |
+          .stats.pending = (.pending | length)
+        ' "$index_file" > "${index_file}.tmp" && mv "${index_file}.tmp" "$index_file"
+
+        echo "  🔓 Auto-unblocked $story_id (blocker $blocker_id is complete)"
+        unblocked_any=true
+      fi
+    fi
+  done
+}
+
 # Get count of remaining stories AND criteria
 _ralph_json_remaining_count() {
   local json_dir="$1"
@@ -563,13 +608,17 @@ function ralph() {
       # Build the prompt based on JSON vs Markdown mode
       local ralph_prompt=""
       local brave_skill=""
+      local ralph_agent_instructions=""
       [[ -f "$RALPH_CONFIG_DIR/skills/brave.md" ]] && brave_skill=$(cat "$RALPH_CONFIG_DIR/skills/brave.md")
+      [[ -f "$RALPH_CONFIG_DIR/RALPH_AGENT.md" ]] && ralph_agent_instructions=$(cat "$RALPH_CONFIG_DIR/RALPH_AGENT.md")
 
       if [[ "$use_json_mode" == "true" ]]; then
         # JSON MODE PROMPT
         ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
 ${brave_skill}
+
+${ralph_agent_instructions}
 
 ## Model Information
 You are running on model: **${active_model}**
@@ -798,8 +847,9 @@ After completing task, check PRD state:
 - ALL remaining stories are blocked: output <promise>ALL_BLOCKED</promise>
 - Some stories still pending: end response (next iteration continues)" 2>&1 | tee "$RALPH_TMP"
 
-      # Capture exit code of Claude (PIPESTATUS[0] gets first command in pipe)
-      local exit_code=${PIPESTATUS[0]:-999}
+      # Capture exit code of Claude (pipestatus[1] in zsh gets first command in pipe)
+      # Note: zsh uses lowercase 'pipestatus' and 1-indexed arrays
+      local exit_code=${pipestatus[1]:-999}
 
       # Debug: show exit code and output info
       echo ""
@@ -927,9 +977,10 @@ After completing task, check PRD state:
       return 2  # Different exit code for blocked vs complete
     fi
 
-    # Apply any queued updates before showing remaining
+    # Apply any queued updates and auto-unblock before showing remaining
     if [[ "$use_json_mode" == "true" ]]; then
       _ralph_apply_update_queue "$PRD_JSON_DIR"
+      _ralph_auto_unblock "$PRD_JSON_DIR"
     fi
 
     # Show remaining tasks
@@ -955,9 +1006,10 @@ After completing task, check PRD state:
   echo ""
   echo "═══════════════════════════════════════════════════════════════"
   echo "  ⚠️  REACHED MAX ITERATIONS ($MAX)"
-  # Apply queued updates and count remaining for final message
+  # Apply queued updates, auto-unblock, and count remaining for final message
   if [[ "$use_json_mode" == "true" ]]; then
     _ralph_apply_update_queue "$PRD_JSON_DIR"
+    _ralph_auto_unblock "$PRD_JSON_DIR"
   fi
   local final_remaining
   if [[ "$use_json_mode" == "true" ]]; then
