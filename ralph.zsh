@@ -1873,3 +1873,8 @@ function convex-deploy() {
   rm -f convex/*.js 2>/dev/null
   echo "✅ Done"
 }
+
+# brave-manager - Global wrapper for the Brave Browser Manager script
+function brave-manager() {
+  node "$RALPH_CONFIG_DIR/scripts/brave-manager.js" "$@"
+}

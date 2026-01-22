@@ -55,13 +55,13 @@ ralph 20                      # Execute 20 iterations
 
 Specify up to two model flags: **first = main stories**, **second = verification stories**.
 
-| Flag | Model | Browser MCPs |
-|------|-------|--------------|
-| `-O` | Claude Opus (default) | ✅ |
-| `-S` | Claude Sonnet | ✅ |
-| `-H` | Claude Haiku | ✅ |
-| `-K` | [Kiro CLI](https://kiro.dev/) | ⚡️ (Internal Fallback) |
-| `-G` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | ✅ |
+| Flag | Model | Browser Automation |
+|------|-------|-------------------|
+| `-O` | Claude Opus (default) | Claude-in-Chrome MCP |
+| `-S` | Claude Sonnet | Claude-in-Chrome MCP |
+| `-H` | Claude Haiku | Claude-in-Chrome MCP |
+| `-K` | [Kiro CLI](https://kiro.dev/) | brave-manager (built-in) |
+| `-G` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | brave-manager (built-in) |
 
 ### Examples
 
@@ -110,9 +110,9 @@ ralph -K 20    # Run with Kiro instead of Claude
 
 ## Alternative: Gemini CLI
 
-[Gemini CLI](https://github.com/google-gemini/gemini-cli) is Google's AI terminal agent. Unlike Kiro, it **has browser MCPs** via chrome-devtools-mcp, so it can handle V-* verification stories.
+[Gemini CLI](https://github.com/google-gemini/gemini-cli) is Google's AI terminal agent. Like Kiro, it uses Ralph's built-in **Brave Browser Manager** for browser verification stories.
 
-**Note:** If the native MCP fails (common with Brave), Ralph will automatically fall back to the internal **Brave Browser Manager**.
+**Note:** Gemini also supports chrome-devtools-mcp if you prefer native MCP integration.
 
 ---
 
@@ -121,7 +121,8 @@ ralph -K 20    # Run with Kiro instead of Claude
 - **zsh** (bash may work)
 - **Claude CLI**, **Kiro CLI**, or **Gemini CLI**
 - **git**
-- Optional: Chrome + Claude-in-Chrome, ntfy, [Superpowers plugin](https://github.com/obra/superpowers)
+- **For Kiro/Gemini browser automation:** Run `npm install` in `~/.config/ralph/` (installs puppeteer)
+- Optional: Claude-in-Chrome extension, ntfy, [Superpowers plugin](https://github.com/obra/superpowers)
 
 ---
 

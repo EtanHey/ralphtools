@@ -13,3 +13,9 @@ ralph-config.local
 # Temporary files
 *.tmp
 *.log
+
+# Node.js (for brave-manager puppeteer)
+node_modules/
+
+# Screenshots
+screenshot.png
