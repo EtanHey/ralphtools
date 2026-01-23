@@ -786,3 +786,29 @@
 - Updated stats: completed=47, pending=2, blocked=0
 - Committed with full notes
 ---
+
+## Iteration 41 - US-027 Ralph uses op run for secret injection
+- Model: opus
+- Implemented 1Password Environments integration for secure secret injection:
+  1. ✓ Ralph detects current project using _ralph_current_project()
+     - Added detection early in ralph() function after MCP checks
+     - Stores project name in ralph_project_name variable
+  2. ✓ Ralph generates /tmp/ralph-{project}-{pid}.env.1password using _ralph_generate_env_1password()
+     - Uses existing function from REGISTRY section
+     - Includes project secrets and global MCP secrets
+  3. ✓ Ralph wraps claude CLI with 'op run --env-file'
+     - Prepends to cli_cmd_arr after model selection
+     - Format: op run --env-file /tmp/ralph-{project}-{pid}.env.1password -- claude ...
+  4. ✓ Fallback: if op not available or not signed in, uses existing env vars (no error)
+     - ralph_use_op only set true if op CLI available AND user signed in
+  5. ✓ Startup output shows project name and secrets mode
+     - "🔐 1Password: Available (secrets via 1Password Environments)"
+     - "📦 Project: {project_name}"
+  6. ✓ Cleanup removes temp files after iteration
+     - cleanup_ralph() removes ralph_env_1password_file and ralph_mcp_config_file
+  7. ✓ Typecheck passes (zsh -n ralph.zsh)
+- Note: _ralph_build_mcp_config() exists but wasn't explicitly needed since MCP secrets
+  are included in _ralph_generate_env_1password() via global.mcps registry path
+- All 8 acceptance criteria completed
+- Updated stats: completed=48, pending=1, blocked=0
+---

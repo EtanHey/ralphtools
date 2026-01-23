@@ -2415,6 +2415,32 @@ function ralph() {
   fi
   echo ""
 
+  # Detect current project and 1Password availability for secret injection
+  local ralph_project_name=""
+  local ralph_use_op=false
+  local ralph_env_1password_file=""
+  local ralph_mcp_config_file=""
+
+  # Try to detect project from registry
+  ralph_project_name=$(_ralph_current_project 2>/dev/null)
+
+  # Check if op CLI is available and user is signed in
+  if command -v op &> /dev/null; then
+    if op account list &> /dev/null; then
+      ralph_use_op=true
+      echo "🔐 1Password: Available (secrets via 1Password Environments)"
+    else
+      echo "🔐 1Password: CLI available but not signed in"
+    fi
+  else
+    echo "🔐 1Password: Not installed (using environment variables)"
+  fi
+
+  if [[ -n "$ralph_project_name" ]]; then
+    echo "📦 Project: $ralph_project_name"
+  fi
+  echo ""
+
   # Create progress.txt if it doesn't exist
   if [[ ! -f "progress.txt" ]]; then
     echo "# Progress Log" > progress.txt
@@ -2431,6 +2457,9 @@ function ralph() {
     _ralph_stop_watcher
 
     rm -f "$RALPH_TMP"
+    # Clean up temp 1Password environment files
+    [[ -n "$ralph_env_1password_file" ]] && rm -f "$ralph_env_1password_file"
+    [[ -n "$ralph_mcp_config_file" ]] && rm -f "$ralph_mcp_config_file"
     if [[ -n "$app_mode" && -n "$original_branch" ]]; then
       echo ""
       echo "🔙 Returning to original branch: $original_branch"
@@ -2680,6 +2709,17 @@ function ralph() {
           cli_cmd_arr=(claude --chrome --dangerously-skip-permissions --session-id "$iteration_session_id")
           ;;
       esac
+
+      # Wrap CLI command with 'op run --env-file' if 1Password is available
+      # This injects secrets from the .env.1password file into the environment
+      if [[ "$ralph_use_op" == "true" && -n "$ralph_project_name" ]]; then
+        # Generate temp .env.1password file for this iteration
+        ralph_env_1password_file=$(_ralph_generate_env_1password "$ralph_project_name" "/tmp/ralph-${ralph_project_name}-$$.env.1password")
+        if [[ -f "$ralph_env_1password_file" ]]; then
+          # Prepend 'op run --env-file' to the command array
+          cli_cmd_arr=(op run --env-file "$ralph_env_1password_file" -- "${cli_cmd_arr[@]}")
+        fi
+      fi
 
       # Build the prompt based on JSON vs Markdown mode
       local ralph_prompt=""

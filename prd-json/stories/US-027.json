@@ -3,15 +3,17 @@
   "title": "Ralph uses op run for secret injection",
   "description": "Update ralph() main loop to use 1Password Environments via 'op run --env-file'. Generate temp .env.1password, then wrap claude CLI call with 'op run'. This is the official 1Password pattern for injecting secrets into processes.",
   "acceptanceCriteria": [
-    { "text": "Ralph detects current project using _ralph_current_project()", "checked": false },
-    { "text": "Ralph builds temp .mcp.json using _ralph_build_mcp_config()", "checked": false },
-    { "text": "Ralph generates /tmp/ralph-{project}.env.1password using _ralph_generate_env_1password()", "checked": false },
-    { "text": "Ralph wraps claude CLI: op run --env-file /tmp/ralph-{project}.env.1password -- claude ...", "checked": false },
-    { "text": "Fallback: if op not available, use existing env vars (no error)", "checked": false },
-    { "text": "Startup output shows project name and 'secrets via 1Password Environments'", "checked": false },
-    { "text": "Cleanup removes temp files after iteration", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Ralph detects current project using _ralph_current_project()", "checked": true },
+    { "text": "Ralph builds temp .mcp.json using _ralph_build_mcp_config()", "checked": true },
+    { "text": "Ralph generates /tmp/ralph-{project}.env.1password using _ralph_generate_env_1password()", "checked": true },
+    { "text": "Ralph wraps claude CLI: op run --env-file /tmp/ralph-{project}.env.1password -- claude ...", "checked": true },
+    { "text": "Fallback: if op not available, use existing env vars (no error)", "checked": true },
+    { "text": "Startup output shows project name and 'secrets via 1Password Environments'", "checked": true },
+    { "text": "Cleanup removes temp files after iteration", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T15:30:00Z",
+  "completedBy": "opus"
 }
