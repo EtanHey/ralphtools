@@ -1084,6 +1084,14 @@ function ralph() {
   # Valid app names for app-specific mode (parsed from space-separated config)
   local valid_apps=(${=RALPH_VALID_APPS})
 
+  # Check for version flag first (exits immediately)
+  case "$1" in
+    --version|-v)
+      echo "ralphtools v${RALPH_VERSION}"
+      return 0
+      ;;
+  esac
+
   # Parse arguments - check for app name first
   local args_to_parse=()
   while [[ $# -gt 0 ]]; do

@@ -3,12 +3,14 @@
   "title": "Add ralph --version flag",
   "description": "Support ralph --version to show current version without running the loop.",
   "acceptanceCriteria": [
-    { "text": "ralph --version prints 'ralphtools v{VERSION}' and exits", "checked": false },
-    { "text": "ralph -v does the same (short flag)", "checked": false },
-    { "text": "Version is read from RALPH_VERSION variable", "checked": false },
-    { "text": "No other output when --version is used", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "ralph --version prints 'ralphtools v{VERSION}' and exits", "checked": true },
+    { "text": "ralph -v does the same (short flag)", "checked": true },
+    { "text": "Version is read from RALPH_VERSION variable", "checked": true },
+    { "text": "No other output when --version is used", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T03:05:00Z",
+  "completedBy": "haiku"
 }
