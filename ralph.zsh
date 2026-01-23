@@ -954,6 +954,192 @@ _ralph_load_config() {
   return 1
 }
 
+# ═══════════════════════════════════════════════════════════════════
+# REGISTRY - Centralized Project/MCP Configuration
+# ═══════════════════════════════════════════════════════════════════
+
+RALPH_REGISTRY_FILE="${RALPH_CONFIG_DIR}/registry.json"
+
+# Migrate existing projects.json and shared-project-mcps.json to registry.json
+# Usage: _ralph_migrate_to_registry
+_ralph_migrate_to_registry() {
+  local old_projects="$HOME/.config/ralphtools/projects.json"
+  local shared_mcps="$HOME/.claude/shared-project-mcps.json"
+  local registry="$RALPH_REGISTRY_FILE"
+
+  # Check if registry already exists
+  if [[ -f "$registry" ]]; then
+    echo "Registry already exists at $registry"
+    return 0
+  fi
+
+  # Check if we have source files to migrate from
+  if [[ ! -f "$old_projects" && ! -f "$shared_mcps" ]]; then
+    echo "No existing projects.json or shared-project-mcps.json found. Creating minimal registry."
+    mkdir -p "$RALPH_CONFIG_DIR"
+    cat > "$registry" << 'EOF'
+{
+  "version": "1.0.0",
+  "global": {
+    "mcps": {}
+  },
+  "projects": {},
+  "mcpDefinitions": {}
+}
+EOF
+    return 0
+  fi
+
+  # Start building registry JSON
+  echo "Migrating to registry.json..."
+
+  # Read projects if available
+  local projects_json="{}"
+  if [[ -f "$old_projects" ]]; then
+    # Convert projects array to object format: {name: {path, mcps, etc}}
+    projects_json=$(jq -r '
+      .projects | map({(.name): {path: .path, mcps: (.mcps // []), secrets: {}, created: .created}}) | add // {}
+    ' "$old_projects" 2>/dev/null)
+    if [[ -z "$projects_json" || "$projects_json" == "null" ]]; then
+      projects_json="{}"
+    fi
+    echo "  ✓ Imported projects from projects.json"
+  fi
+
+  # Read global MCPs if available
+  local global_mcps="{}"
+  if [[ -f "$shared_mcps" ]]; then
+    global_mcps=$(jq '.mcpServers // {}' "$shared_mcps" 2>/dev/null)
+    if [[ -z "$global_mcps" || "$global_mcps" == "null" ]]; then
+      global_mcps="{}"
+    fi
+    echo "  ✓ Imported global MCPs from shared-project-mcps.json"
+  fi
+
+  # Build the registry
+  mkdir -p "$RALPH_CONFIG_DIR"
+  jq -n \
+    --arg version "1.0.0" \
+    --argjson global_mcps "$global_mcps" \
+    --argjson projects "$projects_json" \
+    '{
+      version: $version,
+      global: {
+        mcps: $global_mcps
+      },
+      projects: $projects,
+      mcpDefinitions: {}
+    }' > "$registry"
+
+  echo "  ✓ Registry created at $registry"
+  return 0
+}
+
+# Load registry into memory (cached)
+# Usage: _ralph_load_registry
+_ralph_load_registry() {
+  if [[ ! -f "$RALPH_REGISTRY_FILE" ]]; then
+    echo "Registry not found. Run '_ralph_migrate_to_registry' to initialize." >&2
+    return 1
+  fi
+  cat "$RALPH_REGISTRY_FILE"
+}
+
+# Get project config by path (auto-detects current project)
+# Usage: _ralph_get_project_config [path]
+_ralph_get_project_config() {
+  local search_path="${1:-$(pwd)}"
+  search_path="${search_path:A}"  # Resolve to absolute
+
+  local registry=$(_ralph_load_registry) || return 1
+
+  # Find project matching this path
+  echo "$registry" | jq -r --arg path "$search_path" '
+    .projects | to_entries[] |
+    select(($path | startswith(.value.path | gsub("~"; env.HOME) | gsub("^~"; env.HOME)))) |
+    {name: .key, config: .value}
+  ' | head -1
+}
+
+# Get project name from current directory
+# Usage: _ralph_current_project
+_ralph_current_project() {
+  local config=$(_ralph_get_project_config)
+  [[ -n "$config" ]] && echo "$config" | jq -r '.name'
+}
+
+# Build MCP config for a project (merges global + project MCPs)
+# Usage: _ralph_build_mcp_config [project_name]
+_ralph_build_mcp_config() {
+  local project_name="${1:-$(_ralph_current_project)}"
+  local registry=$(_ralph_load_registry) || return 1
+
+  # Get global MCPs
+  local global_mcps=$(echo "$registry" | jq '.global.mcps // {}')
+
+  # Get project-specific MCPs
+  local project_mcps=$(echo "$registry" | jq -r --arg proj "$project_name" '
+    .projects[$proj].mcps // [] | .[]
+  ')
+
+  # Get MCP definitions and build final config
+  local mcp_defs=$(echo "$registry" | jq '.mcpDefinitions // {}')
+  local project_secrets=$(echo "$registry" | jq -r --arg proj "$project_name" '
+    .projects[$proj].secrets // {}
+  ')
+
+  # Merge: global + (project MCPs resolved from definitions)
+  local result="$global_mcps"
+
+  for mcp in ${(f)project_mcps}; do
+    local mcp_def=$(echo "$mcp_defs" | jq --arg m "$mcp" '.[$m] // empty')
+    if [[ -n "$mcp_def" ]]; then
+      result=$(echo "$result" | jq --arg m "$mcp" --argjson def "$mcp_def" '.[$m] = $def')
+    fi
+  done
+
+  echo "{\"mcpServers\": $result}"
+}
+
+# Inject secrets from 1Password into environment
+# Usage: _ralph_inject_secrets [project_name]
+_ralph_inject_secrets() {
+  local project_name="${1:-$(_ralph_current_project)}"
+  local registry=$(_ralph_load_registry) || return 1
+
+  # Check if op CLI is available
+  if ! command -v op &> /dev/null; then
+    return 0  # No 1Password, skip silently
+  fi
+
+  # Get project secrets (op:// references)
+  local secrets=$(echo "$registry" | jq -r --arg proj "$project_name" '
+    .projects[$proj].secrets // {} | to_entries[] |
+    "\(.key)=\(.value)"
+  ')
+
+  # Resolve each secret via op
+  local resolved=()
+  for secret in ${(f)secrets}; do
+    local key="${secret%%=*}"
+    local op_ref="${secret#*=}"
+
+    if [[ "$op_ref" == op://* ]]; then
+      local value=$(op read "$op_ref" 2>/dev/null)
+      if [[ -n "$value" ]]; then
+        resolved+=("$key=$value")
+      fi
+    else
+      resolved+=("$key=$op_ref")  # Plain value, not op://
+    fi
+  done
+
+  # Export resolved secrets
+  for kv in "${resolved[@]}"; do
+    export "${kv%%=*}=${kv#*=}"
+  done
+}
+
 # Run parallel verification for V-* stories
 # Spawns multiple agents with different viewport/focus prompts
 # Usage: _ralph_run_parallel_verification "V-001" "/path/to/prd-json" "prompt_text"

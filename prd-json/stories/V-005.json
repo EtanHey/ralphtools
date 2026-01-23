@@ -3,14 +3,14 @@
   "title": "Verify box drawing and color output code",
   "description": "Verify the box drawing alignment fix (US-023) and color scheme code (US-024) are implemented correctly by inspecting the code and running syntax checks.",
   "acceptanceCriteria": [
-    { "text": "Verify _ralph_display_width() function exists in ralph.zsh", "checked": false },
-    { "text": "Verify function handles emojis (🚀📋🆕💰⏱✓) as width 2", "checked": false },
-    { "text": "Verify _ralph_show_changelog_version() uses display width for padding", "checked": false },
-    { "text": "Verify COLOR_SCHEMES array exists with presets: default, dark, light, minimal, none", "checked": false },
-    { "text": "Verify _ralph_init_colors() loads scheme into RALPH_COLOR_* vars", "checked": false },
-    { "text": "Verify NO_COLOR env var support exists", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Verify _ralph_display_width() function exists in ralph.zsh", "checked": true },
+    { "text": "Verify function handles emojis (🚀📋🆕💰⏱✓) as width 2", "checked": true },
+    { "text": "Verify _ralph_show_changelog_version() uses display width for padding", "checked": true },
+    { "text": "Verify COLOR_SCHEMES array exists with presets: default, dark, light, minimal, none", "checked": true },
+    { "text": "Verify _ralph_init_colors() loads scheme into RALPH_COLOR_* vars", "checked": true },
+    { "text": "Verify NO_COLOR env var support exists", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }
