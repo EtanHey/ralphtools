@@ -1527,9 +1527,6 @@ function ralph() {
     local task_count=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
     echo "📋 PRD: $task_count tasks remaining"
   fi
-  local pm="${primary_model:-opus}"
-  local vm="${verify_model:-haiku}"
-  echo "🧠 Models: $pm (main) / $vm (verify)"
   if $notify_enabled; then
     echo "🔔 Notifications: ON (topic: $ntfy_topic)"
   else
