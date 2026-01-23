@@ -7,12 +7,12 @@
   "storyPoints": 1,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Remove -G -H -K examples from README.md", "checked": false},
-    {"text": "Add deprecation notice in ralph --help output for these flags", "checked": false},
-    {"text": "Keep flag parsing code working (backwards compat)", "checked": false},
-    {"text": "Update any docs that reference manual model flags", "checked": false},
-    {"text": "Typecheck passes", "checked": false}
+    {"text": "Remove -G -H -K examples from README.md", "checked": true},
+    {"text": "Add deprecation notice in ralph --help output for these flags", "checked": true},
+    {"text": "Keep flag parsing code working (backwards compat)", "checked": true},
+    {"text": "Update any docs that reference manual model flags", "checked": true},
+    {"text": "Typecheck passes", "checked": true}
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true
 }

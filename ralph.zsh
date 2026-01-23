@@ -18,17 +18,18 @@
 #   --no-live    : Disable live progress bar updates (fswatch)
 #   (no flag) : No notifications, Opus model (default)
 #
-# Model Flags (can specify two: first=primary, second=verification):
+# Model Flags:
 #   -O   : Opus (Claude, default)
 #   -S   : Sonnet (Claude, faster)
-#   -H   : Haiku (Claude, fastest)
-#   -K   : Kiro CLI (no browser MCPs)
-#   -G   : Gemini CLI (has browser MCPs)
 #
-# Model Routing:
-#   - First flag = model for US-*/BUG-* stories
-#   - Second flag = model for V-* verification stories (default: Haiku)
-#   - Examples: -G -H (Gemini main, Haiku verify), -K -G (Kiro main, Gemini verify)
+# Deprecated Flags (use smart routing via config.json instead):
+#   -H   : Haiku (DEPRECATED - use smart routing)
+#   -K   : Kiro CLI (DEPRECATED - use smart routing)
+#   -G   : Gemini CLI (DEPRECATED - use smart routing)
+#
+# Smart Model Routing (Recommended):
+#   Configure models in config.json via `ralph-setup`. Story prefixes
+#   auto-select models: US→Sonnet, V→Haiku, BUG→Sonnet, etc.
 #
 # App Mode:
 #   - PRD: apps/{app}/prd-json/
@@ -4157,17 +4158,18 @@ function ralph-help() {
   echo "  ${BOLD}--compact, -c${NC}         Compact output mode (less verbose)"
   echo "  ${BOLD}--debug, -d${NC}           Debug output mode (more verbose)"
   echo ""
-  echo "${GREEN}Model Flags (first=main, second=verify):${NC}"
+  echo "${GREEN}Model Flags:${NC}"
   echo "  ${BOLD}-O${NC}                    Opus (Claude, default)"
   echo "  ${BOLD}-S${NC}                    Sonnet (Claude, faster)"
-  echo "  ${BOLD}-H${NC}                    Haiku (Claude, fastest)"
-  echo "  ${BOLD}-K${NC}                    Kiro CLI (no browser MCPs)"
-  echo "  ${BOLD}-G${NC}                    Gemini CLI (has browser MCPs)"
   echo ""
-  echo "${GREEN}Examples:${NC}"
-  echo "  ralph 50 -G -H        Gemini for main, Haiku for V-*"
-  echo "  ralph 50 -K -G        Kiro for main, Gemini for V-*"
-  echo "  ralph 50 -G -G        Gemini for all stories"
+  echo "${GRAY}Deprecated Flags (use smart routing instead):${NC}"
+  echo "  ${GRAY}-H                    Haiku (use config.json)${NC}"
+  echo "  ${GRAY}-K                    Kiro CLI (use config.json)${NC}"
+  echo "  ${GRAY}-G                    Gemini CLI (use config.json)${NC}"
+  echo ""
+  echo "${GREEN}Smart Model Routing:${NC}"
+  echo "  Configure via ralph-setup or config.json. Story prefixes"
+  echo "  auto-select models: US→Sonnet, V→Haiku, BUG→Sonnet, etc."
   echo ""
   echo "${GREEN}Color Schemes:${NC}"
   echo "  Set in config.json via 'colorScheme' field:"

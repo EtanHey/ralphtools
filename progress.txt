@@ -150,3 +150,22 @@ Changes:
 - SKILL.md frontmatter (name, description) is required for Claude Code skill discovery
 - Symlinks allow skills to auto-update when the source repo is pulled
 - SongScript benefits from Convex user-deletion workflow (US-070) immediately
+
+## Iteration 10
+Story: US-073 - Deprecate -G -H -K model flags in favor of smart routing
+Status: COMPLETED (opus)
+Changes:
+- Updated header comment in ralph.zsh: moved -H, -K, -G to "Deprecated Flags" section
+- Added "Smart Model Routing (Recommended)" section pointing to config.json and ralph-setup
+- Updated ralph-help function: -H, -K, -G now shown in gray with deprecation notice
+- Removed model flag examples from help output (previously showed ralph 50 -G -H examples)
+- Added "Smart Model Routing" section to help output with smart routing explanation
+- Flag parsing code at lines 2812-2841 preserved for backwards compatibility
+- README.md already had -G -H -K removed (only shows -O and -S)
+- Unblocked AUDIT-001 (was blockedBy US-073)
+- All 43 tests pass
+
+### Learnings
+- Deprecation = update docs + add warnings, but keep code working
+- Historical design docs (docs/plans/) should not be modified for deprecation
+- Always check for dependent stories to unblock after completing a story
