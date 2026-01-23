@@ -161,16 +161,38 @@ What needs to be done.
 
 ## Troubleshooting
 
-### Auth Issues
+### Auth Issues - GITHUB_TOKEN Conflict (Common!)
+
+**Symptom:** `gh` commands fail with "Bad credentials" even though `gh auth status` shows you're logged in.
+
+**Cause:** An old/expired `GITHUB_TOKEN` in your shell config (`.zshrc`, `.bashrc`) overrides the valid keyring auth.
+
+**Diagnosis:**
 ```bash
-# Check status
 gh auth status
+# Look for: "The token in GITHUB_TOKEN is invalid"
+# And: "Active account: false" even though logged in
+```
 
-# Re-authenticate
-gh auth login
+**Fix:**
+```bash
+# 1. Find where GITHUB_TOKEN is set
+grep -r "GITHUB_TOKEN" ~/.zshrc ~/.bashrc ~/.zprofile 2>/dev/null
 
-# If GITHUB_TOKEN env var is invalid
+# 2. Remove that line from your shell config (or comment it out)
+# The gh CLI uses keyring auth now which is better (auto-refreshes)
+
+# 3. Unset in current session
 unset GITHUB_TOKEN
+
+# 4. Verify it works
+gh auth status  # Should show "Active account: true"
+```
+
+**Why this happens:** Old GitHub workflows used personal access tokens exported as `GITHUB_TOKEN`. The `gh` CLI now uses OAuth via keyring, which is more secure and auto-refreshes. The old env var takes precedence and breaks things.
+
+### Re-authenticate
+```bash
 gh auth login
 ```
 
