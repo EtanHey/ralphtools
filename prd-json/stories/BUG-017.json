@@ -1,17 +1,18 @@
 {
   "id": "BUG-017",
-  "title": "Show total acceptance criteria count in Ralph output",
-  "description": "When Ralph displays a story, it should show the total number of acceptance criteria (e.g., '0/12 criteria checked') so users know the scope of the story at a glance.",
+  "title": "Show total acceptance criteria count across entire PRD",
+  "description": "When Ralph starts, it should show the total number of acceptance criteria across ALL stories in the PRD (e.g., '27 stories, 156 total criteria'). This helps users understand the full scope of work.",
   "type": "bug",
   "priority": "medium",
   "storyPoints": 1,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Find where Ralph displays story info (likely in iteration loop)", "checked": false},
-    {"text": "Add criteria count: total = jq '.acceptanceCriteria | length'", "checked": false},
-    {"text": "Add checked count: checked = jq '[.acceptanceCriteria[] | select(.checked==true)] | length'", "checked": false},
-    {"text": "Display format: 'Criteria: X/Y checked' or similar", "checked": false},
-    {"text": "Test: Run Ralph on a story, verify criteria count is shown", "checked": false}
+    {"text": "Find where Ralph displays PRD summary at startup", "checked": false},
+    {"text": "Loop through all story files and sum acceptanceCriteria lengths", "checked": false},
+    {"text": "Calculate: total_criteria = sum of all .acceptanceCriteria | length", "checked": false},
+    {"text": "Calculate: checked_criteria = sum of all checked=true across all stories", "checked": false},
+    {"text": "Display format at startup: 'PRD: X stories, Y/Z criteria checked'", "checked": false},
+    {"text": "Test: Run Ralph, verify total criteria count shown at start", "checked": false}
   ],
   "dependencies": [],
   "passes": false
