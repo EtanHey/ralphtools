@@ -5,43 +5,44 @@
   "type": "verification",
   "priority": "high",
   "storyPoints": 3,
-  "status": "pending",
+  "status": "completed",
+  "passes": true,
   "acceptanceCriteria": [
     {
       "text": "Run Ralph on ralphtools - verify live criteria bar updates during iteration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run ralph-status in separate terminal - verify criteria checkboxes update",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify per-project ntfy topics work (run Ralph on two projects, get separate notifications)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test /update skill: add story while Ralph running → goes to update.json",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test /update skill: add story while Ralph NOT running → goes to index.json",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify MCP registry loads project-specific MCPs (if US-055-057 complete)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run tests/test-ralph.zsh - all tests pass",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify all skills in ~/.claude/commands/ follow correct structure",
-      "checked": false
+      "checked": true
     },
     {
       "text": "No debug output leaks (remaining_stats, etc.)",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [
