@@ -809,13 +809,30 @@ _ralph_ntfy() {
       ;;
   esac
 
-  # Build body with available info
-  local body="📁 $project_name"
-  [[ -n "$iteration" ]] && body+="\n🔢 Iteration $iteration"
-  [[ -n "$story_id" ]] && body+="\n📝 $story_id"
-  [[ -n "$model" ]] && body+="\n🤖 $model"
-  [[ -n "$remaining" ]] && body+="\n📋 $remaining remaining"
-  [[ -n "$cost" ]] && body+="\n💰 \$$cost"
+  # Build compact 3-line body with emoji labels
+  # Line 1: repo name
+  local body="$project_name"
+
+  # Line 2: 🔄 iteration + story + model
+  local line2=""
+  [[ -n "$iteration" ]] && line2="🔄$iteration"
+  [[ -n "$story_id" ]] && line2+=" $story_id"
+  [[ -n "$model" ]] && line2+=" $model"
+  [[ -n "$line2" ]] && body+="\n$line2"
+
+  # Line 3: 📚 stories left + ☐ criteria left + 💵 cost
+  local line3=""
+  if [[ -n "$remaining" ]]; then
+    # remaining is "stories criteria" space-separated from _ralph_json_remaining_stats
+    local stories=$(echo "$remaining" | awk '{print $1}')
+    local criteria=$(echo "$remaining" | awk '{print $2}')
+    [[ -n "$stories" ]] && line3+="📚$stories"
+    [[ -n "$criteria" ]] && line3+=" ☐$criteria"
+  fi
+  [[ -n "$cost" ]] && line3+=" 💵\$$cost"
+  [[ -n "$line3" ]] && body+="\n$line3"
+
+  # Append message if present
   [[ -n "$message" ]] && body+="\n\n$message"
 
   # Send with ntfy headers for rich notification
@@ -1001,6 +1018,31 @@ _ralph_json_remaining_count() {
   done < <(jq -r '.pending[]' "$index_file" 2>/dev/null)
 
   echo "$stories stories ($criteria criteria)"
+}
+
+# Get remaining stats as space-separated numbers: "stories criteria"
+_ralph_json_remaining_stats() {
+  local json_dir="$1"
+  local index_file="$json_dir/index.json"
+
+  if [[ ! -f "$index_file" ]]; then
+    echo "0 0"
+    return
+  fi
+
+  local stories=$(jq -r '.stats.pending // 0' "$index_file")
+
+  # Count total unchecked criteria across all pending stories using while read
+  local criteria=0
+  while IFS= read -r story_id; do
+    local story_file="$json_dir/stories/${story_id}.json"
+    if [[ -f "$story_file" ]]; then
+      local unchecked=$(jq '[.acceptanceCriteria[] | select(.checked == false)] | length' "$story_file" 2>/dev/null || echo 0)
+      criteria=$((criteria + unchecked))
+    fi
+  done < <(jq -r '.pending[]' "$index_file" 2>/dev/null)
+
+  echo "$stories $criteria"
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1753,7 +1795,7 @@ After completing task, check PRD state:
       # Send notification if enabled
       if $notify_enabled; then
         local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
-        _ralph_ntfy "$ntfy_topic" "complete" "All tasks done!" "" "" "$i" "0" "$total_cost"
+        _ralph_ntfy "$ntfy_topic" "complete" "All tasks done!" "" "" "$i" "0 0" "$total_cost"
       fi
       rm -f "$RALPH_TMP"
       return 0
@@ -1772,7 +1814,14 @@ After completing task, check PRD state:
       echo "═══════════════════════════════════════════════════════════════"
       # Send notification if enabled
       if $notify_enabled; then
-        _ralph_ntfy "$ntfy_topic" "blocked" "User action needed" "$current_story" "" "$i"
+        local blocked_stats
+        if [[ "$use_json_mode" == "true" ]]; then
+          blocked_stats=$(_ralph_json_remaining_stats "$PRD_JSON_DIR")
+        else
+          blocked_stats="? ?"
+        fi
+        local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+        _ralph_ntfy "$ntfy_topic" "blocked" "User action needed" "$current_story" "" "$i" "$blocked_stats" "$total_cost"
       fi
       rm -f "$RALPH_TMP"
       return 2  # Different exit code for blocked vs complete
@@ -1786,10 +1835,13 @@ After completing task, check PRD state:
 
     # Show remaining tasks
     local remaining
+    local remaining_stats
     if [[ "$use_json_mode" == "true" ]]; then
       remaining=$(_ralph_json_remaining_count "$PRD_JSON_DIR")
+      remaining_stats=$(_ralph_json_remaining_stats "$PRD_JSON_DIR")
     else
       remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
+      remaining_stats="? ?"
     fi
     echo "───────────────────────────────────────────────────────────────"
     echo "  📋 Remaining: $remaining"
@@ -1798,7 +1850,7 @@ After completing task, check PRD state:
 
     # Per-iteration notification if enabled
     if $notify_enabled; then
-      _ralph_ntfy "$ntfy_topic" "iteration" "" "$current_story" "$routed_model" "$i" "$remaining"
+      _ralph_ntfy "$ntfy_topic" "iteration" "" "$current_story" "$routed_model" "$i" "$remaining_stats"
     fi
 
     sleep $SLEEP
@@ -1813,17 +1865,20 @@ After completing task, check PRD state:
     _ralph_auto_unblock "$PRD_JSON_DIR"
   fi
   local final_remaining
+  local final_remaining_stats
   if [[ "$use_json_mode" == "true" ]]; then
     final_remaining=$(_ralph_json_remaining_count "$PRD_JSON_DIR")
+    final_remaining_stats=$(_ralph_json_remaining_stats "$PRD_JSON_DIR")
   else
     final_remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
+    final_remaining_stats="? ?"
   fi
   echo "  📋 Remaining: $final_remaining"
   echo "═══════════════════════════════════════════════════════════════"
   # Send notification if enabled
   if $notify_enabled; then
     local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
-    _ralph_ntfy "$ntfy_topic" "max_iterations" "Limit reached" "" "" "$MAX" "$final_remaining" "$total_cost"
+    _ralph_ntfy "$ntfy_topic" "max_iterations" "Limit reached" "" "" "$MAX" "$final_remaining_stats" "$total_cost"
   fi
   rm -f "$RALPH_TMP"
   return 1

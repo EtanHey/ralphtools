@@ -3,13 +3,15 @@
   "title": "Compact ntfy with emoji labels",
   "description": "Use emojis as compact labels instead of text. Pack more info in 3 lines.",
   "acceptanceCriteria": [
-    { "text": "Line 1: repo name (e.g. 'ralphtools')", "checked": false },
-    { "text": "Line 2: 🔄 iteration + story + model (e.g. '🔄5 TEST-004 haiku')", "checked": false },
-    { "text": "Line 3: 📚 stories left + ☐ criteria left + 💵 cost (e.g. '📚26 ☐129 💵$0.28')", "checked": false },
-    { "text": "Use ☐ (empty checkbox) for remaining criteria, not ✅", "checked": false },
-    { "text": "All info in 3 compact lines using emoji labels", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Line 1: repo name (e.g. 'ralphtools')", "checked": true },
+    { "text": "Line 2: 🔄 iteration + story + model (e.g. '🔄5 TEST-004 haiku')", "checked": true },
+    { "text": "Line 3: 📚 stories left + ☐ criteria left + 💵 cost (e.g. '📚26 ☐129 💵$0.28')", "checked": true },
+    { "text": "Use ☐ (empty checkbox) for remaining criteria, not ✅", "checked": true },
+    { "text": "All info in 3 compact lines using emoji labels", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-23T02:45:00Z",
+  "completedBy": "haiku",
   "blockedBy": null
 }

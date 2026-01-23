@@ -807,13 +807,30 @@ _ralph_ntfy_testable() {
       ;;
   esac
 
-  # Build body with available info
-  local body="📁 $project_name"
-  [[ -n "$iteration" ]] && body+="\n🔢 Iteration $iteration"
-  [[ -n "$story_id" ]] && body+="\n📝 $story_id"
-  [[ -n "$model" ]] && body+="\n🤖 $model"
-  [[ -n "$remaining" ]] && body+="\n📋 $remaining remaining"
-  [[ -n "$cost" ]] && body+="\n💰 \$$cost"
+  # Build compact 3-line body with emoji labels
+  # Line 1: repo name
+  local body="$project_name"
+
+  # Line 2: 🔄 iteration + story + model
+  local line2=""
+  [[ -n "$iteration" ]] && line2="🔄$iteration"
+  [[ -n "$story_id" ]] && line2+=" $story_id"
+  [[ -n "$model" ]] && line2+=" $model"
+  [[ -n "$line2" ]] && body+="\n$line2"
+
+  # Line 3: 📚 stories left + ☐ criteria left + 💵 cost
+  local line3=""
+  if [[ -n "$remaining" ]]; then
+    # remaining is "stories criteria" space-separated from _ralph_json_remaining_stats
+    local stories=$(echo "$remaining" | awk '{print $1}')
+    local criteria=$(echo "$remaining" | awk '{print $2}')
+    [[ -n "$stories" ]] && line3+="📚$stories"
+    [[ -n "$criteria" ]] && line3+=" ☐$criteria"
+  fi
+  [[ -n "$cost" ]] && line3+=" 💵\$$cost"
+  [[ -n "$line3" ]] && body+="\n$line3"
+
+  # Append message if present
   [[ -n "$message" ]] && body+="\n\n$message"
 
   # Record for test verification
@@ -835,28 +852,32 @@ _ralph_ntfy_testable() {
   fi
 }
 
-# Test: _ralph_ntfy builds correct body with project name
+# Test: _ralph_ntfy builds compact 3-line body with emoji labels
 test_ntfy_builds_body_with_project_name() {
-  test_start "ntfy builds body with project name"
+  test_start "ntfy builds compact 3-line body"
   _setup_test_fixtures
   _reset_mock_curl
 
   # Call testable version with mock curl (no actual HTTP call)
-  _ralph_ntfy_testable "test-topic" "iteration" "Test message" "US-001" "sonnet" "5" "10" "1.50" "mock"
+  # Note: remaining is "stories criteria" format (e.g., "10 129")
+  _ralph_ntfy_testable "test-topic" "iteration" "Test message" "US-001" "sonnet" "5" "10 129" "1.50" "mock"
 
   # Verify curl would have been called
   assert_equals "1" "$MOCK_CURL_CALLED" "curl should have been called" || { _teardown_test_fixtures; return; }
 
-  # Verify body contains project name (from pwd basename)
-  # The body should start with the project folder name
-  assert_contains "$MOCK_CURL_BODY" "📁" "body should contain project folder icon" || { _teardown_test_fixtures; return; }
+  # Verify 3 compact lines with emoji labels
+  # Line 1: repo name
+  assert_contains "$MOCK_CURL_BODY" "ralphtools" "line 1 should contain repo name" || { _teardown_test_fixtures; return; }
 
-  # Verify body contains other expected parts
-  assert_contains "$MOCK_CURL_BODY" "🔢 Iteration 5" "body should contain iteration" || { _teardown_test_fixtures; return; }
-  assert_contains "$MOCK_CURL_BODY" "📝 US-001" "body should contain story_id" || { _teardown_test_fixtures; return; }
-  assert_contains "$MOCK_CURL_BODY" "🤖 sonnet" "body should contain model" || { _teardown_test_fixtures; return; }
-  assert_contains "$MOCK_CURL_BODY" "📋 10 remaining" "body should contain remaining count" || { _teardown_test_fixtures; return; }
-  assert_contains "$MOCK_CURL_BODY" "💰 \$1.50" "body should contain cost" || { _teardown_test_fixtures; return; }
+  # Line 2: 🔄 iteration + story + model (e.g., "🔄5 US-001 sonnet")
+  assert_contains "$MOCK_CURL_BODY" "🔄5 US-001 sonnet" "line 2 should have compact iteration+story+model" || { _teardown_test_fixtures; return; }
+
+  # Line 3: 📚 stories + ☐ criteria + 💵 cost (e.g., "📚10 ☐129 💵\$1.50")
+  assert_contains "$MOCK_CURL_BODY" "📚10" "line 3 should have stories count" || { _teardown_test_fixtures; return; }
+  assert_contains "$MOCK_CURL_BODY" "☐129" "line 3 should have criteria count" || { _teardown_test_fixtures; return; }
+  assert_contains "$MOCK_CURL_BODY" "💵\$1.50" "line 3 should have cost" || { _teardown_test_fixtures; return; }
+
+  # Verify message is appended
   assert_contains "$MOCK_CURL_BODY" "Test message" "body should contain message" || { _teardown_test_fixtures; return; }
 
   # Verify URL is correct
