@@ -3,16 +3,16 @@
   "title": "Separate notification channels (Ralph vs Claude)",
   "description": "Ralph and Claude need separate ntfy topics. Ralph uses per-project topics (etans-ralph-<project>) so same project shares notifications. Claude gets its own topic (etans-ralphClaude). Multiple Ralph instances on same project share topic, different projects get different topics.",
   "acceptanceCriteria": [
-    { "text": "RALPH_NTFY_TOPIC defaults to 'etans-ralph-<project>' using git repo name", "checked": false },
-    { "text": "CLAUDE_NTFY_TOPIC defaults to 'etans-ralphClaude'", "checked": false },
-    { "text": "Same project = same Ralph topic (instances share)", "checked": false },
-    { "text": "Different projects = different Ralph topics", "checked": false },
-    { "text": "Claude notifications never mix with Ralph iterations", "checked": false },
-    { "text": "Topic prefix configurable via RALPH_NTFY_PREFIX (default: etans-ralph)", "checked": false },
-    { "text": "Notification includes [Ralph] or [Claude] prefix in message", "checked": false },
-    { "text": "Document topic naming in docs/", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "RALPH_NTFY_TOPIC defaults to 'etans-ralph-<project>' using git repo name", "checked": true },
+    { "text": "CLAUDE_NTFY_TOPIC defaults to 'etans-ralphClaude'", "checked": true },
+    { "text": "Same project = same Ralph topic (instances share)", "checked": true },
+    { "text": "Different projects = different Ralph topics", "checked": true },
+    { "text": "Claude notifications never mix with Ralph iterations", "checked": true },
+    { "text": "Topic prefix configurable via RALPH_NTFY_PREFIX (default: etans-ralph)", "checked": true },
+    { "text": "Notification includes [Ralph] or [Claude] prefix in message", "checked": true },
+    { "text": "Document topic naming in docs/", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }

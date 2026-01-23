@@ -95,3 +95,21 @@ Files created:
 - Install wizards benefit from step-by-step workflow separation
 - Include troubleshooting in main SKILL.md for quick reference
 - Validation scripts with pass/fail counts give clear status
+
+## Iteration 5 - US-037: Separate notification channels (Ralph vs Claude)
+**Status**: COMPLETED
+
+Implemented separate ntfy topics for Ralph and Claude:
+- Ralph topics are per-project: `etans-ralph-<project>` (same project shares topic)
+- Claude topic is fixed: `etans-ralphClaude` (never mixes with Ralph)
+- Added configurable prefix via RALPH_NTFY_PREFIX
+- All Ralph notifications now include [Ralph] prefix in title
+
+Files modified:
+- /Users/etanheyman/Desktop/Gits/ralphtools/ralph.zsh - Updated defaults and notification function
+- /Users/etanheyman/Desktop/Gits/ralphtools/docs/notifications.md - Created topic naming documentation
+
+### Learnings
+- Per-project topics allow subscribing only to active projects
+- Fixed Claude topic ensures Claude alerts are never buried in Ralph iterations
+- [Ralph] prefix in title makes notifications easily identifiable at a glance

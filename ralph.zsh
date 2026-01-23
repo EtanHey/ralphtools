@@ -142,9 +142,14 @@ RALPH_CONFIG_DIR="${RALPH_CONFIG_DIR:-$HOME/.config/ralphtools}"
 [[ -f "$RALPH_CONFIG_DIR/ralph-config.local" ]] && source "$RALPH_CONFIG_DIR/ralph-config.local"
 
 # Defaults (can be overridden in ralph-config.local or environment)
-RALPH_NTFY_TOPIC="${RALPH_NTFY_TOPIC:-ralph-notifications}"
-# Note: Use simple default without braces to avoid zsh glob interpretation
-[[ -z "$RALPH_NTFY_TOPIC_PATTERN" ]] && RALPH_NTFY_TOPIC_PATTERN='{project}-{app}'
+# Notification topic configuration:
+#   RALPH_NTFY_PREFIX: Base prefix for Ralph topics (default: "etans-ralph")
+#   RALPH_NTFY_TOPIC: Ralph's topic, defaults to "{prefix}-{project}" format
+#   CLAUDE_NTFY_TOPIC: Claude's topic (default: "etans-ralphClaude") - separate from Ralph
+RALPH_NTFY_PREFIX="${RALPH_NTFY_PREFIX:-etans-ralph}"
+# Note: RALPH_NTFY_TOPIC will be set per-project in ralph() function
+RALPH_NTFY_TOPIC="${RALPH_NTFY_TOPIC:-}"
+CLAUDE_NTFY_TOPIC="${CLAUDE_NTFY_TOPIC:-etans-ralphClaude}"
 RALPH_DEFAULT_MODEL="${RALPH_DEFAULT_MODEL:-opus}"
 RALPH_MAX_ITERATIONS="${RALPH_MAX_ITERATIONS:-10}"
 RALPH_SLEEP_SECONDS="${RALPH_SLEEP_SECONDS:-2}"
@@ -1862,32 +1867,32 @@ _ralph_ntfy() {
 
   case "$event" in
     complete)
-      title="✅ Ralph Complete"
+      title="[Ralph] ✅ Complete"
       tags="white_check_mark,robot"
       priority="high"
       ;;
     blocked)
-      title="⏹️ Ralph Blocked"
+      title="[Ralph] ⏹️ Blocked"
       tags="stop_button,warning"
       priority="urgent"
       ;;
     error)
-      title="❌ Ralph Error"
+      title="[Ralph] ❌ Error"
       tags="x,fire"
       priority="urgent"
       ;;
     iteration)
-      title="🔄 Ralph Progress"
+      title="[Ralph] 🔄 Progress"
       tags="arrows_counterclockwise"
       priority="low"
       ;;
     max_iterations)
-      title="⚠️ Ralph Limit Hit"
+      title="[Ralph] ⚠️ Limit Hit"
       tags="warning,hourglass"
       priority="high"
       ;;
     *)
-      title="🤖 Ralph"
+      title="[Ralph] 🤖"
       tags="robot"
       ;;
   esac
@@ -2142,7 +2147,9 @@ function ralph() {
   local PRD_JSON_DIR="$REPO_ROOT/prd-json"
   local use_json_mode=false
   local project_key="ralph"
-  local ntfy_topic="$RALPH_NTFY_TOPIC"
+  # Default ntfy topic: etans-ralph-<project> (per-project topics)
+  local project_name=$(basename "$(pwd)")
+  local ntfy_topic="${RALPH_NTFY_TOPIC:-${RALPH_NTFY_PREFIX}-${project_name}}"
   local app_mode=""
   local target_branch=""
   local original_branch=""
@@ -2247,11 +2254,8 @@ function ralph() {
           app_mode="$1"
           PRD_PATH="$REPO_ROOT/apps/$app_mode/PRD.md"
           target_branch="feat/${app_mode}-work"
-          # Get project name from directory for ntfy topic
-          local project_name=$(basename "$REPO_ROOT")
-          # Build ntfy topic from pattern (replace {project} and {app})
-          ntfy_topic="${RALPH_NTFY_TOPIC_PATTERN//\{project\}/$project_name}"
-          ntfy_topic="${ntfy_topic//\{app\}/$app_mode}"
+          # ntfy_topic already set to project-based default, app mode doesn't change it
+          # (same project = same Ralph topic, different projects = different topics)
           shift
         elif [[ "$1" =~ ^[0-9]+$ ]]; then
           # Positional args: numbers for MAX/SLEEP
