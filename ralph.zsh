@@ -107,39 +107,24 @@ _ralph_show_changelog_version() {
 }
 
 # Helper function to calculate display width of a string
-# Counts emojis as width 2, regular ASCII as width 1
+# Strips ANSI escape codes, counts emojis as width 2, regular ASCII as width 1
 # Usage: _ralph_display_width "string with emojis 🚀" → returns display width
 _ralph_display_width() {
   local str="$1"
-  local width=${#str}  # Start with basic character count
+
+  # Strip ANSI escape codes (colors, bold, etc.) - they have zero display width
+  # Pattern matches: ESC[ followed by any number of digits/semicolons, ending with a letter
+  local clean_str=$(echo "$str" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/\x1b\[[0-9;]*[A-Za-z]//g')
+
+  local width=${#clean_str}  # Start with basic character count
 
   # Count known emojis that are width 2 (display width extends)
   # Each emoji found adds 1 to width (since it's counted as 1 in ${#str} but displayed as 2)
-  width=$((width + $(echo "$str" | grep -o "🚀" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "📋" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🆕" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "💰" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "⏱" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "✓" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🔄" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "📚" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "☐" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "💵" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🏁" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🎯" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "✨" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "⚠" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🆘" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🔴" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🟢" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🟡" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "⚡" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "❌" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "✅" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🛑" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🔥" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🔕" | wc -l)))
-  width=$((width + $(echo "$str" | grep -o "🔔" | wc -l)))
+  local emoji_count=0
+  for emoji in 🚀 📋 🆕 💰 ⏱ ✓ 🔄 📚 ☐ 💵 🏁 🎯 ✨ ⚠ 🆘 🔴 🟢 🟡 ⚡ ❌ ✅ 🛑 🔥 🔕 🔔 📂 📱 📊 📖 🧠 ⏱️; do
+    emoji_count=$((emoji_count + $(echo "$clean_str" | grep -o "$emoji" | wc -l)))
+  done
+  width=$((width + emoji_count))
 
   echo "$width"
 }
@@ -2276,7 +2261,7 @@ function ralph() {
       echo "║  ${time_str}$(printf '%*s' $time_padding '')║"
       # Show iteration progress bar
       local iter_progress=$(_ralph_iteration_progress "$i" "$MAX")
-      local iter_str="📊 Iteration: ${iter_progress} $i/$MAX"
+      local iter_str="📊 Iteration: ${iter_progress}"
       local iter_width=$(_ralph_display_width "$iter_str")
       local iter_padding=$((59 - iter_width))
       echo -e "║  ${iter_str}$(printf '%*s' $iter_padding '')║"
@@ -2293,7 +2278,7 @@ function ralph() {
           local criteria_total=$(echo "$criteria_stats" | awk '{print $2}')
           if [[ "$criteria_total" -gt 0 ]]; then
             local criteria_bar=$(_ralph_criteria_progress "$criteria_checked" "$criteria_total")
-            local criteria_str="☐ Criteria:  ${criteria_bar} $criteria_checked/$criteria_total"
+            local criteria_str="☐ Criteria:  ${criteria_bar}"
             local criteria_width=$(_ralph_display_width "$criteria_str")
             local criteria_padding=$((59 - criteria_width))
             echo -e "║  ${criteria_str}$(printf '%*s' $criteria_padding '')║"
@@ -2310,7 +2295,7 @@ function ralph() {
         local story_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
         local story_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
         local story_bar=$(_ralph_story_progress "$story_completed" "$story_total")
-        local stories_str="📚 Stories:  ${story_bar} $story_completed/$story_total"
+        local stories_str="📚 Stories:  ${story_bar}"
         local stories_width=$(_ralph_display_width "$stories_str")
         local stories_padding=$((59 - stories_width))
         echo -e "║  ${stories_str}$(printf '%*s' $stories_padding '')║"
