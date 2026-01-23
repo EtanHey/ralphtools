@@ -1,0 +1,23 @@
+{
+  "id": "US-096",
+  "title": "Comprehensive README update",
+  "description": "Update README.md with all v1.4→v2.0 changes, simplified usage, new architecture (bash/bun modes), and link to Docusaurus docs.",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Update version to 2.0.0", "checked": false},
+    {"text": "Simplify Quick Start to just: brew install ralph && ralph", "checked": false},
+    {"text": "Document config-driven approach (no flags)", "checked": false},
+    {"text": "Add bash vs bun mode explanation", "checked": false},
+    {"text": "Update changelog with v1.5 and v2.0 changes", "checked": false},
+    {"text": "Add MP story type to model routing docs", "checked": false},
+    {"text": "Document AGENTS.md auto-update feature", "checked": false},
+    {"text": "Document CodeRabbit → BUG story integration", "checked": false},
+    {"text": "Add link to Docusaurus site for detailed docs", "checked": false},
+    {"text": "Remove outdated flag documentation", "checked": false}
+  ],
+  "dependencies": ["US-094", "US-095"],
+  "passes": false
+}

@@ -1,0 +1,19 @@
+{
+  "id": "US-091",
+  "title": "Extract Ralph prompt to shared file",
+  "description": "Move the Ralph system prompt to prompts/ralph-prompt.md so both bash and Bun versions use the same prompt. Include AGENTS.md auto-update instructions and CR integration.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Create prompts/ directory in ralphtools", "checked": false},
+    {"text": "Create prompts/ralph-prompt.md with full Ralph instructions", "checked": false},
+    {"text": "Include AGENTS.md auto-update section in prompt", "checked": false},
+    {"text": "Include CodeRabbit integration: run cr review, create BUG-xxx if issues", "checked": false},
+    {"text": "Update ralph-simple.zsh to read prompt from file", "checked": false},
+    {"text": "Test: Ralph uses shared prompt correctly", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}

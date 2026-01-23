@@ -1,0 +1,22 @@
+{
+  "id": "US-095",
+  "title": "Docusaurus documentation site",
+  "description": "Set up Docusaurus for Ralph documentation. Migrate existing docs/ markdown files, add search, deploy to GitHub Pages.",
+  "type": "feature",
+  "priority": "low",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Initialize Docusaurus in docs-site/ directory", "checked": false},
+    {"text": "Migrate all docs/*.md files to Docusaurus format", "checked": false},
+    {"text": "Configure sidebar navigation", "checked": false},
+    {"text": "Add Algolia or local search", "checked": false},
+    {"text": "Add versioning support", "checked": false},
+    {"text": "Create GitHub Actions workflow for deployment", "checked": false},
+    {"text": "Deploy to GitHub Pages (ralph.dev or similar)", "checked": false},
+    {"text": "Add link to docs site in README", "checked": false},
+    {"text": "Test: Docs site builds and deploys", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}

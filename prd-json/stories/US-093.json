@@ -1,0 +1,32 @@
+{
+  "id": "US-093",
+  "title": "React Ink UI components for Ralph",
+  "description": "Build React Ink terminal UI components with FULL feature parity to original ralph.zsh. REFERENCE: ralph.zsh lines 199-1100 contain all UI functions (_ralph_color_*, _ralph_progress_*, _ralph_show_*).",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 8,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "REFERENCE: Read ralph.zsh _ralph_color_story_id, _ralph_color_model, _ralph_color_cost functions", "checked": false},
+    {"text": "REFERENCE: Read ralph.zsh _ralph_progress_bar, _ralph_progress_color functions", "checked": false},
+    {"text": "REFERENCE: Read ralph.zsh _ralph_show_iteration_status for full box layout", "checked": false},
+    {"text": "Create ui/ directory with React Ink + Bun setup", "checked": false},
+    {"text": "Create components/Box.tsx - Unicode box drawing (╔═╗║╚═╝)", "checked": false},
+    {"text": "Create components/ProgressBar.tsx - colored bars with percentage colors (green→yellow→red)", "checked": false},
+    {"text": "Create components/StoryId.tsx - colored by type (US=blue, BUG=red, V=purple, AUDIT=magenta, MP=cyan)", "checked": false},
+    {"text": "Create components/ModelBadge.tsx - colored by model (opus=yellow, sonnet=cyan, haiku=green)", "checked": false},
+    {"text": "Create components/CostDisplay.tsx - colored by amount (low=green, med=yellow, high=red)", "checked": false},
+    {"text": "Create components/IterationBox.tsx - full iteration status with all progress bars", "checked": false},
+    {"text": "Create components/ModelRouting.tsx - shows all type→model mappings", "checked": false},
+    {"text": "Create components/StartupBanner.tsx - Ralph version, path, stats, criteria count", "checked": false},
+    {"text": "Create components/LiveOutput.tsx - streaming Claude output", "checked": false},
+    {"text": "Implement file watching (fs.watch) for live criteria updates", "checked": false},
+    {"text": "Implement debounced updates (500ms) to prevent flicker", "checked": false},
+    {"text": "Implement ANSI cursor positioning for in-place updates (no scroll)", "checked": false},
+    {"text": "Support compact mode (single line) vs full mode (box)", "checked": false},
+    {"text": "Add unit tests for each component", "checked": false},
+    {"text": "Test: Visual parity with original ralph.zsh output", "checked": false}
+  ],
+  "dependencies": ["US-092"],
+  "passes": false
+}

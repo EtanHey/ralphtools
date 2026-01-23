@@ -1,0 +1,24 @@
+{
+  "id": "US-094",
+  "title": "Ralph setup wizard and config-driven runtime",
+  "description": "brew install ralph runs setup wizard that configures runtime (bash/bun), notifications, max iterations, model routing. All stored in config.json - no flags needed, just run 'ralph'.",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Create ralph-setup wizard (gum-based or Ink-based)", "checked": false},
+    {"text": "Wizard asks: Runtime preference (bash simple / bun full UI)", "checked": false},
+    {"text": "Wizard asks: Enable ntfy notifications? (topic name)", "checked": false},
+    {"text": "Wizard asks: Max iterations (default 100)", "checked": false},
+    {"text": "Wizard asks: Model routing (use defaults or customize)", "checked": false},
+    {"text": "Save all preferences to config.json", "checked": false},
+    {"text": "ralph command reads config.runtime to choose bash/bun", "checked": false},
+    {"text": "brew install ralph triggers wizard on first run", "checked": false},
+    {"text": "Add ralph-setup command to re-run wizard anytime", "checked": false},
+    {"text": "Test: Fresh install runs wizard", "checked": false},
+    {"text": "Test: Config changes respected without flags", "checked": false}
+  ],
+  "dependencies": ["US-093"],
+  "passes": false
+}
