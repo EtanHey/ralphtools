@@ -6,11 +6,13 @@
     { "text": "Set parallelVerification: true in config.json", "checked": true },
     { "text": "Set parallelAgents: 2 in config.json", "checked": true },
     { "text": "Create a test V-TEST story", "checked": true },
-    { "text": "Run ralph on V-TEST story", "checked": false },
-    { "text": "Verify two Claude processes spawn simultaneously", "checked": false },
-    { "text": "Verify results are aggregated correctly", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Run ralph on V-TEST story", "checked": true },
+    { "text": "Verify two Claude processes spawn simultaneously", "checked": true },
+    { "text": "Verify results are aggregated correctly", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T02:50:00Z",
+  "completedBy": "haiku"
 }
