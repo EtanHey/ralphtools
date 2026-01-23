@@ -3,11 +3,11 @@
   "generatedAt": "2026-01-23T15:00:00Z",
   "stats": {
     "total": 13,
-    "completed": 12,
-    "pending": 1,
+    "completed": 13,
+    "pending": 0,
     "blocked": 0
   },
-  "nextStory": "V-008",
+  "nextStory": null,
   "storyOrder": [
     "US-032",
     "US-033",
@@ -23,51 +23,72 @@
     "BUG-003",
     "V-008"
   ],
-  "pending": [
-    "V-008"
-  ],
+  "pending": [],
   "blocked": [],
   "newStories": [
     {
-      "id": "AUDIT-002",
-      "title": "Design clarc architecture and stories",
-      "description": "Ralph Opus designs the full clarc monorepo architecture: packages structure, clarc setup/new wizards, 1Password backup/sync, skill standardization, CLAUDE.md layering. Output: comprehensive PRD with 10-15 stories covering the full vision.",
-      "model": "opus",
+      "id": "US-047",
+      "title": "Script-backed Convex skill (deterministic execution)",
+      "description": "The current Convex skill only has markdown workflows - Claude reads bash code blocks and tries to construct commands, leading to errors (e.g., combining 'sleep' with 'echo'). Following the pattern from docs/skill-creation-guide.md and the 1password skill: scripts execute WITHOUT loading code into context, only OUTPUT enters conversation. Agent invokes script, gets clean result. No interpretation, no construction, no errors.",
       "acceptanceCriteria": [
         {
-          "text": "Define clarc monorepo package structure (ralph, launcher, skills, hooks, etc.)",
+          "text": "Research: Read docs/skill-creation-guide.md lines 209-272 (Scripts: Deterministic Execution)",
           "checked": false
         },
         {
-          "text": "Design clarc setup wizard flow with all configuration options",
+          "text": "Research: Study skills/1password/scripts/migrate-env.sh as reference implementation",
           "checked": false
         },
         {
-          "text": "Design clarc new wizard with project-type-specific questions",
+          "text": "Create scripts/clean-start.sh: rm -f convex/*.js && npx convex dev (handles errors, pretty output)",
           "checked": false
         },
         {
-          "text": "Design 1Password auto-sync: new keys/MCPs trigger backup",
+          "text": "Create scripts/deploy.sh: clean + deploy with optional 1Password key retrieval",
           "checked": false
         },
         {
-          "text": "Design CLAUDE.md layering: global → tech-template → project",
+          "text": "Create scripts/run-function.sh: validate args, execute query/mutation/action, format output",
           "checked": false
         },
         {
-          "text": "Design skill standardization: structure, testing, templates",
+          "text": "Create scripts/export-data.sh: backup with timestamped filename, verify success",
           "checked": false
         },
         {
-          "text": "Design local-first + iCloud archive + 1Password backup strategy",
+          "text": "Create scripts/import-data.sh: safety prompts, backup-first warning, execute import",
           "checked": false
         },
         {
-          "text": "Output 10-15 stories to prd-json/update.json covering full implementation",
+          "text": "All scripts: set -e, explicit error handling, colored output, usage help (-h flag)",
           "checked": false
         },
         {
-          "text": "Each story has clear acceptance criteria",
+          "text": "All scripts: return structured output (SUCCESS/ERROR prefix) for agent parsing",
+          "checked": false
+        },
+        {
+          "text": "Update SKILL.md: Add 'Available Scripts' section with usage table (like 1password skill)",
+          "checked": false
+        },
+        {
+          "text": "Update workflows/*.md: Change 'Run: <code block>' to 'Run script: bash scripts/X.sh'",
+          "checked": false
+        },
+        {
+          "text": "Workflows become routing docs, not execution instructions",
+          "checked": false
+        },
+        {
+          "text": "Test: Agent can complete full dev-server-start with just script invocation",
+          "checked": false
+        },
+        {
+          "text": "Test: Agent gets clean output, never sees script source code in context",
+          "checked": false
+        },
+        {
+          "text": "Typecheck passes (bash -n on all scripts)",
           "checked": false
         }
       ],
@@ -75,86 +96,53 @@
       "blockedBy": null
     },
     {
-      "id": "US-045",
-      "title": "Skill standardization and testing framework",
-      "description": "Skills need consistent structure and tests. Create a skill template, testing framework, and migrate existing skills to standard format. Remove duplicate slash commands - skills are the source of truth.",
+      "id": "US-048",
+      "title": "Audit all skills for script-backed pattern compliance",
+      "description": "Review all skills (convex, linear, archive, ralph-install, 1password, github) and ensure they follow the deterministic script pattern from docs/skill-creation-guide.md. Skills with bash operations should have scripts/ folder. Workflows should route to scripts, not contain inline code blocks for Claude to interpret.",
       "acceptanceCriteria": [
         {
-          "text": "Define standard skill structure: SKILL.md, workflows/, scripts/",
+          "text": "Audit: List all skills and classify as 'script-backed' or 'md-only'",
           "checked": false
         },
         {
-          "text": "Create skill template generator: clarc skill new <name>",
+          "text": "For each 'md-only' skill: Identify bash operations that should be scripts",
           "checked": false
         },
         {
-          "text": "Create skill testing framework (validate structure, test workflows)",
+          "text": "Priority order: convex (done in US-047), linear, archive, ralph-install",
           "checked": false
         },
         {
-          "text": "Audit existing skills for duplicates with ~/.claude/commands/",
+          "text": "Linear skill: Add scripts/create-issue.sh, scripts/list-issues.sh, scripts/create-worktree.sh",
           "checked": false
         },
         {
-          "text": "Remove redundant slash commands (skills are source of truth)",
+          "text": "Archive skill: Add scripts/archive-snapshot.sh, scripts/cleanup-completed.sh",
           "checked": false
         },
         {
-          "text": "Add skill tests to pre-commit hook",
+          "text": "Ralph-install skill: Add scripts/check-deps.sh, scripts/install-deps.sh, scripts/validate.sh",
           "checked": false
         },
         {
-          "text": "Document skill standards in docs/skills.md",
+          "text": "All scripts follow pattern: set -e, colors, usage help, structured output",
           "checked": false
         },
         {
-          "text": "Typecheck passes",
+          "text": "Update each SKILL.md with 'Available Scripts' table",
+          "checked": false
+        },
+        {
+          "text": "Document pattern in docs/skills.md: 'When to use scripts vs workflows'",
+          "checked": false
+        },
+        {
+          "text": "Typecheck passes (bash -n on all new scripts)",
           "checked": false
         }
       ],
       "passes": false,
-      "blockedBy": null
-    },
-    {
-      "id": "US-046",
-      "title": "Auto-sync config changes to 1Password",
-      "description": "When a new MCP, key, or config is added locally, prompt to sync to 1Password backup. Add this behavior to global CLAUDE.md so all Claude instances know to do it.",
-      "acceptanceCriteria": [
-        {
-          "text": "Add 1Password sync rule to global ~/.claude/CLAUDE.md",
-          "checked": false
-        },
-        {
-          "text": "Rule: After adding new MCP/key/config, offer to backup to 1Password",
-          "checked": false
-        },
-        {
-          "text": "Create op://clarc/config-backup vault item structure",
-          "checked": false
-        },
-        {
-          "text": "clarc backup command: push local configs to 1Password",
-          "checked": false
-        },
-        {
-          "text": "clarc restore command: pull configs from 1Password to local",
-          "checked": false
-        },
-        {
-          "text": "Detect config changes and prompt user to sync",
-          "checked": false
-        },
-        {
-          "text": "Document backup/restore flow in docs/",
-          "checked": false
-        },
-        {
-          "text": "Typecheck passes",
-          "checked": false
-        }
-      ],
-      "passes": false,
-      "blockedBy": null
+      "blockedBy": "US-047"
     }
   ]
 }
