@@ -5,7 +5,8 @@
   "acceptanceCriteria": [
     { "text": "Line 1: repo name (e.g. 'ralphtools')", "checked": false },
     { "text": "Line 2: 🔄 iteration + story + model (e.g. '🔄5 TEST-004 haiku')", "checked": false },
-    { "text": "Line 3: 📚 stories left + ✅ criteria left + 💵 cost (e.g. '📚26 ✅129 💵$0.28')", "checked": false },
+    { "text": "Line 3: 📚 stories left + ☐ criteria left + 💵 cost (e.g. '📚26 ☐129 💵$0.28')", "checked": false },
+    { "text": "Use ☐ (empty checkbox) for remaining criteria, not ✅", "checked": false },
     { "text": "All info in 3 compact lines using emoji labels", "checked": false },
     { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
   ],

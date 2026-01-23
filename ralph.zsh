@@ -295,6 +295,165 @@ EOF
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# FIRST-RUN DETECTION
+# ═══════════════════════════════════════════════════════════════════
+
+# Check if config.json exists and prompt for setup if missing
+# Usage: _ralph_first_run_check [--skip-setup|-y]
+# Returns: 0 if config exists or was created, 1 if user cancelled
+_ralph_first_run_check() {
+  local skip_setup=false
+
+  # Parse arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --skip-setup|-y)
+        skip_setup=true
+        shift
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  # If config exists, nothing to do
+  if [[ -f "$RALPH_CONFIG_FILE" ]]; then
+    return 0
+  fi
+
+  # Config missing - first run detected
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  👋 Welcome to Ralph!                                       │"
+  echo "│                                                             │"
+  echo "│  No configuration found. Let's set things up.               │"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  echo ""
+
+  if [[ "$skip_setup" == "true" ]]; then
+    # Create minimal config with defaults
+    echo "⏩ Using default configuration (--skip-setup)"
+    echo ""
+    mkdir -p "$RALPH_CONFIG_DIR"
+    cat > "$RALPH_CONFIG_FILE" << 'EOF'
+{
+  "modelStrategy": "smart",
+  "defaultModel": "sonnet",
+  "unknownTaskType": "sonnet",
+  "models": {
+    "US": "sonnet",
+    "V": "haiku",
+    "TEST": "haiku",
+    "BUG": "sonnet",
+    "AUDIT": "opus"
+  },
+  "notifications": {
+    "enabled": false,
+    "ntfyTopic": ""
+  },
+  "defaults": {
+    "maxIterations": 10,
+    "sleepSeconds": 2
+  }
+}
+EOF
+    echo "✅ Default configuration saved to $RALPH_CONFIG_FILE"
+    echo ""
+    # Reload config
+    _ralph_load_config
+    return 0
+  fi
+
+  # Interactive setup prompt
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    # GUM mode - use confirm
+    if gum confirm "Run interactive setup?"; then
+      ralph-config
+      return 0
+    else
+      echo ""
+      echo "You can run 'ralph-config' later to configure Ralph."
+      echo "Creating minimal config with defaults..."
+      echo ""
+      mkdir -p "$RALPH_CONFIG_DIR"
+      cat > "$RALPH_CONFIG_FILE" << 'EOF'
+{
+  "modelStrategy": "smart",
+  "defaultModel": "sonnet",
+  "unknownTaskType": "sonnet",
+  "models": {
+    "US": "sonnet",
+    "V": "haiku",
+    "TEST": "haiku",
+    "BUG": "sonnet",
+    "AUDIT": "opus"
+  },
+  "notifications": {
+    "enabled": false,
+    "ntfyTopic": ""
+  },
+  "defaults": {
+    "maxIterations": 10,
+    "sleepSeconds": 2
+  }
+}
+EOF
+      echo "✅ Default configuration saved to $RALPH_CONFIG_FILE"
+      echo ""
+      _ralph_load_config
+      return 0
+    fi
+  else
+    # Fallback mode - use read
+    echo "Options:"
+    echo "  1) Run interactive setup (recommended)"
+    echo "  2) Use defaults (skip setup)"
+    echo ""
+    echo -n "Choose [1/2]: "
+    read setup_choice
+    case "$setup_choice" in
+      1)
+        ralph-config
+        return 0
+        ;;
+      *)
+        echo ""
+        echo "Creating minimal config with defaults..."
+        echo ""
+        mkdir -p "$RALPH_CONFIG_DIR"
+        cat > "$RALPH_CONFIG_FILE" << 'EOF'
+{
+  "modelStrategy": "smart",
+  "defaultModel": "sonnet",
+  "unknownTaskType": "sonnet",
+  "models": {
+    "US": "sonnet",
+    "V": "haiku",
+    "TEST": "haiku",
+    "BUG": "sonnet",
+    "AUDIT": "opus"
+  },
+  "notifications": {
+    "enabled": false,
+    "ntfyTopic": ""
+  },
+  "defaults": {
+    "maxIterations": 10,
+    "sleepSeconds": 2
+  }
+}
+EOF
+        echo "✅ Default configuration saved to $RALPH_CONFIG_FILE"
+        echo ""
+        _ralph_load_config
+        return 0
+        ;;
+    esac
+  fi
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # SMART MODEL ROUTING
 # ═══════════════════════════════════════════════════════════════════
 
@@ -862,6 +1021,7 @@ function ralph() {
   local app_mode=""
   local target_branch=""
   local original_branch=""
+  local skip_setup=false     # Skip interactive setup, use defaults
 
   # Valid app names for app-specific mode (parsed from space-separated config)
   local valid_apps=(${=RALPH_VALID_APPS})
@@ -872,6 +1032,10 @@ function ralph() {
     case "$1" in
       -QN|--quiet-notify)
         notify_enabled=true
+        shift
+        ;;
+      --skip-setup|-y)
+        skip_setup=true
         shift
         ;;
       -O|--opus)
@@ -948,6 +1112,13 @@ function ralph() {
         ;;
     esac
   done
+
+  # First-run check - prompt for setup if config missing
+  if [[ "$skip_setup" == "true" ]]; then
+    _ralph_first_run_check --skip-setup
+  else
+    _ralph_first_run_check
+  fi
 
   # If app mode, handle branch switching
   if [[ -n "$app_mode" ]]; then

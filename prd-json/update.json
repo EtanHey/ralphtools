@@ -1,5 +1,0 @@
-{
-  "addStories": ["BUG-001"],
-  "insertAfter": "US-018",
-  "stats": { "total": 29, "pending": 27 }
-}

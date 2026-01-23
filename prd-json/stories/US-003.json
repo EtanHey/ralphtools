@@ -3,14 +3,16 @@
   "title": "First-run detection and setup prompt",
   "description": "Detect when config.json is missing and prompt user to run setup before starting Ralph loop.",
   "acceptanceCriteria": [
-    { "text": "Add _ralph_first_run_check() function", "checked": false },
-    { "text": "If config.json missing, show welcome message and offer setup", "checked": false },
-    { "text": "Support --skip-setup / -y flag to use defaults without prompting", "checked": false },
-    { "text": "Create minimal config.json with defaults if user skips setup", "checked": false },
-    { "text": "Call ralph-config if user accepts setup", "checked": false },
-    { "text": "Integrate check into main ralph() function before loop starts", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Add _ralph_first_run_check() function", "checked": true },
+    { "text": "If config.json missing, show welcome message and offer setup", "checked": true },
+    { "text": "Support --skip-setup / -y flag to use defaults without prompting", "checked": true },
+    { "text": "Create minimal config.json with defaults if user skips setup", "checked": true },
+    { "text": "Call ralph-config if user accepts setup", "checked": true },
+    { "text": "Integrate check into main ralph() function before loop starts", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-23T02:15:00Z",
+  "completedBy": "opus",
   "blockedBy": null
 }

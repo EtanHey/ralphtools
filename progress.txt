@@ -103,3 +103,17 @@
 - New INTERACTIVE CONFIGURATION section added between GUM DEPENDENCY CHECK and SMART MODEL ROUTING
 - Typecheck passes (zsh -n ralph.zsh)
 ---
+
+## Iteration 8 - US-003 First-run detection and setup prompt
+- Model: opus
+- Added _ralph_first_run_check() function in new FIRST-RUN DETECTION section
+- Detects missing config.json and shows welcome banner: "Welcome to Ralph!"
+- Supports --skip-setup / -y flag to use defaults without interactive prompts
+- Creates minimal config.json with sensible defaults (smart routing, sonnet default, notifications off)
+- GUM mode: Uses gum confirm to ask if user wants interactive setup
+- Fallback mode: Numbered menu (1=setup, 2=defaults) using read
+- Calls ralph-config if user accepts interactive setup
+- Integrated check into main ralph() function right after argument parsing, before loop starts
+- Added skip_setup local variable and --skip-setup/-y flag parsing in ralph()
+- Typecheck passes (zsh -n ralph.zsh)
+---
