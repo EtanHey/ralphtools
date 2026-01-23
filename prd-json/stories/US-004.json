@@ -3,13 +3,15 @@
   "title": "Enhanced changelog with full history",
   "description": "Improve ralph-whatsnew to show full version history and support --all flag.",
   "acceptanceCriteria": [
-    { "text": "Add RALPH_CHANGELOG associative array with version -> changes mapping", "checked": false },
-    { "text": "ralph-whatsnew shows current version details by default", "checked": false },
-    { "text": "ralph-whatsnew --all shows all versions from newest to oldest", "checked": false },
-    { "text": "Include at least v1.0.0, v1.1.0, v1.2.0, v1.3.0 in changelog", "checked": false },
-    { "text": "Format output with box drawing characters for nice display", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Add RALPH_CHANGELOG associative array with version -> changes mapping", "checked": true },
+    { "text": "ralph-whatsnew shows current version details by default", "checked": true },
+    { "text": "ralph-whatsnew --all shows all versions from newest to oldest", "checked": true },
+    { "text": "Include at least v1.0.0, v1.1.0, v1.2.0, v1.3.0 in changelog", "checked": true },
+    { "text": "Format output with box drawing characters for nice display", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T03:00:00Z",
+  "completedBy": "haiku"
 }

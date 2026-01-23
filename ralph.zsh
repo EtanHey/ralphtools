@@ -45,6 +45,15 @@
 RALPH_VERSION="1.3.0"
 
 # ═══════════════════════════════════════════════════════════════════
+# CHANGELOG (associative array with version -> changes mapping)
+# ═══════════════════════════════════════════════════════════════════
+declare -A RALPH_CHANGELOG
+RALPH_CHANGELOG[1.3.0]="Per-iteration cost tracking (actual tokens from JSONL)|Enhanced ntfy notifications with titles & priorities|Session IDs passed to Claude for precise tracking|ralph-costs shows ✓ actual vs ~ estimated data"
+RALPH_CHANGELOG[1.2.0]="Smart model routing (US→Sonnet, V→Haiku, etc.)|Config-based model assignment via config.json|Cost tracking infrastructure"
+RALPH_CHANGELOG[1.1.0]="JSON mode with automatic unblocking|Brave browser manager integration|Smart file access with shell fallbacks"
+RALPH_CHANGELOG[1.0.0]="Initial Ralph release|Autonomous loop for executing user stories|Git-based workflow and commit tracking"
+
+# ═══════════════════════════════════════════════════════════════════
 # WHAT'S NEW (shown once per version upgrade)
 # ═══════════════════════════════════════════════════════════════════
 _ralph_show_whatsnew() {
@@ -56,34 +65,40 @@ _ralph_show_whatsnew() {
   # Skip if same version
   [[ "$last_version" == "$RALPH_VERSION" ]] && return 0
 
-  # Show what's new
-  echo ""
-  echo "┌─────────────────────────────────────────────────────────────┐"
-  echo "│  🆕 Ralph v${RALPH_VERSION}                                          │"
-  echo "├─────────────────────────────────────────────────────────────┤"
-
-  case "$RALPH_VERSION" in
-    "1.3.0")
-      echo "│  • Per-iteration cost tracking (actual tokens from JSONL)   │"
-      echo "│  • Enhanced ntfy notifications with titles & priorities     │"
-      echo "│  • Session IDs passed to Claude for precise tracking        │"
-      echo "│  • ralph-costs shows ✓ actual vs ~ estimated data           │"
-      ;;
-    "1.2.0")
-      echo "│  • Smart model routing (US→Sonnet, V→Haiku, etc.)           │"
-      echo "│  • Config-based model assignment via config.json            │"
-      echo "│  • Cost tracking infrastructure                             │"
-      ;;
-    *)
-      echo "│  • Updated to v${RALPH_VERSION}                                      │"
-      ;;
-  esac
-
-  echo "└─────────────────────────────────────────────────────────────┘"
-  echo ""
+  # Show what's new (current version only)
+  _ralph_show_changelog_version "$RALPH_VERSION"
 
   # Save current version
   echo "$RALPH_VERSION" > "$last_version_file"
+}
+
+# Helper function to display a specific version's changelog
+_ralph_show_changelog_version() {
+  local version="$1"
+  local changes="${RALPH_CHANGELOG[$version]:-Updated to v${version}}"
+
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  🆕 Ralph v${version}                                          │"
+  echo "├─────────────────────────────────────────────────────────────┤"
+
+  # Parse pipe-separated changes and display each as a bullet point
+  # Split on pipes and iterate
+  local change
+  while [[ -n "$changes" ]]; do
+    # Extract first change (before first pipe)
+    change="${changes%%\|*}"
+    # Trim leading/trailing whitespace
+    change="${change#"${change%%[![:space:]]*}"}"
+    change="${change%"${change##*[![:space:]]}"}"
+    # Print with formatting
+    printf "│  • %-57s │\n" "$change"
+    # Remove processed change from string
+    [[ "$changes" == *"|"* ]] && changes="${changes#*\|}" || changes=""
+  done
+
+  echo "└─────────────────────────────────────────────────────────────┘"
+  echo ""
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1951,22 +1966,29 @@ function ralph-help() {
   echo ""
 }
 
-# ralph-whatsnew - Show current version changelog
+# ralph-whatsnew - Show changelog (current version by default, --all for full history)
 function ralph-whatsnew() {
-  echo ""
-  echo "┌─────────────────────────────────────────────────────────────┐"
-  echo "│  🆕 Ralph v${RALPH_VERSION}                                          │"
-  echo "├─────────────────────────────────────────────────────────────┤"
-  echo "│  • Per-iteration cost tracking (actual tokens from JSONL)   │"
-  echo "│  • Enhanced ntfy notifications with titles & priorities     │"
-  echo "│  • Session IDs passed to Claude for precise tracking        │"
-  echo "│  • ralph-costs shows ✓ actual vs ~ estimated data           │"
-  echo "├─────────────────────────────────────────────────────────────┤"
-  echo "│  v1.2.0: Smart model routing, config.json support           │"
-  echo "│  v1.1.0: JSON mode, auto-unblock, brave-manager             │"
-  echo "│  v1.0.0: Initial release                                    │"
-  echo "└─────────────────────────────────────────────────────────────┘"
-  echo ""
+  local show_all=false
+
+  # Parse arguments
+  [[ "$1" == "--all" ]] && show_all=true
+
+  if $show_all; then
+    # Show all versions from newest to oldest
+    echo ""
+    echo "┌─────────────────────────────────────────────────────────────┐"
+    echo "│  📜 Ralph Version History                                   │"
+    echo "└─────────────────────────────────────────────────────────────┘"
+    echo ""
+
+    # Display each version (manually ordered from newest to oldest)
+    for version in "1.3.0" "1.2.0" "1.1.0" "1.0.0"; do
+      _ralph_show_changelog_version "$version"
+    done
+  else
+    # Show only current version
+    _ralph_show_changelog_version "$RALPH_VERSION"
+  fi
 }
 
 # ralph-watch - Live tail of current Ralph iteration output
