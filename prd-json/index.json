@@ -4,10 +4,10 @@
   "stats": {
     "total": 27,
     "completed": 0,
-    "pending": 23,
-    "blocked": 4
+    "pending": 22,
+    "blocked": 5
   },
-  "nextStory": "AUDIT-001",
+  "nextStory": "BUG-013",
   "storyOrder": [
     "AUDIT-001",
     "BUG-013",
@@ -38,7 +38,6 @@
     "V-012"
   ],
   "pending": [
-    "AUDIT-001",
     "BUG-013",
     "BUG-014",
     "BUG-015",
@@ -63,6 +62,7 @@
     "V-014"
   ],
   "blocked": [
+    "AUDIT-001",
     "BUG-012",
     "US-065",
     "V-011",

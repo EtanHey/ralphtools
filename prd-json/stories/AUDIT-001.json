@@ -5,7 +5,9 @@
   "type": "audit",
   "priority": "high",
   "storyPoints": 3,
-  "status": "pending",
+  "status": "blocked",
+  "blockedBy": "US-073",
+  "blockedReason": "US-073 must be completed first to deprecate -G -H -K flags before auditing the README",
   "model": "opus",
   "acceptanceCriteria": [
     {"text": "Read entire README.md and cross-reference with ralph.zsh", "checked": false},

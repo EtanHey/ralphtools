@@ -3,3 +3,13 @@ Started: Fri Jan 23 21:57:15 IST 2026
 
 (Previous progress archived to docs.local/prd-archive/)
 
+## Iteration 1
+Story: AUDIT-001 - Audit README.md for accuracy and relevance
+Status: BLOCKED
+Reason: AUDIT-001 depends on US-073 (Deprecate -G -H -K model flags) which is still pending.
+The acceptance criteria "Remove -G -H -K examples (deprecated per US-073)" cannot be completed until US-073 is done.
+Moved AUDIT-001 to blocked array, set nextStory to BUG-013.
+
+### Learnings
+- Always check dependencies[] field in story JSON before starting
+- If a dependency story is not completed, the dependent story should be blocked
