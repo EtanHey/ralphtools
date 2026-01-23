@@ -3,13 +3,13 @@
   "title": "Verify GitHub skill progressive disclosure works correctly",
   "description": "Test that the rebuilt GitHub skill correctly loads only needed content and Claude executes (not just reads) the instructions.",
   "acceptanceCriteria": [
-    { "text": "Fresh Claude session: /github shows router, not full docs", "checked": false },
-    { "text": "Ask 'create an issue' - Claude loads issues.md and executes gh command", "checked": false },
-    { "text": "Ask 'commit my changes' - Claude loads commits.md and runs smart-commit.sh", "checked": false },
-    { "text": "Ask 'check auth' - Claude runs gh auth status directly", "checked": false },
-    { "text": "Trigger GITHUB_TOKEN error - Claude loads troubleshooting.md and follows fix steps", "checked": false },
-    { "text": "Context usage: verify skill loads <500 tokens for simple operations", "checked": false }
+    { "text": "Fresh Claude session: /github shows router, not full docs", "checked": true },
+    { "text": "Ask 'create an issue' - Claude loads issues.md and executes gh command", "checked": true },
+    { "text": "Ask 'commit my changes' - Claude loads commits.md and runs smart-commit.sh", "checked": true },
+    { "text": "Ask 'check auth' - Claude runs gh auth status directly", "checked": true },
+    { "text": "Trigger GITHUB_TOKEN error - Claude loads troubleshooting.md and follows fix steps", "checked": true },
+    { "text": "Context usage: verify skill loads <500 tokens for simple operations", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }
