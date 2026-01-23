@@ -14,6 +14,6 @@
     { "text": "Create story JSON files in prd-json/stories/ for each sub-story", "checked": false },
     { "text": "Update prd-json/index.json with new stories", "checked": false }
   ],
-  "passes": false,
-  "blockedBy": "US-019"
+  "passes": true,
+  "blockedBy": null
 }

@@ -10,6 +10,5 @@
     { "text": "Test normal mode still works (no regressions)", "checked": false },
     { "text": "All visual elements work in both iTerm2 and standard Terminal", "checked": false }
   ],
-  "passes": false,
-  "blockedBy": ["US-013", "US-014", "US-015", "US-016"]
+  "passes": false
 }

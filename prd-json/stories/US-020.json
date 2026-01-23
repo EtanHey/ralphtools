@@ -12,5 +12,5 @@
     { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
   ],
   "passes": false,
-  "blockedBy": "US-019"
+  "blockedBy": "US-026"
 }

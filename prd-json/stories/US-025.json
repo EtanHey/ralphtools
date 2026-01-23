@@ -1,0 +1,15 @@
+{
+  "id": "US-025",
+  "title": "Create registry schema and migration",
+  "description": "Create ~/.config/ralphtools/registry.json as single source of truth for projects, MCPs, and secrets. Migrate existing projects.json + shared-project-mcps.json into unified format. See docs/plans/2026-01-23-centralized-mcp-registry.md for schema.",
+  "acceptanceCriteria": [
+    { "text": "Create schemas/registry.schema.json with validation rules", "checked": false },
+    { "text": "Create _ralph_migrate_to_registry() function in ralph.zsh", "checked": false },
+    { "text": "Migration preserves all existing project data from projects.json", "checked": false },
+    { "text": "Migration imports MCPs from shared-project-mcps.json into global.mcps", "checked": false },
+    { "text": "Registry includes version field for future migrations", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

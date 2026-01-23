@@ -1,0 +1,15 @@
+{
+  "id": "US-026",
+  "title": "Core registry functions for project/MCP lookup",
+  "description": "Add functions to load registry, detect current project, build MCP config, and inject secrets from 1Password. These are the building blocks for Ralph and {project}Claude functions.",
+  "acceptanceCriteria": [
+    { "text": "_ralph_load_registry() loads and returns registry.json content", "checked": false },
+    { "text": "_ralph_get_project_config() finds project config by matching cwd to project paths", "checked": false },
+    { "text": "_ralph_current_project() returns project name for current directory", "checked": false },
+    { "text": "_ralph_build_mcp_config() merges global MCPs + project-specific MCPs into .mcp.json format", "checked": false },
+    { "text": "_ralph_inject_secrets() resolves op:// references via 1Password CLI and exports as env vars", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": "US-025"
+}

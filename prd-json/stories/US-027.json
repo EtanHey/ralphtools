@@ -1,0 +1,16 @@
+{
+  "id": "US-027",
+  "title": "Ralph uses registry for project MCPs",
+  "description": "Update ralph() main loop to detect current project from registry, build project-specific MCP config, inject secrets, and pass --mcp-config to claude CLI. This makes Ralph have the same MCPs as running {project}Claude manually.",
+  "acceptanceCriteria": [
+    { "text": "Ralph detects current project using _ralph_current_project()", "checked": false },
+    { "text": "Ralph builds temp .mcp.json using _ralph_build_mcp_config()", "checked": false },
+    { "text": "Ralph passes --mcp-config /tmp/ralph-mcp-{project}.json to claude CLI", "checked": false },
+    { "text": "Ralph calls _ralph_inject_secrets() before each iteration", "checked": false },
+    { "text": "Startup output shows project name if detected", "checked": false },
+    { "text": "Cleanup removes temp .mcp.json after iteration", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": "US-026"
+}

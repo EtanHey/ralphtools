@@ -1,0 +1,17 @@
+{
+  "id": "US-028",
+  "title": "ralph-setup wizard with gum",
+  "description": "Interactive gum-based wizard for adding projects, selecting MCPs, and migrating .env secrets to 1Password. Makes setup easy for new users.",
+  "acceptanceCriteria": [
+    { "text": "ralph-setup command launches gum menu with options", "checked": false },
+    { "text": "Add new project: auto-detects path and name from cwd", "checked": false },
+    { "text": "Add new project: multi-select MCPs from mcpDefinitions", "checked": false },
+    { "text": "Add new project: detects .env and offers to scan for secrets", "checked": false },
+    { "text": "Manage MCPs: add new MCP definitions (name, command, args)", "checked": false },
+    { "text": "View registry: pretty-prints current config with gum pager", "checked": false },
+    { "text": "_ralph_generate_launchers() updated to generate {project}Claude from registry", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": "US-026"
+}

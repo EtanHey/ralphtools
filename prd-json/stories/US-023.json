@@ -1,0 +1,16 @@
+{
+  "id": "US-023",
+  "title": "Fix box drawing alignment with emoji width handling",
+  "description": "Box drawing right borders misalign because emojis display as 2 cells but printf counts bytes/codepoints differently. Research findings: wcwidth/wcswidth is the standard for display width calculation, but no pure shell solution exists. Solution: Create _ralph_display_width() helper that counts known emojis as width 2, then use it to calculate proper padding. Alternatively, put emojis at fixed positions and calculate remaining space.",
+  "acceptanceCriteria": [
+    { "text": "Create _ralph_display_width() function that returns display width of a string", "checked": false },
+    { "text": "Count emojis (🚀📋🆕💰⏱✓etc) as width 2, ASCII as width 1", "checked": false },
+    { "text": "Update _ralph_show_changelog_version() to use display width for padding", "checked": false },
+    { "text": "Update all startup banner printf statements to use display width", "checked": false },
+    { "text": "Right border aligns consistently regardless of emoji content", "checked": false },
+    { "text": "Test with: Ralph startup banner, changelog box, status lines", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

@@ -1,0 +1,18 @@
+{
+  "id": "US-024",
+  "title": "Configurable color schemes via config.json",
+  "description": "Make Ralph's color output configurable. Add 'colorScheme' field to config.json with presets (default, dark, light, minimal, none). Each scheme defines colors for: success, error, warning, info, story types (US/V/BUG/TEST), models (opus/sonnet/haiku), costs. Users can also define custom schemes. Gracefully degrade if terminal doesn't support colors.",
+  "acceptanceCriteria": [
+    { "text": "Add COLOR_SCHEMES associative array with preset schemes: default, dark, light, minimal, none", "checked": false },
+    { "text": "Read 'colorScheme' from config.json (default: 'default')", "checked": false },
+    { "text": "Scheme 'none' disables all colors (for CI/logs)", "checked": false },
+    { "text": "Scheme 'minimal' uses only essential colors (errors red, success green)", "checked": false },
+    { "text": "_ralph_init_colors() loads scheme colors into global RALPH_COLOR_* vars", "checked": false },
+    { "text": "Support custom scheme in config.json with explicit color codes", "checked": false },
+    { "text": "Auto-detect NO_COLOR env var and disable colors if set", "checked": false },
+    { "text": "Document available schemes in README or --help", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": "US-023"
+}

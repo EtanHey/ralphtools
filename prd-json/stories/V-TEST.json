@@ -8,5 +8,5 @@
     { "text": "Both agents pass their verification", "checked": false }
   ],
   "passes": false,
-  "blockedBy": "Browser extension not connected - Claude-in-Chrome extension required for parallel agent verification"
+  "blockedBy": null
 }
