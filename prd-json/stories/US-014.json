@@ -3,13 +3,13 @@
   "title": "Enhanced color coding for Ralph output",
   "description": "Add semantic colors throughout Ralph output for better visual scanning.",
   "acceptanceCriteria": [
-    { "text": "Story ID colored by type (US=blue, V=purple, TEST=yellow, BUG=red, AUDIT=magenta)", "checked": false },
-    { "text": "Model name colored (opus=gold, sonnet=cyan, haiku=green)", "checked": false },
-    { "text": "Cost colored (green if <$0.50, yellow if <$2, red if >$2)", "checked": false },
-    { "text": "Success messages in green, errors in red, warnings in yellow", "checked": false },
-    { "text": "Iteration number bold/bright", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Story ID colored by type (US=blue, V=purple, TEST=yellow, BUG=red, AUDIT=magenta)", "checked": true },
+    { "text": "Model name colored (opus=gold, sonnet=cyan, haiku=green)", "checked": true },
+    { "text": "Cost colored (green if <$0.50, yellow if <$2, red if >$2)", "checked": true },
+    { "text": "Success messages in green, errors in red, warnings in yellow", "checked": true },
+    { "text": "Iteration number bold/bright", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }

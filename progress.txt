@@ -551,3 +551,27 @@
 - Updated stats: completed=29, pending=5, blocked=5
 ---
 
+## Iteration 32 - US-017 Auto-sync AGENTS.md to all AI tools
+- Model: opus
+- Implemented AGENTS.md auto-sync infrastructure:
+  1. Created scripts/sync-agents.sh:
+     - Finds AGENTS.md in repo root (or accepts path argument)
+     - Syncs to: CLAUDE.md, .cursorrules, .windsurfrules, .github/copilot-instructions.md
+     - Creates .github/ directory if needed for copilot-instructions.md
+     - Auto-stages all synced files with git add
+     - Supports --dry-run flag to preview changes
+  2. Created scripts/install-hooks.sh:
+     - Installs AGENTS.md sync hook to any project
+     - Creates .githooks/pre-commit if not exists, or appends to existing
+     - Configures git core.hooksPath to use .githooks
+     - Works with ralphtools symlinked or standalone installations
+  3. Updated .githooks/pre-commit:
+     - Added [7/7] AGENTS.md Sync check
+     - Only runs sync when AGENTS.md is staged for commit
+     - Finds sync-agents.sh in ~/.config/ralphtools/scripts/ or repo scripts/
+     - Updated all check numbers from [X/6] to [X/7]
+- All 10 acceptance criteria completed
+- Typecheck passes on sync-agents.sh, install-hooks.sh, and pre-commit
+- Updated stats: completed=30, pending=4, blocked=5
+---
+

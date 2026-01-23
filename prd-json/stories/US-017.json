@@ -3,17 +3,17 @@
   "title": "Auto-sync AGENTS.md to all AI tools",
   "description": "Automatically sync AGENTS.md to all AI tool-specific files via git pre-commit hook. One source of truth, auto-distributed.",
   "acceptanceCriteria": [
-    { "text": "Create sync-agents.sh script in ralph config", "checked": false },
-    { "text": "Script copies AGENTS.md → CLAUDE.md", "checked": false },
-    { "text": "Script copies AGENTS.md → .cursorrules", "checked": false },
-    { "text": "Script copies AGENTS.md → .windsurfrules", "checked": false },
-    { "text": "Script creates .github/ → copilot-instructions.md", "checked": false },
-    { "text": "Create install-hooks.sh to set up git pre-commit hook", "checked": false },
-    { "text": "Pre-commit hook runs sync-agents.sh automatically", "checked": false },
-    { "text": "Hook only syncs if AGENTS.md was modified", "checked": false },
-    { "text": "Auto-stage synced files so they're included in commit", "checked": false },
-    { "text": "Typecheck passes (zsh -n sync-agents.sh)", "checked": false }
+    { "text": "Create sync-agents.sh script in ralph config", "checked": true },
+    { "text": "Script copies AGENTS.md → CLAUDE.md", "checked": true },
+    { "text": "Script copies AGENTS.md → .cursorrules", "checked": true },
+    { "text": "Script copies AGENTS.md → .windsurfrules", "checked": true },
+    { "text": "Script creates .github/ → copilot-instructions.md", "checked": true },
+    { "text": "Create install-hooks.sh to set up git pre-commit hook", "checked": true },
+    { "text": "Pre-commit hook runs sync-agents.sh automatically", "checked": true },
+    { "text": "Hook only syncs if AGENTS.md was modified", "checked": true },
+    { "text": "Auto-stage synced files so they're included in commit", "checked": true },
+    { "text": "Typecheck passes (zsh -n sync-agents.sh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }
