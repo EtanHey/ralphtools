@@ -3,19 +3,19 @@
   "title": "Convex skill (CLI wrapper)",
   "description": "Create a Convex skill that wraps the npx convex CLI. Progressive disclosure architecture. Provides workflows for common Convex operations: dev server, deployment, function execution, data import/export, schema management.",
   "acceptanceCriteria": [
-    { "text": "Create ~/.claude/commands/convex/ directory structure", "checked": false },
-    { "text": "Create SKILL.md router (~50 lines) with workflow references", "checked": false },
-    { "text": "Create workflows/dev.md for starting convex dev server", "checked": false },
-    { "text": "Create workflows/deploy.md for production deployment", "checked": false },
-    { "text": "Create workflows/run-function.md for executing Convex functions", "checked": false },
-    { "text": "Create workflows/data-export.md for exporting data", "checked": false },
-    { "text": "Create workflows/data-import.md for importing data", "checked": false },
-    { "text": "Create workflows/schema.md for schema inspection/validation", "checked": false },
-    { "text": "Auto-detect if in Convex project (convex/ directory exists)", "checked": false },
-    { "text": "Handle CONVEX_DEPLOY_KEY from 1Password for production deploys", "checked": false },
-    { "text": "Symlink to ~/.claude/commands/convex", "checked": false },
-    { "text": "Typecheck passes (zsh -n on any scripts)", "checked": false }
+    { "text": "Create ~/.claude/commands/convex/ directory structure", "checked": true },
+    { "text": "Create SKILL.md router (~50 lines) with workflow references", "checked": true },
+    { "text": "Create workflows/dev.md for starting convex dev server", "checked": true },
+    { "text": "Create workflows/deploy.md for production deployment", "checked": true },
+    { "text": "Create workflows/run-function.md for executing Convex functions", "checked": true },
+    { "text": "Create workflows/data-export.md for exporting data", "checked": true },
+    { "text": "Create workflows/data-import.md for importing data", "checked": true },
+    { "text": "Create workflows/schema.md for schema inspection/validation", "checked": true },
+    { "text": "Auto-detect if in Convex project (convex/ directory exists)", "checked": true },
+    { "text": "Handle CONVEX_DEPLOY_KEY from 1Password for production deploys", "checked": true },
+    { "text": "Symlink to ~/.claude/commands/convex", "checked": true },
+    { "text": "Typecheck passes (zsh -n on any scripts)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }

@@ -3,18 +3,18 @@
   "generatedAt": "2026-01-23T15:00:00Z",
   "stats": {
     "total": 13,
-    "completed": 2,
-    "pending": 9,
+    "completed": 3,
+    "pending": 8,
     "blocked": 2
   },
-  "nextStory": "US-034",
+  "nextStory": "US-036",
   "storyOrder": [
     "US-032", "US-033", "US-034", "US-035", "US-036",
     "US-037", "US-038", "US-039", "US-040", "US-041", "US-042",
     "BUG-003", "V-008"
   ],
   "pending": [
-    "US-034", "US-036",
+    "US-036",
     "US-037", "US-038", "US-039", "US-040", "US-041", "US-042",
     "BUG-003"
   ],

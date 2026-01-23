@@ -45,3 +45,28 @@ Files created:
 - Linear auto-generates branch names for issues via `branchName` field
 - Rate limit: 1,500 requests/hour with API key auth
 - GraphQL returns 200 even on errors - always check `errors` array
+
+## Iteration 3 - US-034: Convex skill (CLI wrapper)
+**Status**: COMPLETED
+
+Created `/convex` skill that wraps the npx convex CLI:
+- Progressive disclosure architecture: SKILL.md router + 6 workflow files
+- Auto-detects Convex project by checking for `convex/` directory
+- Handles CONVEX_DEPLOY_KEY from 1Password for CI/CD production deploys
+
+Files created:
+- /Users/etanheyman/Desktop/Gits/ralphtools/skills/convex/SKILL.md - Router with quick actions table
+- /Users/etanheyman/Desktop/Gits/ralphtools/skills/convex/workflows/dev.md - Start dev server with hot reload
+- /Users/etanheyman/Desktop/Gits/ralphtools/skills/convex/workflows/deploy.md - Production deployment with deploy key
+- /Users/etanheyman/Desktop/Gits/ralphtools/skills/convex/workflows/run-function.md - Execute queries, mutations, actions
+- /Users/etanheyman/Desktop/Gits/ralphtools/skills/convex/workflows/data-export.md - Export database to zip
+- /Users/etanheyman/Desktop/Gits/ralphtools/skills/convex/workflows/data-import.md - Import data with safety warnings
+- /Users/etanheyman/Desktop/Gits/ralphtools/skills/convex/workflows/schema.md - Schema inspection and validation
+- Symlinked to ~/.claude/commands/convex
+
+### Learnings
+- Convex CLI commands: dev, deploy, run, export, import, codegen, env, dashboard
+- Deploy key format: `prod:...` for production access
+- Function path format: `filename:functionName` (no .ts extension)
+- Always backup before import - import can overwrite data
+- Schema changes can be destructive - export first
