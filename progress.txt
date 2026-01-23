@@ -144,3 +144,16 @@
 - All 29 unit tests pass (including updated ntfy tests)
 - Typecheck passes (zsh -n ralph.zsh)
 ---
+
+## Iteration 11 - BUG-001 Fix remaining count redundancy
+- Model: haiku
+- Fixed remaining count display and redundancy issues:
+  1. ✓ Removed redundant criteria counting loop at startup (lines 1346-1350) - this was causing mismatch between 25 and 24 stories
+  2. ✓ Simplified initial status display to only show pending/completed/blocked counts
+  3. ✓ Now "📋 Remaining: ..." appears ONLY ONCE per iteration (in the main loop after updates applied)
+  4. ✓ Remaining count now consistently reflects AFTER story completion (updates applied before counting)
+  5. ✓ All numbers consistent - removed the unchecked criteria loop that was causing calculation mismatch
+- Removed duplicate display logic - kept only the per-iteration display that uses _ralph_json_remaining_stats
+- All 29 unit tests still pass
+- Typecheck passes (zsh -n ralph.zsh)
+---

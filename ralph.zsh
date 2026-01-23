@@ -1808,7 +1808,7 @@ After completing task, check PRD state:
           blocked_stats="? ?"
         fi
         local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
-        _ralph_ntfy "$ntfy_topic" "blocked" "$current_story" "" "$i" "$blocked_stats" "$total_cost"
+        _ralph_ntfy "$ntfy_topic" "blocked" "User action needed" "$current_story" "" "$i" "$blocked_stats" "$total_cost"
       fi
       rm -f "$RALPH_TMP"
       return 2  # Different exit code for blocked vs complete
