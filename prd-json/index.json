@@ -7,7 +7,7 @@
     "pending": 15,
     "blocked": 0
   },
-  "nextStory": "V-002",
+  "nextStory": "V-TEST",
   "storyOrder": [
     "TEST-001",
     "TEST-002",
