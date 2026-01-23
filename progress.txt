@@ -251,3 +251,32 @@ Changes:
 - Referenced scripts in docs should be verified to exist
 - Command tables should include ALL commands from ralph-help, not just core ones
 - Skills evolve over time - README skill list needs periodic updates
+
+## Iteration 15
+Story: US-075 - golem-powers:writing-skills - Meta-skill for creating executable skills
+Status: COMPLETED (opus)
+Changes:
+- Created skills/golem-powers/writing-skills/ meta-skill directory structure
+- Created SKILL.md with comprehensive documentation:
+  - Skill structure requirements (SKILL.md, scripts/, src/, workflows/)
+  - Pattern A: Bash script execution (execute: scripts/default.sh)
+  - Pattern B: TypeScript/Bun execution (execute: scripts/run.sh --action=default)
+  - CLI pattern for --action and --env flags
+  - Execution rule: Claude MUST run script IMMEDIATELY on skill load
+- Created scripts/create-skill.sh template generator:
+  - --name and --type (bash|typescript) arguments
+  - Scaffolds complete skill structure with appropriate files
+  - Auto-sets execute: frontmatter and chmod +x on scripts
+- Created workflows/create.md (step-by-step skill creation)
+- Created workflows/audit.md (structure verification checklist)
+- Created example-bash/ skill with working hello.sh script
+- Created example-typescript/ skill with working Bun index.ts
+- Symlinked skills/golem-powers/ to ~/.claude/commands/golem-powers
+- All shell scripts pass shellcheck
+
+### Learnings
+- Golem-powers skills differ from regular skills: they have execute: frontmatter
+- The execute: field triggers immediate script execution on skill load
+- Two patterns: bash for simple wrappers, TypeScript/Bun for complex logic
+- Template generator reduces boilerplate and ensures consistent structure
+- TypeScript skills need scripts/run.sh wrapper to call bun

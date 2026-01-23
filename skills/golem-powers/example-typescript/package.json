@@ -1,0 +1,14 @@
+{
+  "name": "example-typescript",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "default": "bun run src/index.ts --action=default",
+    "random": "bun run src/index.ts --action=random",
+    "env": "bun run src/index.ts --action=env"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
