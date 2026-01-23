@@ -1,0 +1,18 @@
+{
+  "id": "BUG-017",
+  "title": "Show total acceptance criteria count in Ralph output",
+  "description": "When Ralph displays a story, it should show the total number of acceptance criteria (e.g., '0/12 criteria checked') so users know the scope of the story at a glance.",
+  "type": "bug",
+  "priority": "medium",
+  "storyPoints": 1,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Find where Ralph displays story info (likely in iteration loop)", "checked": false},
+    {"text": "Add criteria count: total = jq '.acceptanceCriteria | length'", "checked": false},
+    {"text": "Add checked count: checked = jq '[.acceptanceCriteria[] | select(.checked==true)] | length'", "checked": false},
+    {"text": "Display format: 'Criteria: X/Y checked' or similar", "checked": false},
+    {"text": "Test: Run Ralph on a story, verify criteria count is shown", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}

@@ -1,0 +1,19 @@
+{
+  "id": "BUG-018",
+  "title": "Fix ntfy notification truncation - wrap long messages",
+  "description": "Notifications sent via ntfy are being truncated instead of wrapping to the next line. Long story titles or messages get cut off, making them hard to read.",
+  "type": "bug",
+  "priority": "low",
+  "storyPoints": 1,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Find notification sending code (curl to ntfy.sh)", "checked": false},
+    {"text": "Check ntfy API docs for message formatting options", "checked": false},
+    {"text": "Option 1: Use ntfy markdown format for better wrapping", "checked": false},
+    {"text": "Option 2: Split long messages into title + body", "checked": false},
+    {"text": "Option 3: Truncate with ellipsis at word boundary, not mid-word", "checked": false},
+    {"text": "Test: Send a notification with long story title, verify readable", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}
