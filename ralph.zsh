@@ -3239,7 +3239,7 @@ HEADER
     local lowercase_name="${(L)name}"
 
     # run{Name}: cd to path and run dev server
-    cat >> "$launchers_file" << EOF
+    /bin/cat >> "$launchers_file" << EOF
 # Project: $name
 # Path: $path
 # MCPs: $mcps_json

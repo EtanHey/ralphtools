@@ -325,3 +325,21 @@
 - All 7 acceptance criteria completed
 - Updated stats: completed=20, pending=11, blocked=1
 ---
+
+## Iteration 22 - V-003 Verify project launchers work
+- Model: haiku
+- Verified all project launcher functionality:
+  1. ✓ Source ralph.zsh successfully - no errors
+  2. ✓ Run ralph-projects add testproj /tmp/testproj - project added successfully
+  3. ✓ Verify projects.json contains testproj entry - confirmed in JSON structure
+  4. ✓ Verify launchers.zsh contains runTestproj, openTestproj, testprojClaude - all 3 functions present
+  5. ✓ Run ralph-projects list and verify testproj appears - testproj displayed in list with correct path and timestamps
+  6. ✓ Run ralph-projects remove testproj - project removed successfully
+  7. ✓ Verify testproj removed from projects.json and launchers.zsh - confirmed removed from both files
+  8. ✓ Typecheck passes (zsh -n ralph.zsh) - no syntax errors
+- Fixed bug: Changed `cat >>` to `/bin/cat >>` in _ralph_generate_launchers() to use full path (line 3242)
+  - Issue was cat command not found in subshell context when generating launcher functions
+  - This fix ensures launcher generation works correctly without path-related errors
+- All 8 acceptance criteria completed
+- Updated stats: completed=21, pending=10, blocked=1
+---

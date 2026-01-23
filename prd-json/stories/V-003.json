@@ -3,15 +3,17 @@
   "title": "Verify project launchers work",
   "description": "Test that project registration and launcher generation work correctly.",
   "acceptanceCriteria": [
-    { "text": "Source ralph.zsh successfully", "checked": false },
-    { "text": "Run ralph-projects add testproj /tmp/testproj", "checked": false },
-    { "text": "Verify projects.json contains testproj entry", "checked": false },
-    { "text": "Verify launchers.zsh contains runTestproj, openTestproj, testprojClaude", "checked": false },
-    { "text": "Run ralph-projects list and verify testproj appears", "checked": false },
-    { "text": "Run ralph-projects remove testproj", "checked": false },
-    { "text": "Verify testproj removed from projects.json and launchers.zsh", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Source ralph.zsh successfully", "checked": true },
+    { "text": "Run ralph-projects add testproj /tmp/testproj", "checked": true },
+    { "text": "Verify projects.json contains testproj entry", "checked": true },
+    { "text": "Verify launchers.zsh contains runTestproj, openTestproj, testprojClaude", "checked": true },
+    { "text": "Run ralph-projects list and verify testproj appears", "checked": true },
+    { "text": "Run ralph-projects remove testproj", "checked": true },
+    { "text": "Verify testproj removed from projects.json and launchers.zsh", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T03:56:57Z",
+  "completedBy": "haiku"
 }
