@@ -1434,3 +1434,41 @@ source ~/.config/ralphtools/ralph.zsh
 - Migration scripts allow deferring destructive operations until safe
 - ralph.zsh uses RALPH_CONFIG_DIR for config paths, not hardcoded repo paths
 - ~/.config/ralphtools is the CONFIG directory (user data), not the repo
+
+## Iteration 39 - Infrastructure Blocker: Directory Rename Requires Manual Intervention
+**Status**: BLOCKED
+
+Encountered infrastructure blocker while attempting V-011 (verification story).
+
+### The Issue
+- V-011 is a verification story that checks symlink functionality after rename
+- The rename from ~/Desktop/Gits/ralphtools → ~/Desktop/Gits/claude-golem cannot happen while Ralph is running
+- This blocks the entire verification chain: V-011 → V-012 → US-065
+
+### Actions Taken
+1. Identified blocker: directory rename is infrastructure-level, not code-level
+2. Created BUG-012 documenting user manual steps:
+   - Rename directory after Ralph exits
+   - Run scripts/rename-to-claude-golem.sh
+   - Update ~/.zshrc
+   - Reload Ralph
+3. Marked V-011 with blockedBy field explaining the issue
+4. Moved V-011 from pending to blocked array
+5. Set nextStory to BUG-011 (independent bug fix)
+6. Added BUG-012 to update.json for merge after user completes rename
+
+### Per Ralph Rules
+- When blocked by infrastructure: mark story as blocked, create bug, END iteration
+- Do NOT skip to next story in chain
+- User must manually complete prerequisites before continuing
+
+### Files Modified
+- prd-json/stories/V-011.json - Added blockedBy field
+- prd-json/index.json - Moved V-011 to blocked, updated stats, set nextStory=BUG-011
+- prd-json/update.json - Added BUG-012 for user manual workflow
+
+### Learnings
+- Infrastructure blockers should END the iteration immediately per Ralph guidelines
+- Document blocker clearly so user understands required manual steps
+- Create bug story to track user-facing prerequisites
+
