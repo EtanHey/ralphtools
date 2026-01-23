@@ -3,16 +3,18 @@
   "title": "Auto-generate runX, openX, XClaude functions",
   "description": "Generate launcher functions for each registered project following repo-claude pattern.",
   "acceptanceCriteria": [
-    { "text": "Add _ralph_generate_launchers() function", "checked": false },
-    { "text": "For each project, generate: run{Name}(), open{Name}(), {name}Claude()", "checked": false },
-    { "text": "run{Name}: cd to path, run dev server (bun run dev or npm run dev)", "checked": false },
-    { "text": "open{Name}: cd to path only", "checked": false },
-    { "text": "{name}Claude: cd to path, run claude with project MCPs", "checked": false },
-    { "text": "Write generated functions to ~/.config/ralphtools/launchers.zsh", "checked": false },
-    { "text": "Source launchers.zsh in main ralph.zsh", "checked": false },
-    { "text": "Regenerate on ralph-projects add/remove", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Add _ralph_generate_launchers() function", "checked": true },
+    { "text": "For each project, generate: run{Name}(), open{Name}(), {name}Claude()", "checked": true },
+    { "text": "run{Name}: cd to path, run dev server (bun run dev or npm run dev)", "checked": true },
+    { "text": "open{Name}: cd to path only", "checked": true },
+    { "text": "{name}Claude: cd to path, run claude with project MCPs", "checked": true },
+    { "text": "Write generated functions to ~/.config/ralphtools/launchers.zsh", "checked": true },
+    { "text": "Source launchers.zsh in main ralph.zsh", "checked": true },
+    { "text": "Regenerate on ralph-projects add/remove", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-23T02:52:30Z",
+  "completedBy": "opus",
   "blockedBy": null
 }

@@ -288,3 +288,21 @@
 - All 8 acceptance criteria completed
 - Updated stats: completed=18, pending=13, blocked=1
 ---
+
+## Iteration 20 - US-009 Auto-generate runX, openX, XClaude functions
+- Model: opus
+- Implemented launcher generation feature:
+  1. ✓ Added _ralph_generate_launchers() function in new LAUNCHER GENERATION section
+  2. ✓ For each project, generates: run{Name}(), open{Name}(), {name}Claude()
+  3. ✓ run{Name}: cd to project path, detect bun/npm and run dev server
+  4. ✓ open{Name}: cd to project path only, prints current dir
+  5. ✓ {name}Claude: cd to project path and run claude (respects project MCP configs)
+  6. ✓ Functions written to ~/.config/ralphtools/launchers.zsh with header comment
+  7. ✓ launchers.zsh sourced on ralph.zsh load (conditional check for file existence)
+  8. ✓ Added regeneration hooks to ralph-projects add and ralph-projects remove
+  9. ✓ Typecheck passes (zsh -n ralph.zsh)
+- Capitalization logic: "myProject" → run{MyProject}, open{MyProject}, myprojectClaude
+- Smart dev server detection: bun.lockb or bun in package.json → bun run dev, else npm run dev
+- All 9 acceptance criteria completed
+- Updated stats: completed=19, pending=12, blocked=1
+---

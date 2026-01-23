@@ -1,0 +1,18 @@
+{
+  "id": "AUDIT-001",
+  "title": "Multi-agent audit of ralphtools v1.4 implementation",
+  "description": "Run critique-waves with specialized parallel agents: Security Auditor, Style Enforcer, Test Coverage Checker. Use 2-3 iteration cycles with self-refinement. Capture full audit trail in docs.local/.",
+  "acceptanceCriteria": [
+    { "text": "Create docs.local/audit-v1.4/ with instructions.md and tracker.md", "checked": false },
+    { "text": "Run static analysis first: zsh -n ralph.zsh, shellcheck if available", "checked": false },
+    { "text": "Agent 1 (Security): Check for hardcoded secrets, command injection, unsafe evals", "checked": false },
+    { "text": "Agent 2 (Style): Check local vars, function naming, consistent formatting", "checked": false },
+    { "text": "Agent 3 (Coverage): Verify all new functions have corresponding tests", "checked": false },
+    { "text": "Run 2-3 iteration cycles (self-refinement per research best practices)", "checked": false },
+    { "text": "Capture full audit trail with timestamps in tracker.md", "checked": false },
+    { "text": "Fix issues found, document in wave log", "checked": false },
+    { "text": "9+ consecutive passes across all agents", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}
