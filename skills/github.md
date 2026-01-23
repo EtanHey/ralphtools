@@ -1,3 +1,8 @@
+---
+name: github
+description: Git and GitHub CLI operations - commits, PRs, issues, branches. No MCP required.
+---
+
 # Skill: GitHub & Git Operations
 
 > Use `gh` CLI and git commands through this skill. No GitHub MCP required.
