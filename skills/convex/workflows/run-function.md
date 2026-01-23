@@ -4,130 +4,66 @@ Execute Convex queries, mutations, and actions from the CLI.
 
 ---
 
-## Prerequisites
+## Quick Start
 
-### Step 1: Verify Convex project
+Run the function script:
 
-Run:
 ```bash
-[ -d "convex" ] && echo "Convex project found" || echo "ERROR: No convex/ directory"
+bash ~/.claude/commands/convex/scripts/run-function.sh api:functionName
 ```
 
-### Step 2: List available functions
+This script:
+- Validates function path format
+- Verifies you're in a Convex project
+- Executes the function and formats output
 
-Run:
+---
+
+## Options
+
+| Flag | Purpose |
+|------|---------|
+| `--args <json>` | JSON arguments for the function |
+| `--prod` | Run against production deployment |
+| `-h, --help` | Show all options |
+
+### Examples
+
 ```bash
-ls convex/*.ts | xargs grep -l "export const" | head -10
+# Simple query
+bash ~/.claude/commands/convex/scripts/run-function.sh api:listMessages
+
+# Query with arguments
+bash ~/.claude/commands/convex/scripts/run-function.sh api:getMessage --args '{"messageId": "k97abc123"}'
+
+# Mutation
+bash ~/.claude/commands/convex/scripts/run-function.sh api:createMessage --args '{"body": "Hello"}'
+
+# Against production
+bash ~/.claude/commands/convex/scripts/run-function.sh api:getStats --prod
 ```
 
 ---
 
-## Run a Query
+## Function Path Format
 
-Queries are read-only and don't modify data.
+Path format is `filename:functionName`:
 
-### Basic query (no arguments)
+- `api:listUsers` - `listUsers` function in `convex/api.ts`
+- `tasks:create` - `create` function in `convex/tasks.ts`
+- `internal:cleanup` - `cleanup` function in `convex/internal.ts`
 
-Run (replace with your function path):
-```bash
-npx convex run api:listMessages
-```
-
-Function path format: `filename:functionName` (no `.ts` extension)
-
-### Query with arguments
-
-Run:
-```bash
-npx convex run api:getMessage --arg '{"messageId": "k97abc123def456"}'
-```
-
-Arguments must be valid JSON.
+**No `.ts` extension in the path!**
 
 ---
 
-## Run a Mutation
+## Function Types
 
-Mutations modify data in the database.
-
-### Basic mutation
-
-Run:
-```bash
-npx convex run api:createMessage --arg '{"body": "Hello world", "channelId": "k97xyz789"}'
-```
-
-### Mutation with complex arguments
-
-Run:
-```bash
-npx convex run api:updateUser --arg '{
-  "userId": "k97abc123",
-  "updates": {
-    "name": "New Name",
-    "email": "new@email.com"
-  }
-}'
-```
-
----
-
-## Run an Action
-
-Actions can have side effects like calling external APIs.
-
-Run:
-```bash
-npx convex run api:sendEmail --arg '{"to": "user@example.com", "subject": "Test"}'
-```
-
----
-
-## Run Against Production
-
-By default, `convex run` uses your dev deployment.
-
-### Run against production
-
-Run:
-```bash
-npx convex run api:functionName --prod
-```
-
-**Warning:** This executes against live production data. Use with caution.
-
----
-
-## Internal Functions
-
-Internal functions (not exposed to clients) can also be run:
-
-Run:
-```bash
-npx convex run internal:cleanupOldData
-```
-
----
-
-## Common Patterns
-
-### Get a document by ID
-
-```bash
-npx convex run api:getDocument --arg '{"id": "k97documentid"}'
-```
-
-### List with pagination
-
-```bash
-npx convex run api:listItems --arg '{"limit": 10, "cursor": null}'
-```
-
-### Search
-
-```bash
-npx convex run api:search --arg '{"query": "search term"}'
-```
+| Type | Purpose | Example |
+|------|---------|---------|
+| Query | Read-only, no side effects | `api:getUser` |
+| Mutation | Modifies database | `api:createUser` |
+| Action | Can call external APIs | `api:sendEmail` |
 
 ---
 
@@ -145,7 +81,3 @@ npx convex run api:search --arg '{"query": "search term"}'
 **"Unauthorized" error?**
 - Run `npx convex login`
 - Or provide deploy key for production access
-
-**Viewing function output?**
-- Output is printed to terminal
-- For more details, use `npx convex logs`

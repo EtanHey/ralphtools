@@ -32,6 +32,20 @@ If no `convex/` directory: Run `npx convex init` to initialize.
 
 ---
 
+## Available Scripts
+
+Execute directly - they handle errors and edge cases:
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `scripts/dev.sh` | Start dev server with auto-cleanup | `bash ~/.claude/commands/convex/scripts/dev.sh [--deployment <name>]` |
+| `scripts/deploy.sh` | Deploy to production | `bash ~/.claude/commands/convex/scripts/deploy.sh [--1p] [--dry-run]` |
+| `scripts/run-function.sh` | Execute queries/mutations/actions | `bash ~/.claude/commands/convex/scripts/run-function.sh api:funcName [--args '{}']` |
+| `scripts/export-data.sh` | Export database backup | `bash ~/.claude/commands/convex/scripts/export-data.sh [--path <file>]` |
+| `scripts/import-data.sh` | Import data (with safety prompts) | `bash ~/.claude/commands/convex/scripts/import-data.sh --path <file.zip>` |
+
+---
+
 ## Common Commands Reference
 
 ```bash

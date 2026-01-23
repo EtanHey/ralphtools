@@ -4,96 +4,40 @@ Start the Convex development server with hot reload.
 
 ---
 
-## Prerequisites
+## Quick Start
 
-### Step 1: Verify Convex project
+Run the dev script:
 
-Run:
 ```bash
-[ -d "convex" ] && echo "Convex project found" || echo "ERROR: No convex/ directory - run 'npx convex init' first"
+bash ~/.claude/commands/convex/scripts/dev.sh
 ```
 
-### Step 2: Check for package.json
-
-Run:
-```bash
-[ -f "package.json" ] && echo "package.json found" || echo "ERROR: No package.json found"
-```
+This script:
+- Verifies you're in a Convex project
+- Auto-cleans orphan `.js` files (prevents "Two output files" error)
+- Starts `npx convex dev` with hot reload
 
 ---
 
-## CRITICAL: Clean Before Starting
+## Options
 
-**ALWAYS run this before starting Convex dev server:**
+| Flag | Purpose |
+|------|---------|
+| `--deployment <name>` | Connect to specific deployment |
+| `--no-codegen` | Skip type generation |
+| `-h, --help` | Show all options |
+
+### Examples
 
 ```bash
-rm -f convex/*.js 2>/dev/null; npx convex dev
-```
+# Standard dev server
+bash ~/.claude/commands/convex/scripts/dev.sh
 
-### Why This Is Required
+# Specific deployment
+bash ~/.claude/commands/convex/scripts/dev.sh --deployment my-project-dev
 
-The error `Two output files share the same path but have different contents: out/filename.js` occurs when:
-1. **Git worktrees** copy compiled .js files alongside .ts source files
-2. **Convex crashes** mid-compilation leaving orphan .js files
-3. **Manual file operations** accidentally create .js duplicates
-
-The Convex bundler (esbuild) finds BOTH `.ts` and `.js` files with the same name and fails because they'd both output to the same path.
-
-**Prevention:** The `rm -f convex/*.js` is safe - only `.ts` files belong in convex/. Any `.js` files are compilation artifacts that should be deleted.
-
----
-
-## Start Dev Server
-
-### Option A: Standard start (with auto-clean)
-
-Run:
-```bash
-rm -f convex/*.js 2>/dev/null; npx convex dev
-```
-
-This will:
-- Connect to your Convex deployment
-- Watch for file changes in `convex/` directory
-- Auto-regenerate types on schema changes
-- Show function logs in terminal
-
-### Option B: Start with specific deployment
-
-Run (replace DEPLOYMENT_NAME):
-```bash
-npx convex dev --deployment DEPLOYMENT_NAME
-```
-
-### Option C: Start without type generation
-
-Run:
-```bash
-npx convex dev --no-codegen
-```
-
----
-
-## Common Issues
-
-**"Not logged in" error?**
-```bash
-npx convex login
-```
-
-**"Project not linked" error?**
-```bash
-npx convex init
-# Or link to existing project:
-npx convex dev --configure
-```
-
-**Port conflict?**
-The Convex dev server doesn't use a local port - it connects to Convex cloud. If you see connection issues, check your network.
-
-**Types not updating?**
-```bash
-npx convex codegen
+# Without type generation
+bash ~/.claude/commands/convex/scripts/dev.sh --no-codegen
 ```
 
 ---
@@ -102,15 +46,31 @@ npx convex codegen
 
 Typically run in a separate terminal from your frontend dev server:
 
+**Terminal 1 - Convex backend:**
 ```bash
-# Terminal 1: Convex backend
-npx convex dev
+bash ~/.claude/commands/convex/scripts/dev.sh
+```
 
-# Terminal 2: Frontend (e.g., Next.js)
+**Terminal 2 - Frontend (e.g., Next.js):**
+```bash
 npm run dev
 ```
 
-Or use a process manager like `concurrently`:
+---
+
+## Troubleshooting
+
+**"Not logged in" error?**
 ```bash
-npx concurrently "npx convex dev" "npm run dev"
+npx convex login
+```
+
+**"Project not linked" error?**
+```bash
+npx convex dev --configure
+```
+
+**Types not updating?**
+```bash
+npx convex codegen
 ```

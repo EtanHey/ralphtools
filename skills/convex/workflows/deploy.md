@@ -4,108 +4,58 @@ Deploy your Convex backend to production.
 
 ---
 
-## Prerequisites
+## Quick Start
 
-### Step 1: Verify Convex project
+Run the deploy script:
 
-Run:
 ```bash
-[ -d "convex" ] && echo "Convex project found" || echo "ERROR: No convex/ directory"
+bash ~/.claude/commands/convex/scripts/deploy.sh
 ```
 
-### Step 2: Check login status
-
-Run:
-```bash
-npx convex dashboard 2>&1 | head -5
-```
-
-If not logged in: `npx convex login`
+This script:
+- Verifies you're in a Convex project
+- Auto-cleans orphan `.js` files
+- Deploys to production
 
 ---
 
-## CRITICAL: Clean Before Deploy
+## Options
 
-**ALWAYS run cleanup before any deploy:**
+| Flag | Purpose |
+|------|---------|
+| `--key <key>` | Use provided deploy key |
+| `--1p` | Fetch deploy key from 1Password |
+| `--dry-run` | Preview without deploying |
+| `-h, --help` | Show all options |
+
+### Examples
 
 ```bash
-rm -f convex/*.js 2>/dev/null
-```
+# Interactive deployment (will prompt for auth)
+bash ~/.claude/commands/convex/scripts/deploy.sh
 
-This prevents the "Two output files share the same path" esbuild error.
+# With deploy key from 1Password
+bash ~/.claude/commands/convex/scripts/deploy.sh --1p
 
----
+# Preview what would happen
+bash ~/.claude/commands/convex/scripts/deploy.sh --dry-run
 
-## Interactive Deployment (Manual)
-
-### Step 1: Clean and deploy
-
-Run:
-```bash
-rm -f convex/*.js 2>/dev/null; npx convex deploy
-```
-
-This will:
-- Push all functions to production
-- Apply schema changes (may prompt for confirmation)
-- Generate fresh types
-
-### Step 2: Verify deployment
-
-Run:
-```bash
-npx convex logs --name prod
+# With explicit key
+bash ~/.claude/commands/convex/scripts/deploy.sh --key "prod:..."
 ```
 
 ---
 
-## CI/CD Deployment (Automated)
+## Setting Up Deploy Key
 
-For automated deployments, use `CONVEX_DEPLOY_KEY`.
+For CI/CD or automated deployments:
 
-### Step 1: Get deploy key from 1Password
-
-Run:
-```bash
-CONVEX_DEPLOY_KEY=$(op read "op://Private/convex/deploy-key" 2>/dev/null)
-[ -z "$CONVEX_DEPLOY_KEY" ] && echo "ERROR: Deploy key not found in 1Password"
-```
-
-If missing, create in Convex dashboard: Settings > Deploy Keys > Generate
-
-Store in 1Password:
-```bash
-op item create --category "API Credential" --title "convex" --vault "Private" "deploy-key=prod:..."
-```
-
-### Step 2: Clean and deploy with key
-
-Run:
-```bash
-rm -f convex/*.js 2>/dev/null
-CONVEX_DEPLOY_KEY=$(op read "op://Private/convex/deploy-key")
-npx convex deploy --cmd 'npm run build'
-```
-
-The `--cmd` flag runs your build command before deploying.
-
----
-
-## Deploy with Environment Variables
-
-### Step 1: Set production env vars first
-
-Run:
-```bash
-npx convex env set VARIABLE_NAME=value
-```
-
-### Step 2: Then deploy
-
-Run:
-```bash
-npx convex deploy
-```
+1. Generate key in Convex dashboard: Settings > Deploy Keys > Generate
+2. Store in 1Password:
+   ```bash
+   op item create --category "API Credential" --title "projectname/convex" --vault "Private" "CONVEX_DEPLOY_KEY=prod:..."
+   ```
+3. Use `--1p` flag to auto-retrieve
 
 ---
 
@@ -116,16 +66,16 @@ npx convex deploy
 Before deploying schema changes:
 
 1. Export current data as backup:
-```bash
-npx convex export --path ./backup-$(date +%Y%m%d).zip
-```
+   ```bash
+   bash ~/.claude/commands/convex/scripts/export-data.sh
+   ```
 
 2. Review schema diff:
-```bash
-git diff convex/schema.ts
-```
+   ```bash
+   git diff convex/schema.ts
+   ```
 
-3. Deploy with caution - Convex will prompt for destructive changes.
+3. Deploy - Convex will prompt for destructive changes.
 
 ---
 

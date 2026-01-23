@@ -1,0 +1,50 @@
+{
+  "$schema": "https://ralph.dev/schemas/story.schema.json",
+  "id": "US-048",
+  "title": "Audit all skills for script-backed pattern compliance",
+  "description": "Review all skills (convex, linear, archive, ralph-install, 1password, github) and ensure they follow the deterministic script pattern from docs/skill-creation-guide.md. Skills with bash operations should have scripts/ folder. Workflows should route to scripts, not contain inline code blocks for Claude to interpret.",
+  "acceptanceCriteria": [
+    {
+      "text": "Audit: List all skills and classify as 'script-backed' or 'md-only'",
+      "checked": false
+    },
+    {
+      "text": "For each 'md-only' skill: Identify bash operations that should be scripts",
+      "checked": false
+    },
+    {
+      "text": "Priority order: convex (done in US-047), linear, archive, ralph-install",
+      "checked": false
+    },
+    {
+      "text": "Linear skill: Add scripts/create-issue.sh, scripts/list-issues.sh, scripts/create-worktree.sh",
+      "checked": false
+    },
+    {
+      "text": "Archive skill: Add scripts/archive-snapshot.sh, scripts/cleanup-completed.sh",
+      "checked": false
+    },
+    {
+      "text": "Ralph-install skill: Add scripts/check-deps.sh, scripts/install-deps.sh, scripts/validate.sh",
+      "checked": false
+    },
+    {
+      "text": "All scripts follow pattern: set -e, colors, usage help, structured output",
+      "checked": false
+    },
+    {
+      "text": "Update each SKILL.md with 'Available Scripts' table",
+      "checked": false
+    },
+    {
+      "text": "Document pattern in docs/skills.md: 'When to use scripts vs workflows'",
+      "checked": false
+    },
+    {
+      "text": "Typecheck passes (bash -n on all new scripts)",
+      "checked": false
+    }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

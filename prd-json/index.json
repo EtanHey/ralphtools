@@ -2,12 +2,12 @@
   "$schema": "https://ralph.dev/schemas/prd-index.schema.json",
   "generatedAt": "2026-01-23T15:00:00Z",
   "stats": {
-    "total": 13,
-    "completed": 13,
-    "pending": 0,
+    "total": 15,
+    "completed": 14,
+    "pending": 1,
     "blocked": 0
   },
-  "nextStory": null,
+  "nextStory": "US-048",
   "storyOrder": [
     "US-032",
     "US-033",
@@ -21,128 +21,11 @@
     "US-041",
     "US-042",
     "BUG-003",
-    "V-008"
+    "V-008",
+    "US-047",
+    "US-048"
   ],
-  "pending": [],
+  "pending": ["US-048"],
   "blocked": [],
-  "newStories": [
-    {
-      "id": "US-047",
-      "title": "Script-backed Convex skill (deterministic execution)",
-      "description": "The current Convex skill only has markdown workflows - Claude reads bash code blocks and tries to construct commands, leading to errors (e.g., combining 'sleep' with 'echo'). Following the pattern from docs/skill-creation-guide.md and the 1password skill: scripts execute WITHOUT loading code into context, only OUTPUT enters conversation. Agent invokes script, gets clean result. No interpretation, no construction, no errors.",
-      "acceptanceCriteria": [
-        {
-          "text": "Research: Read docs/skill-creation-guide.md lines 209-272 (Scripts: Deterministic Execution)",
-          "checked": false
-        },
-        {
-          "text": "Research: Study skills/1password/scripts/migrate-env.sh as reference implementation",
-          "checked": false
-        },
-        {
-          "text": "Create scripts/clean-start.sh: rm -f convex/*.js && npx convex dev (handles errors, pretty output)",
-          "checked": false
-        },
-        {
-          "text": "Create scripts/deploy.sh: clean + deploy with optional 1Password key retrieval",
-          "checked": false
-        },
-        {
-          "text": "Create scripts/run-function.sh: validate args, execute query/mutation/action, format output",
-          "checked": false
-        },
-        {
-          "text": "Create scripts/export-data.sh: backup with timestamped filename, verify success",
-          "checked": false
-        },
-        {
-          "text": "Create scripts/import-data.sh: safety prompts, backup-first warning, execute import",
-          "checked": false
-        },
-        {
-          "text": "All scripts: set -e, explicit error handling, colored output, usage help (-h flag)",
-          "checked": false
-        },
-        {
-          "text": "All scripts: return structured output (SUCCESS/ERROR prefix) for agent parsing",
-          "checked": false
-        },
-        {
-          "text": "Update SKILL.md: Add 'Available Scripts' section with usage table (like 1password skill)",
-          "checked": false
-        },
-        {
-          "text": "Update workflows/*.md: Change 'Run: <code block>' to 'Run script: bash scripts/X.sh'",
-          "checked": false
-        },
-        {
-          "text": "Workflows become routing docs, not execution instructions",
-          "checked": false
-        },
-        {
-          "text": "Test: Agent can complete full dev-server-start with just script invocation",
-          "checked": false
-        },
-        {
-          "text": "Test: Agent gets clean output, never sees script source code in context",
-          "checked": false
-        },
-        {
-          "text": "Typecheck passes (bash -n on all scripts)",
-          "checked": false
-        }
-      ],
-      "passes": false,
-      "blockedBy": null
-    },
-    {
-      "id": "US-048",
-      "title": "Audit all skills for script-backed pattern compliance",
-      "description": "Review all skills (convex, linear, archive, ralph-install, 1password, github) and ensure they follow the deterministic script pattern from docs/skill-creation-guide.md. Skills with bash operations should have scripts/ folder. Workflows should route to scripts, not contain inline code blocks for Claude to interpret.",
-      "acceptanceCriteria": [
-        {
-          "text": "Audit: List all skills and classify as 'script-backed' or 'md-only'",
-          "checked": false
-        },
-        {
-          "text": "For each 'md-only' skill: Identify bash operations that should be scripts",
-          "checked": false
-        },
-        {
-          "text": "Priority order: convex (done in US-047), linear, archive, ralph-install",
-          "checked": false
-        },
-        {
-          "text": "Linear skill: Add scripts/create-issue.sh, scripts/list-issues.sh, scripts/create-worktree.sh",
-          "checked": false
-        },
-        {
-          "text": "Archive skill: Add scripts/archive-snapshot.sh, scripts/cleanup-completed.sh",
-          "checked": false
-        },
-        {
-          "text": "Ralph-install skill: Add scripts/check-deps.sh, scripts/install-deps.sh, scripts/validate.sh",
-          "checked": false
-        },
-        {
-          "text": "All scripts follow pattern: set -e, colors, usage help, structured output",
-          "checked": false
-        },
-        {
-          "text": "Update each SKILL.md with 'Available Scripts' table",
-          "checked": false
-        },
-        {
-          "text": "Document pattern in docs/skills.md: 'When to use scripts vs workflows'",
-          "checked": false
-        },
-        {
-          "text": "Typecheck passes (bash -n on all new scripts)",
-          "checked": false
-        }
-      ],
-      "passes": false,
-      "blockedBy": "US-047"
-    }
-  ]
+  "newStories": []
 }

@@ -322,3 +322,60 @@ Created `/worktrees` skill for git worktree-based task isolation. Enables creati
 - `git worktree remove <path>` removes worktree and cleans git references
 - `git worktree prune` cleans up stale references from deleted directories
 - Skills that are purely markdown (no standalone scripts) don't need zsh typecheck
+
+## Iteration 13 - US-047: Script-backed Convex skill (deterministic execution)
+**Status**: COMPLETED
+
+Upgraded the Convex skill to use the deterministic script pattern from docs/skill-creation-guide.md. Scripts execute WITHOUT loading code into context - only output enters the conversation.
+
+### Scripts Created
+- `skills/convex/scripts/dev.sh` - Start dev server with auto-cleanup of orphan .js files
+- `skills/convex/scripts/deploy.sh` - Production deployment with optional 1Password key retrieval
+- `skills/convex/scripts/run-function.sh` - Execute queries/mutations/actions with arg validation
+- `skills/convex/scripts/export-data.sh` - Database backup with timestamped filename
+- `skills/convex/scripts/import-data.sh` - Data import with safety prompts and backup warnings
+
+### Script Pattern Applied
+All scripts follow the deterministic pattern:
+- `set -e` for exit on error
+- Color-coded output (RED/GREEN/YELLOW/BLUE)
+- `-h/--help` flag for usage documentation
+- Structured output (SUCCESS/ERROR prefix) for agent parsing
+- Input validation before execution
+
+### SKILL.md Updated
+Added "Available Scripts" section with usage table:
+```markdown
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `scripts/dev.sh` | Start dev server with auto-cleanup | `bash ~/.claude/commands/convex/scripts/dev.sh` |
+| `scripts/deploy.sh` | Deploy to production | `bash ~/.claude/commands/convex/scripts/deploy.sh --1p` |
+...
+```
+
+### Workflows Simplified
+All workflow files (dev.md, deploy.md, etc.) now:
+- Route to scripts in "Quick Start" section
+- Document options via tables
+- Provide examples and troubleshooting
+- No longer contain inline bash code blocks for execution
+
+### Files Modified
+- `skills/convex/scripts/dev.sh` - NEW
+- `skills/convex/scripts/deploy.sh` - NEW
+- `skills/convex/scripts/run-function.sh` - NEW
+- `skills/convex/scripts/export-data.sh` - NEW
+- `skills/convex/scripts/import-data.sh` - NEW
+- `skills/convex/SKILL.md` - Added "Available Scripts" section
+- `skills/convex/workflows/dev.md` - Simplified to route to script
+- `skills/convex/workflows/deploy.md` - Simplified to route to script
+- `skills/convex/workflows/run-function.md` - Simplified to route to script
+- `skills/convex/workflows/data-export.md` - Simplified to route to script
+- `skills/convex/workflows/data-import.md` - Simplified to route to script
+
+### Learnings
+- Scripts execute without loading code into context - only output enters conversation
+- Agent invokes script, gets clean result - no interpretation, no construction, no errors
+- Workflows become routing docs, not execution instructions
+- Structured output (SUCCESS/ERROR prefix) enables reliable agent parsing
+- Pre-written scripts are more reliable than generated code

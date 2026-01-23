@@ -4,148 +4,74 @@ Import data into your Convex database.
 
 ---
 
-## Prerequisites
+## Quick Start
 
-### Step 1: Verify Convex project
+Run the import script:
 
-Run:
 ```bash
-[ -d "convex" ] && echo "Convex project found" || echo "ERROR: No convex/ directory"
+bash ~/.claude/commands/convex/scripts/import-data.sh --path ./backup.zip
 ```
 
-### Step 2: IMPORTANT - Backup current data first
-
-Run:
-```bash
-npx convex export --path "./pre-import-backup-$(date +%Y%m%d-%H%M%S).zip"
-```
-
-**Always backup before importing!** Import operations can overwrite existing data.
+This script:
+- Verifies you're in a Convex project
+- **Prompts for backup confirmation** (safety first!)
+- Imports data with clear success/error output
 
 ---
 
-## Import from Backup
+## Options
 
-### Step 1: Verify import file exists
+| Flag | Purpose |
+|------|---------|
+| `--path <file>` | Input file path (required) |
+| `--prod` | Import to production deployment |
+| `--replace` | Replace existing data (otherwise appends) |
+| `--force` | Skip confirmation prompts |
+| `-h, --help` | Show all options |
 
-Run:
+### Examples
+
 ```bash
-ls -la ./backup.zip
-unzip -l ./backup.zip | head -10
+# Standard import (appends to existing data)
+bash ~/.claude/commands/convex/scripts/import-data.sh --path ./backup.zip
+
+# Replace all existing data (dangerous!)
+bash ~/.claude/commands/convex/scripts/import-data.sh --path ./backup.zip --replace
+
+# Import to production
+bash ~/.claude/commands/convex/scripts/import-data.sh --path ./backup.zip --prod
+
+# Skip prompts (for automation)
+bash ~/.claude/commands/convex/scripts/import-data.sh --path ./backup.zip --force
 ```
-
-### Step 2: Import data
-
-Run:
-```bash
-npx convex import --path ./backup.zip
-```
-
-This will:
-- Import all tables from the zip
-- Merge with existing data (doesn't delete existing documents)
-- Preserve document IDs from the export
 
 ---
 
 ## Import Modes
 
-### Default (Append mode)
+| Mode | Behavior |
+|------|----------|
+| Default (append) | Adds new documents, fails on ID conflicts |
+| `--replace` | **Deletes all existing data** in imported tables, then imports |
 
-```bash
-npx convex import --path ./backup.zip
-```
-- Adds new documents
-- Fails on ID conflicts
-
-### Replace mode
-
-```bash
-npx convex import --path ./backup.zip --replace
-```
-- **Deletes all existing data in imported tables**
-- Then imports the backup data
-- Use with extreme caution
+**Warning:** `--replace` is destructive. Always backup first!
 
 ---
 
-## Import to Production
+## Safety Checklist
 
-### Step 1: Double-check you want to import to prod
+Before importing:
 
-**Warning:** This modifies production data!
+1. **Create a backup:**
+   ```bash
+   bash ~/.claude/commands/convex/scripts/export-data.sh
+   ```
 
-### Step 2: Import with --prod flag
+2. **Verify the import file** contains what you expect
 
-Run:
-```bash
-npx convex import --path ./backup.zip --prod
-```
+3. **Double-check target deployment** (dev vs prod)
 
-Or with deploy key for CI/CD:
-```bash
-CONVEX_DEPLOY_KEY=$(op read "op://Private/convex/deploy-key")
-npx convex import --path ./backup.zip
-```
-
----
-
-## Import Single Table
-
-The CLI imports all tables in the zip. To import specific tables:
-
-### Step 1: Extract the table you want
-
-Run:
-```bash
-unzip ./full-backup.zip -d ./temp
-mkdir ./single-table-import
-cp ./temp/users.json ./single-table-import/
-```
-
-### Step 2: Create a zip with just that table
-
-Run:
-```bash
-cd ./single-table-import && zip ../users-only.zip *.json && cd ..
-```
-
-### Step 3: Import the single-table zip
-
-Run:
-```bash
-npx convex import --path ./users-only.zip
-```
-
-### Step 4: Cleanup
-
-Run:
-```bash
-rm -rf ./temp ./single-table-import ./users-only.zip
-```
-
----
-
-## Import JSON Files Directly
-
-For custom data, create JSON files in the export format:
-
-### Step 1: Create table JSON file
-
-```json
-[
-  {"_id": "k97abc123", "name": "User 1", "email": "user1@example.com"},
-  {"_id": "k97def456", "name": "User 2", "email": "user2@example.com"}
-]
-```
-
-### Step 2: Zip and import
-
-Run:
-```bash
-zip ./custom-data.zip users.json
-npx convex import --path ./custom-data.zip
-```
+The script will prompt for these confirmations unless `--force` is used.
 
 ---
 
@@ -164,13 +90,3 @@ npx convex import --path ./custom-data.zip
 ```bash
 npx convex login
 ```
-
-**Import seems stuck?**
-- Large imports take time
-- Check network connection
-- View progress in Convex dashboard
-
-**Wrong deployment?**
-- By default imports to dev
-- Use `--prod` for production
-- Verify with `npx convex dashboard` before importing
