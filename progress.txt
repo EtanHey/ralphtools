@@ -653,3 +653,41 @@ The infrastructure existed (fswatch, FIFO, `_ralph_poll_updates`, `_ralph_handle
 - Global variables modified before fork are visible to child process
 - ANSI escape sequences can update display in-place without affecting Claude's output
 - Background subshells can write to parent's terminal via printf
+
+## Iteration 21 - US-052: Audit Skills for Structure Compliance
+**Status**: COMPLETED
+
+Audited all skills in `~/.claude/commands/` against the reference pattern (github skill: SKILL.md + workflows/ + scripts/).
+
+### Audit Results
+
+**Fully Compliant (6 skills):**
+- github - SKILL.md + 4 workflows + 2 scripts
+- 1password - SKILL.md + 5 workflows + 2 scripts
+- archive - SKILL.md + 2 workflows + 2 scripts
+- convex - SKILL.md + 7 workflows + 5 scripts
+- linear - SKILL.md + 4 workflows + 3 scripts
+- ralph-install - SKILL.md + 5 workflows + 3 scripts
+
+**Partially Compliant (1 skill):**
+- worktrees - SKILL.md + 5 workflows, NO scripts/ directory
+  - Acceptable: only wraps simple git commands
+
+**Non-Compliant (2 skills):**
+- brave.md - Single file, references complex CLI with many subcommands
+  - Recommendation: Expand to directory with workflows
+- critique-waves.md - Single file, complex multi-phase workflow
+  - Recommendation: Expand to directory with workflows + scripts
+
+**Appropriate as Single File (2 skills):**
+- prd.md - Linear workflow/instruction document
+- skills.md - Single-purpose discovery utility
+
+### Files Created
+- `/Users/etanheyman/Desktop/Gits/ralphtools/docs.local/skill-audit-report.md`
+
+### Learnings
+- Reference pattern: SKILL.md router + workflows/ for decision trees + scripts/ for deterministic bash
+- Single .md is appropriate for: linear instruction docs, single-purpose utilities
+- Directory structure needed for: multi-operation skills, complex CLIs, multi-phase processes
+- Skills missing scripts/ are only an issue if they reference bash commands that should be deterministic

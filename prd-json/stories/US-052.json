@@ -1,0 +1,21 @@
+{
+  "id": "US-052",
+  "title": "Audit Skills for Structure Compliance",
+  "description": "Scan all skills in ~/.claude/commands/ and identify those that don't follow the proper skill structure pattern (SKILL.md + workflows/ + scripts/).",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "completed",
+  "acceptanceCriteria": [
+    "Scan ~/.claude/commands/ for all skill directories",
+    "Check each skill against the reference pattern: github skill (SKILL.md, workflows/, scripts/)",
+    "Identify skills that are single .md files but should be expanded",
+    "Identify skills missing workflows/ directory",
+    "Identify skills missing scripts/ when they reference bash commands",
+    "Create a report file: docs.local/skill-audit-report.md",
+    "Report lists: compliant skills, non-compliant skills with specific issues",
+    "Do NOT fix anything - audit only"
+  ],
+  "dependencies": [],
+  "passes": true
+}
