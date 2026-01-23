@@ -2711,6 +2711,55 @@ function ralph() {
 
     if [[ "$use_json_mode" == "true" ]]; then
       current_story=$(_ralph_json_next_story "$PRD_JSON_DIR")
+
+      # BUG-005: Check if PRD is complete (no more pending stories)
+      if [[ -z "$current_story" ]]; then
+        local pending_count=$(jq -r '.pending | length' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+        if [[ "$pending_count" -eq 0 || -z "$pending_count" ]]; then
+          # PRD is complete - exit gracefully
+          local total_stories=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+          local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+          local elapsed_time=$(($(date +%s) - ralph_start_time))
+          local elapsed_formatted=$(_ralph_format_duration "$elapsed_time" 2>/dev/null || echo "${elapsed_time}s")
+
+          _ralph_stop_watcher 2>/dev/null
+
+          if [[ "$compact_mode" == "true" ]]; then
+            echo ""
+            echo -e "✅ $(_ralph_success "PRD COMPLETE!") All $total_stories stories finished │ $elapsed_formatted │ $(_ralph_color_cost "$total_cost")"
+          else
+            local BOX_INNER_WIDTH=61
+            echo ""
+            echo -e "${RALPH_COLOR_GREEN}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+            local complete_str="✅ PRD Complete! All $total_stories stories finished."
+            local complete_width=$(_ralph_display_width "$complete_str")
+            local complete_padding=$((BOX_INNER_WIDTH - complete_width))
+            echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ${complete_str}$(printf '%*s' $complete_padding '')${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+            echo -e "${RALPH_COLOR_GREEN}╠───────────────────────────────────────────────────────────────╣${RALPH_COLOR_RESET}"
+            local time_str="⏱️  Total time: $elapsed_formatted"
+            local time_width=$(_ralph_display_width "$time_str")
+            local time_padding=$((BOX_INNER_WIDTH - time_width))
+            echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ${time_str}$(printf '%*s' $time_padding '')${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+            local cost_str="💰 Total cost: \$$total_cost"
+            local cost_width=$(_ralph_display_width "$cost_str")
+            local cost_padding=$((BOX_INNER_WIDTH - cost_width))
+            echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ${cost_str}$(printf '%*s' $cost_padding '')${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+            local iter_str="🔄 Iterations: $((i - 1))"
+            local iter_width=$(_ralph_display_width "$iter_str")
+            local iter_padding=$((BOX_INNER_WIDTH - iter_width))
+            echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ${iter_str}$(printf '%*s' $iter_padding '')${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+            echo -e "${RALPH_COLOR_GREEN}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
+          fi
+
+          # Send notification if enabled
+          if $notify_enabled; then
+            _ralph_ntfy "$ntfy_topic" "complete" "" "" "$((i - 1))" "0 0" "$total_cost"
+          fi
+
+          rm -f "$RALPH_TMP"
+          return 0
+        fi
+      fi
     fi
 
     # Determine effective model using smart routing

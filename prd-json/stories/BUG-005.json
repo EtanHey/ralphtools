@@ -1,0 +1,19 @@
+{
+  "id": "BUG-005",
+  "title": "Ralph keeps looping after PRD complete",
+  "description": "When all stories are complete (pending=0, nextStory=null), Ralph should exit gracefully instead of continuing to loop and saying 'PRD complete' every iteration.",
+  "type": "bug",
+  "priority": "critical",
+  "storyPoints": 2,
+  "status": "completed",
+  "passes": true,
+  "completedAt": "2026-01-23T15:30:00Z",
+  "acceptanceCriteria": [
+    {"text": "When nextStory is null AND pending array is empty, Ralph exits the loop", "checked": true},
+    {"text": "Print completion message: '✅ PRD Complete! All N stories finished.'", "checked": true},
+    {"text": "Show final stats summary (time, cost, stories completed)", "checked": true},
+    {"text": "Exit with code 0 (success)", "checked": true},
+    {"text": "Do NOT keep looping and burning tokens", "checked": true}
+  ],
+  "dependencies": []
+}

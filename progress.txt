@@ -506,3 +506,49 @@ Stats refresh correctly because:
 - Progress bar shows fresh values on next display
 
 No additional code changes needed - US-049 fix covered this bug.
+
+## Iteration 17 - BUG-005: Ralph keeps looping after PRD complete
+**Status**: COMPLETED
+
+Fixed the bug where Ralph would keep looping after all stories were complete, burning tokens unnecessarily.
+
+### Root Cause
+When `_ralph_json_next_story()` returned empty (no pending stories), Ralph didn't check for this condition. It would continue looping without any story to work on.
+
+### Solution
+Added a check right after getting `current_story` in the main iteration loop (line 2715-2762):
+1. If `current_story` is empty AND we're in JSON mode
+2. Check if `pending` array length is 0
+3. If so, display completion message and exit with code 0
+
+### Completion Message Format
+Normal mode:
+```
+╔═══════════════════════════════════════════════════════════════╗
+║  ✅ PRD Complete! All N stories finished.                      ║
+╠───────────────────────────────────────────────────────────────╣
+║  ⏱️  Total time: Xm Ys                                         ║
+║  💰 Total cost: $X.XX                                          ║
+║  🔄 Iterations: N                                              ║
+╚═══════════════════════════════════════════════════════════════╝
+```
+
+Compact mode:
+```
+✅ PRD COMPLETE! All N stories finished │ Xm Ys │ $X.XX
+```
+
+### Features
+- Graceful exit with return 0
+- Stops file watcher before exiting
+- Sends notification if enabled
+- Shows total time, cost, and iterations
+- Cleans up temp files
+
+### Files Modified
+- `/Users/etanheyman/Desktop/Gits/ralphtools/ralph.zsh` (lines 2715-2762)
+
+### Learnings
+- Check for empty story BEFORE the iteration starts, not just at completion signals
+- The `<promise>COMPLETE</promise>` signal was intended for when Claude reports completion, but Ralph itself needs to detect the empty-pending case
+- Exit early, not late - don't burn an iteration asking Claude "what's the next task?" when there are none
