@@ -1,0 +1,30 @@
+{
+  "id": "US-075",
+  "title": "golem-powers:writing-skills - Meta-skill for creating executable skills",
+  "description": "Create a meta-skill that teaches Claude how to create OTHER golem-powers skills correctly. This skill enforces the hybrid architecture: SKILL.md with execute: frontmatter + scripts/ directory. When a golem-powers skill is loaded, Claude must immediately run the execute: script.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "model": "opus",
+  "acceptanceCriteria": [
+    {"text": "Create directory: skills/golem-powers/writing-skills/", "checked": false},
+    {"text": "Create SKILL.md with frontmatter: name, description, NO execute (meta-skill)", "checked": false},
+    {"text": "Document the golem-powers skill structure in SKILL.md:", "checked": false},
+    {"text": "  - SKILL.md MUST have YAML frontmatter with: name, description, execute (path to script)", "checked": false},
+    {"text": "  - scripts/ directory with executable .sh files (chmod +x)", "checked": false},
+    {"text": "  - workflows/ directory for multi-step procedures (optional)", "checked": false},
+    {"text": "  - All scripts output Markdown format for Claude to parse", "checked": false},
+    {"text": "Document the execution rule: 'When loading a golem-powers skill with execute: frontmatter, Claude MUST run that script IMMEDIATELY via Bash before any other action'", "checked": false},
+    {"text": "Create template generator script: scripts/create-skill.sh that scaffolds new skill structure", "checked": false},
+    {"text": "Template creates: SKILL.md (with frontmatter), scripts/default.sh (executable), workflows/ (empty)", "checked": false},
+    {"text": "Include example in SKILL.md showing complete skill creation workflow", "checked": false},
+    {"text": "Create workflows/create.md - step-by-step for creating new skill", "checked": false},
+    {"text": "Create workflows/audit.md - checklist for verifying skill is correctly structured", "checked": false},
+    {"text": "Symlink skills/golem-powers/ to ~/.claude/commands/golem-powers", "checked": false},
+    {"text": "Run shellcheck on all .sh files - must pass with no errors", "checked": false},
+    {"text": "Test: Run /golem-powers:writing-skills and verify it loads correctly", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}
