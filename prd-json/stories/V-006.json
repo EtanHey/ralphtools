@@ -1,16 +1,10 @@
 {
   "id": "V-006",
-  "title": "Verify ralph-secrets list and search",
-  "description": "Test the list and search commands show organized secret structure correctly.",
+  "title": "[OBSOLETE] Verify ralph-secrets list and search",
+  "description": "OBSOLETE - US-020 replaced by US-030 (1Password skill). No longer needed.",
   "acceptanceCriteria": [
-    { "text": "Source ralph.zsh successfully", "checked": false },
-    { "text": "ralph-secrets list shows tree structure with projects/services", "checked": false },
-    { "text": "ralph-secrets list --project ralphtools filters correctly", "checked": false },
-    { "text": "ralph-secrets list --service anthropic shows all anthropic keys", "checked": false },
-    { "text": "ralph-secrets search API finds all API-related secrets", "checked": false },
-    { "text": "Output uses box-drawing characters (├─ └─ │)", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Replaced by US-030 (1Password skill)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": "US-020"
+  "passes": true,
+  "blockedBy": null
 }

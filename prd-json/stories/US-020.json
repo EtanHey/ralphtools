@@ -1,16 +1,10 @@
 {
   "id": "US-020",
-  "title": "ralph-secrets list and search commands",
-  "description": "Add commands to view and search secrets in 1Password. Show organized tree view of project/service structure. Enable searching across projects or within current project.",
+  "title": "[OBSOLETE] ralph-secrets list and search commands",
+  "description": "OBSOLETE - Replaced by US-030 (1Password skill). Custom ralph-secrets commands no longer needed; skill teaches Claude to use op CLI directly.",
   "acceptanceCriteria": [
-    { "text": "ralph-secrets list shows tree view: project → service → keys", "checked": false },
-    { "text": "ralph-secrets list --project <name> filters to one project", "checked": false },
-    { "text": "ralph-secrets list --service <name> filters to one service (e.g., --service anthropic)", "checked": false },
-    { "text": "ralph-secrets search <query> finds items matching query", "checked": false },
-    { "text": "Tree view uses box-drawing characters for clean output", "checked": false },
-    { "text": "Show count: 'X secrets in Y projects across Z services'", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Replaced by US-030 (1Password skill)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }

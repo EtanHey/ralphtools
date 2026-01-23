@@ -1,0 +1,22 @@
+{
+  "id": "US-030",
+  "title": "Create 1Password skill with progressive disclosure",
+  "description": "Build a 1Password skill following progressive disclosure architecture (see docs/skill-creation-guide.md). SKILL.md routes to workflows for listing, adding, migrating secrets. Includes migration workflows for .env files AND MCP configs. Scripts handle deterministic operations. Replaces need for custom ralph-secrets commands.",
+  "acceptanceCriteria": [
+    { "text": "Create ~/.claude/commands/1password/ directory structure", "checked": false },
+    { "text": "SKILL.md is <100 lines, routes to workflows based on user intent", "checked": false },
+    { "text": "Create workflows/list-secrets.md with op item list patterns and filtering", "checked": false },
+    { "text": "Create workflows/add-secret.md with op item create workflow", "checked": false },
+    { "text": "Create workflows/migrate-env.md for .env → 1Password migration", "checked": false },
+    { "text": "Create workflows/migrate-mcp.md for MCP config API keys → 1Password", "checked": false },
+    { "text": "Create workflows/troubleshoot.md for auth issues, biometric timeouts, token conflicts", "checked": false },
+    { "text": "Create scripts/migrate-env.sh that migrates .env with project/service nesting", "checked": false },
+    { "text": "Create scripts/scan-mcp-secrets.sh that finds API keys in MCP configs", "checked": false },
+    { "text": "All workflow files use imperative language (Run:, Verify:, If error:)", "checked": false },
+    { "text": "Description includes trigger keywords: 1password, secrets, op, vault, migrate, credentials, mcp", "checked": false },
+    { "text": "Test: /1password loads router, asks what user wants to do", "checked": false },
+    { "text": "Symlink skill to ralphtools/skills/1password/ for version control", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}
