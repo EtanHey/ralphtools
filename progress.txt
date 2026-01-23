@@ -610,3 +610,46 @@ When config file had `ntfyTopic` set (even to defaults like "ralph-notifications
 - Config values of empty string, "auto", or not set should all enable per-project behavior
 - Setup wizards should default to per-project and make fixed topic opt-in
 - The display at line 2677 already correctly shows the actual topic being used
+
+## Iteration 20 - BUG-008: Live criteria updates not wired up
+**Status**: COMPLETED
+
+Wired up the live progress update infrastructure so that criteria and stories progress bars update in real-time during Claude execution.
+
+### Problem
+The infrastructure existed (fswatch, FIFO, `_ralph_poll_updates`, `_ralph_handle_file_change`, `_ralph_update_criteria_display`) but `_ralph_handle_file_change` was never called during the main loop. The criteria progress bar never updated during iteration execution.
+
+### Solution
+1. Created `_ralph_start_polling_loop()` function that runs in background:
+   - Reads from the FIFO with 0.2s timeout
+   - Calls `_ralph_handle_file_change()` when file changes detected
+   - Uses `{ ... } &` with `disown` to run without blocking
+
+2. Created `_ralph_stop_polling_loop()` function to cleanly terminate the polling loop
+
+3. Integrated with Claude execution:
+   - Start polling loop BEFORE the Claude command (line 3137-3140)
+   - Stop polling loop AFTER the Claude command finishes (line 3258-3259)
+
+### Files Modified
+- `/Users/etanheyman/Desktop/Gits/ralphtools/ralph.zsh`
+  - Added `RALPH_POLLING_PID` global variable (line 613)
+  - Added `_ralph_start_polling_loop()` function (lines 615-649)
+  - Added `_ralph_stop_polling_loop()` function (lines 651-662)
+  - Added polling loop start before Claude command (lines 3137-3140)
+  - Added polling loop stop after Claude command (lines 3258-3259)
+
+### How It Works
+1. fswatch monitors `prd-json/stories/` and `prd-json/index.json`
+2. When files change, fswatch writes filenames to FIFO
+3. Background polling loop reads from FIFO every 0.2s
+4. `_ralph_handle_file_change()` dispatches to:
+   - `_ralph_update_criteria_display()` for story JSON changes
+   - `_ralph_update_stories_display()` for index.json changes
+5. Progress bars update in-place using ANSI escape codes
+
+### Learnings
+- ZSH subshells created with `{ ... } &` inherit functions and variables at fork time
+- Global variables modified before fork are visible to child process
+- ANSI escape sequences can update display in-place without affecting Claude's output
+- Background subshells can write to parent's terminal via printf

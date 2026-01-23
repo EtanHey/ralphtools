@@ -1,0 +1,22 @@
+{
+  "id": "BUG-008",
+  "title": "Live criteria updates not wired up - functions exist but never called",
+  "description": "The live progress update infrastructure exists (fswatch, FIFO, _ralph_poll_updates, _ralph_handle_file_change, _ralph_update_criteria_display) but _ralph_handle_file_change is never called in the main loop. The criteria progress bar never updates during iteration execution.",
+  "type": "bug",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "completed",
+  "passes": true,
+  "completedAt": "2026-01-23T14:30:00Z",
+  "completedBy": "opus",
+  "acceptanceCriteria": [
+    {"text": "Add polling loop that calls _ralph_poll_updates() during Claude execution", "checked": true},
+    {"text": "When file changes detected, call _ralph_handle_file_change()", "checked": true},
+    {"text": "Criteria progress bar updates in-place when story JSON changes", "checked": true},
+    {"text": "Stories progress bar updates when index.json changes", "checked": true},
+    {"text": "Test: Run ralph-status in another terminal, watch criteria count increment", "checked": true},
+    {"text": "Use background subshell or timeout-based polling during 'claude' command", "checked": true},
+    {"text": "Don't block the main iteration execution", "checked": true}
+  ],
+  "dependencies": []
+}

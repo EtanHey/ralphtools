@@ -609,6 +609,58 @@ _ralph_store_progress_rows() {
   RALPH_STORIES_ROW="${2:-0}"
 }
 
+# Global for polling loop PID
+RALPH_POLLING_PID=""
+
+# Start background polling loop during Claude execution
+# This runs in parallel with the Claude command to handle file change events
+# Usage: _ralph_start_polling_loop "US-031" "/path/to/prd-json"
+_ralph_start_polling_loop() {
+  local current_story="$1"
+  local json_dir="$2"
+
+  # Don't start if live updates disabled or watcher not running
+  [[ "$RALPH_LIVE_ENABLED" != "true" ]] && return 1
+  [[ -z "$RALPH_WATCHER_FIFO" || ! -p "$RALPH_WATCHER_FIFO" ]] && return 1
+
+  # Suppress job control messages
+  setopt LOCAL_OPTIONS NO_MONITOR NO_NOTIFY
+
+  # Start polling loop in background
+  # The loop reads from the FIFO and updates display in-place
+  {
+    while true; do
+      # Non-blocking read with short timeout
+      local changed_file=""
+      if read -t 0.2 changed_file < "$RALPH_WATCHER_FIFO" 2>/dev/null; then
+        if [[ -n "$changed_file" ]]; then
+          # Handle the file change
+          _ralph_handle_file_change "$changed_file" "$current_story" "$json_dir"
+        fi
+      fi
+      # Small sleep to prevent CPU spinning
+      sleep 0.1
+    done
+  } &
+  RALPH_POLLING_PID=$!
+  disown $RALPH_POLLING_PID 2>/dev/null
+
+  return 0
+}
+
+# Stop background polling loop
+_ralph_stop_polling_loop() {
+  # Suppress job control messages
+  setopt LOCAL_OPTIONS NO_MONITOR NO_NOTIFY
+
+  if [[ -n "$RALPH_POLLING_PID" ]]; then
+    kill "$RALPH_POLLING_PID" 2>/dev/null
+    # Brief wait for cleanup
+    sleep 0.1
+    RALPH_POLLING_PID=""
+  fi
+}
+
 # ═══════════════════════════════════════════════════════════════════
 # COLOR SCHEMES
 # ═══════════════════════════════════════════════════════════════════
@@ -3082,6 +3134,11 @@ At the START of any iteration that needs browser verification:
 "
       fi
 
+      # Start background polling for live progress updates
+      if [[ "$use_json_mode" == "true" && "$RALPH_LIVE_ENABLED" == "true" ]]; then
+        _ralph_start_polling_loop "$current_story" "$PRD_JSON_DIR"
+      fi
+
       # Run CLI with output capture (tee for checking promises)
       # Note: Claude uses -p flag, Kiro uses positional argument (${prompt_flag:+...} expands only if non-empty)
       "${cli_cmd_arr[@]}" ${prompt_flag:+$prompt_flag} "${ralph_prompt}
@@ -3197,6 +3254,9 @@ After completing task, check PRD state:
 - ALL stories have passes=true (or pending array empty): output <promise>COMPLETE</promise>
 - ALL remaining stories are blocked: output <promise>ALL_BLOCKED</promise>
 - Some stories still pending: end response (next iteration continues)" 2>&1 | if [[ "$verbose_enabled" == "true" ]]; then tee "$RALPH_TMP"; else cat > "$RALPH_TMP"; fi
+
+      # Stop background polling loop now that Claude has finished
+      _ralph_stop_polling_loop
 
       # Capture exit code of Claude (pipestatus[1] in zsh gets first command in pipe)
       # Note: zsh uses lowercase 'pipestatus' and 1-indexed arrays
