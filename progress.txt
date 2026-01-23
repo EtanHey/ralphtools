@@ -674,3 +674,31 @@
 - All 13 acceptance criteria completed
 - Updated stats: completed=43, pending=1, blocked=4
 ---
+
+## Iteration 37 - US-030 Create 1Password skill with progressive disclosure
+- Model: opus
+- Built 1Password skill following progressive disclosure architecture:
+  1. Created ~/.claude/commands/1password/ directory structure with workflows/ and scripts/ subdirs
+  2. SKILL.md is 93-line router (<100 line requirement met):
+     - Prerequisites check (op account list)
+     - Quick actions table routing to 5 workflow files
+     - Available scripts table
+     - Decision tree for common tasks
+     - Service auto-detection table
+     - Safety rules section
+  3. Created 5 workflow files with imperative language (Run:, Verify:, Success:):
+     - workflows/list-secrets.md: op item list, search by name/tag/category, Ralph format queries
+     - workflows/add-secret.md: op item create, Ralph naming convention, stdin for secure input
+     - workflows/migrate-env.md: .env to 1Password migration with project/service nesting
+     - workflows/migrate-mcp.md: MCP config secrets migration, op:// references
+     - workflows/troubleshoot.md: Auth issues, biometric timeouts, token conflicts, session management
+  4. Created 2 helper scripts:
+     - scripts/migrate-env.sh: Full bash migration script with service detection, dry-run support
+     - scripts/scan-mcp-secrets.sh: Scans MCP configs for hardcoded secrets
+  5. Description includes all trigger keywords: 1password, secrets, op, vault, migrate, credentials, mcp
+  6. Symlinked skill to ralphtools/skills/1password/ for version control
+  7. Tested /1password loads router and shows Quick Actions table
+- All 13 acceptance criteria completed
+- Typecheck passes (zsh -n ralph.zsh), bash -n on scripts
+- Updated stats: completed=41, pending=4, blocked=4
+---

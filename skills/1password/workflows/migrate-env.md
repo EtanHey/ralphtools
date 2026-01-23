@@ -1,0 +1,221 @@
+# Migrate .env Workflow
+
+Imperative instructions for migrating .env files to 1Password.
+
+---
+
+## Quick Migration (Script)
+
+For automated migration with project/service nesting:
+
+Run:
+```bash
+bash ~/.claude/commands/1password/scripts/migrate-env.sh .env --dry-run
+```
+
+If dry-run looks good:
+```bash
+bash ~/.claude/commands/1password/scripts/migrate-env.sh .env
+```
+
+---
+
+## Manual Migration
+
+### Step 1: Verify prerequisites
+
+Run:
+```bash
+op account list
+```
+
+If error: See [troubleshoot.md](troubleshoot.md)
+
+### Step 2: Check target vault
+
+Run:
+```bash
+op vault list
+```
+
+Identify vault name (usually "Private").
+
+### Step 3: Identify project name
+
+Use current directory name:
+```bash
+basename $(pwd)
+```
+
+### Step 4: Read .env and categorize
+
+For each KEY=VALUE pair, detect service:
+
+| Key prefix | Service folder |
+|------------|----------------|
+| `ANTHROPIC_*` | anthropic |
+| `OPENAI_*` | openai |
+| `SUPABASE_*` | supabase |
+| `DATABASE_*`, `DB_*` | db |
+| `STRIPE_*` | stripe |
+| `AWS_*` | aws |
+| `VERCEL_*` | vercel |
+| `GITHUB_*` | github |
+| `LINEAR_*` | linear |
+| `FIGMA_*` | figma |
+| Other | misc |
+
+### Step 5: Create items
+
+For each secret, run:
+```bash
+op item create --category "Password" \
+  --title "{project}/{service}/{normalized_key}" \
+  --vault "Private" \
+  "password={value}"
+```
+
+Example:
+```bash
+# ANTHROPIC_API_KEY=sk-ant-...
+op item create --category "Password" \
+  --title "myapp/anthropic/API_KEY" \
+  --vault "Private" \
+  "password=sk-ant-..."
+```
+
+### Step 6: Generate .env.template
+
+Create template with op:// references:
+```bash
+# Original: ANTHROPIC_API_KEY=sk-ant-...
+# Template: ANTHROPIC_API_KEY=op://Private/myapp/anthropic/API_KEY/password
+```
+
+Write to .env.template:
+```bash
+echo "ANTHROPIC_API_KEY=op://Private/myapp/anthropic/API_KEY/password" >> .env.template
+```
+
+---
+
+## Using .env.template
+
+### Option 1: op inject
+
+Run:
+```bash
+op inject -i .env.template -o .env
+```
+
+Creates .env with actual values.
+
+### Option 2: op run (preferred)
+
+Run commands with secrets injected:
+```bash
+op run --env-file=.env.template -- npm run dev
+```
+
+Secrets never written to disk.
+
+---
+
+## Handle Global Variables
+
+Some vars are global (not project-specific):
+
+- `EDITOR`, `VISUAL`
+- `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`
+- `PATH`, `HOME`, `USER`, `SHELL`, `TERM`, `LANG`, `LC_ALL`
+
+These go to `_global/{service}/{key}`:
+```bash
+# EDITOR=vim → skip (system var)
+# GIT_AUTHOR_EMAIL=me@example.com → _global/git/AUTHOR_EMAIL
+```
+
+---
+
+## Handle Existing Items
+
+### Check if item exists
+
+Run:
+```bash
+op item get "{project}/{service}/{key}" --vault "Private" 2>/dev/null && echo "EXISTS" || echo "NEW"
+```
+
+### Update existing item
+
+Run:
+```bash
+op item edit "{project}/{service}/{key}" --vault "Private" "password={new-value}"
+```
+
+---
+
+## Verify Migration
+
+### Step 1: Check items created
+
+Run:
+```bash
+op item list --vault "Private" | grep "^myproject/"
+```
+
+### Step 2: Test template
+
+Run:
+```bash
+op inject -i .env.template | head -5
+```
+
+Verify: Values are correctly resolved.
+
+### Step 3: Test application
+
+Run:
+```bash
+op run --env-file=.env.template -- echo "Test passed"
+```
+
+---
+
+## Rollback Migration
+
+If something went wrong:
+
+### Delete created items
+
+Run:
+```bash
+op item list --vault "Private" | grep "^myproject/" | while read line; do
+  item=$(echo "$line" | awk '{print $1}')
+  op item delete "$item" --vault "Private"
+done
+```
+
+### Restore .env
+
+If you still have the original .env, no action needed.
+
+---
+
+## Troubleshooting
+
+**"not signed in" error?**
+- Run: `op signin`
+- See [troubleshoot.md](troubleshoot.md)
+
+**Item already exists?**
+- Script prompts before overwriting
+- Manual: Use `op item edit` to update
+
+**Missing vault?**
+- Check vault name with `op vault list`
+- Vault names are case-sensitive
+
+**Template doesn't work?**
+- Verify op:// path matches item title exactly
+- Check field name (usually "password")
