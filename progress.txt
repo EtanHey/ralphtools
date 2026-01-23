@@ -959,3 +959,45 @@ Enhanced the `_ralph_migrate_to_registry()` function to support importing from r
 - Tab characters (`\t`) are reliable delimiters when parsing shell output
 - `jq -n` with `--argjson` allows building complex JSON from shell variables
 
+## Iteration 29 - US-056: Core registry functions
+**Status**: COMPLETED (already implemented)
+
+All core registry functions were already implemented in ralph.zsh during US-055 work. Verified:
+
+### Functions Verified (lines 1641-1742)
+
+1. **_ralph_load_registry()** (lines 1641-1647)
+   - Checks if registry.json exists at RALPH_REGISTRY_FILE
+   - Returns file contents via cat
+   - Error message if not found
+
+2. **_ralph_get_project_config()** (lines 1651-1663)
+   - Takes optional path (defaults to cwd)
+   - Resolves to absolute path with `:A`
+   - Uses jq to find project matching the path
+   - Handles ~ expansion in stored paths
+
+3. **_ralph_current_project()** (lines 1667-1670)
+   - Calls _ralph_get_project_config
+   - Extracts just the project name via jq
+
+4. **_ralph_build_mcp_config()** (lines 1674-1703)
+   - Gets global MCPs from registry
+   - Gets project-specific MCP names
+   - Resolves MCP definitions from mcpDefinitions
+   - Merges into {mcpServers: {...}} format
+
+5. **_ralph_inject_secrets()** (lines 1707-1742)
+   - Skips silently if op CLI not available
+   - Gets project secrets from registry
+   - Resolves op:// references via `op read`
+   - Exports resolved values as env vars
+   - Passes through non-op:// values directly
+
+### Typecheck
+- `zsh -n ralph.zsh` passes
+
+### Learnings
+- Registry infrastructure was built as part of US-055 migration work
+- Functions already support the full workflow: load → find project → build config → inject secrets
+
