@@ -1352,3 +1352,34 @@ Created `docs.local/rename-plan.md` with:
 - Two separate config dirs: ~/.config/ralph/ (user config) and ~/.config/ralphtools/ (tool install)
 - Recommend keeping "ralph" as tool name, only rename repo and install directories
 - ntfy topics don't need to match repo name
+
+
+## Iteration 37 - US-063: Execute GitHub Repo Rename to claude-golem
+**Status**: COMPLETED
+
+Executed the first step of the rename: renaming the GitHub repository from `ralphtools` to `claude-golem`.
+
+### Steps Completed
+
+1. **Verified gh auth status** - Logged in as EtanHey with required scopes (repo, workflow, gist, read:org)
+
+2. **Renamed repository** - Ran `gh repo rename claude-golem --yes`
+   - GitHub repo now accessible at https://github.com/EtanHey/claude-golem
+
+3. **Updated local git remote** - Ran `git remote set-url origin https://github.com/EtanHey/claude-golem.git`
+
+4. **Verified remote URL** - `git remote -v` confirms new URL for both fetch and push
+
+5. **Tested git fetch** - Successfully fetched from new remote
+
+6. **Verified redirect** - Old URL (https://github.com/EtanHey/ralphtools) returns HTTP 301 redirect to https://github.com/EtanHey/claude-golem
+
+### Files Modified
+- `prd-json/stories/US-063.json` - All 6 criteria checked, passes=true
+- `prd-json/index.json` - Updated stats (40 completed, 6 pending), nextStory=V-010
+
+### Learnings
+- `gh repo rename <new-name> --yes` renames the repo without prompts
+- GitHub automatically creates permanent redirects from old URL to new URL
+- Local git remote must be manually updated with `git remote set-url`
+- The local directory name (ralphtools) doesn't need to change for git to work

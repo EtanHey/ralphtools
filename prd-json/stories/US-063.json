@@ -5,14 +5,15 @@
   "type": "feature",
   "priority": "high",
   "storyPoints": 2,
-  "status": "pending",
+  "status": "completed",
+  "passes": true,
   "acceptanceCriteria": [
-    {"text": "Verify gh auth status is working", "checked": false},
-    {"text": "Run: gh repo rename claude-golem (from ralphtools directory)", "checked": false},
-    {"text": "Update local git remote: git remote set-url origin <new-url>", "checked": false},
-    {"text": "Verify git remote -v shows new claude-golem URL", "checked": false},
-    {"text": "Test git fetch works with new remote", "checked": false},
-    {"text": "Verify old URL redirects to new (GitHub auto-redirect)", "checked": false}
+    {"text": "Verify gh auth status is working", "checked": true},
+    {"text": "Run: gh repo rename claude-golem (from ralphtools directory)", "checked": true},
+    {"text": "Update local git remote: git remote set-url origin <new-url>", "checked": true},
+    {"text": "Verify git remote -v shows new claude-golem URL", "checked": true},
+    {"text": "Test git fetch works with new remote", "checked": true},
+    {"text": "Verify old URL redirects to new (GitHub auto-redirect)", "checked": true}
   ],
   "dependencies": ["US-062"]
 }
