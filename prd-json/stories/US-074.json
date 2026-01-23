@@ -18,6 +18,12 @@
     {"text": "Gracefully handle missing cr CLI (warn and continue)", "checked": false},
     {"text": "Add RALPH_CODERABBIT_ENABLED config option (default: true)", "checked": false},
     {"text": "Log CodeRabbit results to progress.txt", "checked": false},
+    {"text": "Document in README: how CodeRabbit integration works", "checked": false},
+    {"text": "Document: how to add more repos to allowed list", "checked": false},
+    {"text": "Add to ralph-setup wizard: CodeRabbit configuration step", "checked": false},
+    {"text": "  - Prompt: 'Enable CodeRabbit pre-commit checks? (free for open source)'", "checked": false},
+    {"text": "  - Prompt: 'Which repos? (comma-separated or * for all)'", "checked": false},
+    {"text": "  - Save to config.json: coderabbit.enabled, coderabbit.repos[]", "checked": false},
     {"text": "Test: Make intentional bug, verify CodeRabbit catches it", "checked": false}
   ],
   "dependencies": [],

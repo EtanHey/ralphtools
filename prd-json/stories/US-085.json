@@ -25,7 +25,11 @@
     {"text": "Notification topic wraps to next line instead of truncating", "checked": false},
     {"text": "All text fits within terminal width (responsive)", "checked": false},
     {"text": "Test: Run Ralph, verify live dashboard updates", "checked": false},
-    {"text": "Test: Resize terminal, verify responsive layout", "checked": false}
+    {"text": "Test: Resize terminal, verify responsive layout", "checked": false},
+    {"text": "CONSIDER: Move ralph-setup wizard to React Ink as well", "checked": false},
+    {"text": "  - Currently uses Gum (works but separate tooling)", "checked": false},
+    {"text": "  - React Ink wizard would unify UI stack", "checked": false},
+    {"text": "  - Could be follow-up story if scope too big", "checked": false}
   ],
   "dependencies": [],
   "passes": false
