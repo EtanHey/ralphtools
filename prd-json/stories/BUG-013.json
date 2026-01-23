@@ -7,12 +7,12 @@
   "storyPoints": 1,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Grep ralph.zsh for ALL debug echo statements (remaining_stats, debug, etc)", "checked": false},
-    {"text": "Wrap ALL debug output in: [[ \"$RALPH_DEBUG\" == \"true\" ]] && echo ...", "checked": false},
-    {"text": "Or redirect to debug log: echo ... >> /tmp/ralph-debug.log", "checked": false},
-    {"text": "Add comment '# DEBUG OUTPUT - guard with RALPH_DEBUG' above each debug line", "checked": false},
+    {"text": "Grep ralph.zsh for ALL debug echo statements (remaining_stats, debug, etc)", "checked": true},
+    {"text": "Wrap ALL debug output in: [[ \"$RALPH_DEBUG\" == \"true\" ]] && echo ...", "checked": true},
+    {"text": "Or redirect to debug log: echo ... >> /tmp/ralph-debug.log", "checked": true},
+    {"text": "Add comment '# DEBUG OUTPUT - guard with RALPH_DEBUG' above each debug line", "checked": true},
     {"text": "Run Ralph 3+ iterations and confirm NO debug output leaks", "checked": false},
-    {"text": "Create grep command in docs to audit for unguarded debug output", "checked": false}
+    {"text": "Create grep command in docs to audit for unguarded debug output", "checked": true}
   ],
   "dependencies": [],
   "passes": false,

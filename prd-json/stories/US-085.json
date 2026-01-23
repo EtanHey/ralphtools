@@ -1,0 +1,32 @@
+{
+  "id": "US-085",
+  "title": "Ralph React Ink UI - Modern terminal dashboard",
+  "description": "Rewrite Ralph's terminal UI using React Ink + Bun. Replace shell escape codes with a component-based, live-updating dashboard. This solves all UI issues (truncation, wrapping, live updates) in one clean rewrite.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 8,
+  "status": "pending",
+  "model": "opus",
+  "acceptanceCriteria": [
+    {"text": "Create ralph-ui/ directory with Bun + React Ink setup", "checked": false},
+    {"text": "Create package.json with dependencies: ink, react, ink-spinner", "checked": false},
+    {"text": "Create src/index.tsx entry point", "checked": false},
+    {"text": "Create components/Dashboard.tsx - main layout container", "checked": false},
+    {"text": "Create components/PRDStatus.tsx - stories + criteria counts", "checked": false},
+    {"text": "Create components/StoryBox.tsx - current story with progress bar", "checked": false},
+    {"text": "Create components/IterationHeader.tsx - iteration number, model, time", "checked": false},
+    {"text": "Create components/NotificationStatus.tsx - topic with proper wrapping", "checked": false},
+    {"text": "Create components/ProgressBar.tsx - reusable progress bars", "checked": false},
+    {"text": "Create hooks/useFileWatch.ts - watch prd-json/ for live updates", "checked": false},
+    {"text": "Create hooks/usePRDStats.ts - calculate stories/criteria counts", "checked": false},
+    {"text": "Update ralph.zsh to call: bun ralph-ui/src/index.tsx --mode=startup", "checked": false},
+    {"text": "Update ralph.zsh to call: bun ralph-ui/src/index.tsx --mode=iteration", "checked": false},
+    {"text": "Live update: criteria count changes when Claude checks off items", "checked": false},
+    {"text": "Notification topic wraps to next line instead of truncating", "checked": false},
+    {"text": "All text fits within terminal width (responsive)", "checked": false},
+    {"text": "Test: Run Ralph, verify live dashboard updates", "checked": false},
+    {"text": "Test: Resize terminal, verify responsive layout", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}

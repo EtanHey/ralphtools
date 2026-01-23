@@ -14,6 +14,8 @@
     {"text": "Option 3: Truncate with ellipsis at word boundary, not mid-word", "checked": false},
     {"text": "Test: Send a notification with long story title, verify readable", "checked": false}
   ],
-  "dependencies": [],
+  "dependencies": ["US-085"],
+  "blockedBy": "US-085",
+  "blockedReason": "React Ink rewrite will handle notification display properly",
   "passes": false
 }

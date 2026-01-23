@@ -16,6 +16,8 @@
     {"text": "Consider: progress bar for criteria [████░░░░] 45/321", "checked": false},
     {"text": "Test: Long topic name wraps correctly, box looks clean", "checked": false}
   ],
-  "dependencies": [],
+  "dependencies": ["US-085"],
+  "blockedBy": "US-085",
+  "blockedReason": "React Ink rewrite will solve all UI issues - no point fixing shell escape codes",
   "passes": false
 }
