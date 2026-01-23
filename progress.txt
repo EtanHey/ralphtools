@@ -575,3 +575,30 @@
 - Updated stats: completed=30, pending=4, blocked=5
 ---
 
+
+## Iteration 33 - US-023 Fix box drawing alignment with emoji width handling
+- Model: haiku
+- Implemented display width calculation for proper emoji box alignment:
+  1. ✓ Created _ralph_display_width() function that calculates terminal display width
+     - Accounts for emojis as width 2 cells, ASCII as width 1 cell
+     - Supports 23+ common emojis: 🚀📋🆕💰⏱✓🔄📚☐💵🏁🎯✨⚠🆘🔴🟢🟡⚡❌✅🛑🔥🔕🔔
+     - Uses grep to count emoji occurrences, avoiding multi-byte UTF-8 parsing issues
+  2. ✓ Updated _ralph_show_changelog_version() to use display width for padding
+     - Changelog box borders now align correctly with emoji titles
+  3. ✓ Updated all startup banner printf statements to use display width:
+     - pwd display line
+     - app mode line
+     - max iterations line
+     - status lines (story counts, notifications)
+     - iteration status progress bars
+     - hints display
+     - max iterations reached display
+  4. ✓ Verified right border aligns consistently regardless of emoji content
+     - All box drawing characters now align perfectly
+  5. ✓ Typecheck passes (zsh -n ralph.zsh)
+- All 7 acceptance criteria completed
+- US-024 was already complete and unblocked by this implementation
+- V-005 unblocked (was blocked by US-024)
+- Updated stats: completed=35, pending=5, blocked=5
+- Committed changes (2 commits)
+---
