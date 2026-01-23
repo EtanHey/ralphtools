@@ -67,3 +67,15 @@
 - All 29 tests pass (6 new notification + 7 cost + 11 config + 5 framework)
 - Typecheck passes (zsh -n)
 ---
+
+## Iteration 5 - TEST-005 GitHub Actions CI
+- Model: opus
+- Created .github/workflows/ci.yml for continuous integration
+- Workflow triggers on push to master and all PRs
+- Uses macos-latest runner for native zsh support
+- Steps: checkout → install jq → syntax check → run tests
+- Validated YAML syntax with python yaml.safe_load
+- Verified syntax check passes locally (zsh -n ralph.zsh)
+- Verified all 29 tests pass locally
+- CI will now automatically run tests on every PR and push to master
+---

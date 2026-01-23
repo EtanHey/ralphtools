@@ -3,15 +3,17 @@
   "title": "Add GitHub Actions CI workflow",
   "description": "Set up CI to run tests on push and PR, plus syntax check.",
   "acceptanceCriteria": [
-    { "text": "Create .github/workflows/ci.yml", "checked": false },
-    { "text": "Run on push to master and all PRs", "checked": false },
-    { "text": "Use macos-latest runner (zsh native)", "checked": false },
-    { "text": "Step 1: Checkout code", "checked": false },
-    { "text": "Step 2: Install jq (brew install jq)", "checked": false },
-    { "text": "Step 3: Run syntax check (zsh -n ralph.zsh)", "checked": false },
-    { "text": "Step 4: Run tests (zsh tests/test-ralph.zsh)", "checked": false },
-    { "text": "Workflow file is valid YAML", "checked": false }
+    { "text": "Create .github/workflows/ci.yml", "checked": true },
+    { "text": "Run on push to master and all PRs", "checked": true },
+    { "text": "Use macos-latest runner (zsh native)", "checked": true },
+    { "text": "Step 1: Checkout code", "checked": true },
+    { "text": "Step 2: Install jq (brew install jq)", "checked": true },
+    { "text": "Step 3: Run syntax check (zsh -n ralph.zsh)", "checked": true },
+    { "text": "Step 4: Run tests (zsh tests/test-ralph.zsh)", "checked": true },
+    { "text": "Workflow file is valid YAML", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T14:18:00Z",
+  "completedBy": "opus"
 }
