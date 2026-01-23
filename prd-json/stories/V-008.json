@@ -13,5 +13,5 @@
     { "text": "No broken references in any SKILL.md files", "checked": false }
   ],
   "passes": false,
-  "blockedBy": "US-032"
+  "blockedBy": null
 }

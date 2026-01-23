@@ -292,3 +292,33 @@ When ZSH starts a background job with `(...)&`, it outputs job control messages.
 - Pipelines in backgrounded braces need special handling - `coproc` provides cleaner PID capture
 - FIFO writes inside subshells with redirected outer stdout still work because they use explicit file paths
 - When using `disown`, `wait` won't work on the process, so kill and brief sleep is sufficient
+
+## Iteration 12 - US-035: Worktrees skill (task isolation)
+**Status**: COMPLETED
+
+Created `/worktrees` skill for git worktree-based task isolation. Enables creating isolated working directories for each task, preventing cross-contamination between branches.
+
+### Skill Structure Created
+- `/Users/etanheyman/Desktop/Gits/ralphtools/skills/worktrees/SKILL.md` - Router with quick actions table
+- `/Users/etanheyman/Desktop/Gits/ralphtools/skills/worktrees/workflows/create.md` - Create worktree from branch name
+- `/Users/etanheyman/Desktop/Gits/ralphtools/skills/worktrees/workflows/list.md` - List active worktrees
+- `/Users/etanheyman/Desktop/Gits/ralphtools/skills/worktrees/workflows/switch.md` - Navigate between worktrees
+- `/Users/etanheyman/Desktop/Gits/ralphtools/skills/worktrees/workflows/cleanup.md` - Remove completed worktrees
+- `/Users/etanheyman/Desktop/Gits/ralphtools/skills/worktrees/workflows/from-linear.md` - Create worktree from Linear issue
+- Symlinked to ~/.claude/commands/worktrees
+
+### Features
+- Default path: `~/worktrees/<repo>/<branch>`
+- Linear integration: Auto-generates branch names from Linear issues (branchName field)
+- Custom branch naming options: feature/ENG-123-description, fix/ENG-456-description
+- Interactive selection with gum integration
+- Shell function (`wt`) for quick switching with fuzzy matching
+- Safe cleanup workflow with merge verification
+- VS Code/Cursor integration instructions
+
+### Learnings
+- Linear issues have `branchName` field with auto-sanitized branch names
+- `git worktree add <path> -b <branch>` creates worktree with new branch
+- `git worktree remove <path>` removes worktree and cleans git references
+- `git worktree prune` cleans up stale references from deleted directories
+- Skills that are purely markdown (no standalone scripts) don't need zsh typecheck

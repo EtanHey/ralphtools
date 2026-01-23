@@ -3,18 +3,18 @@
   "title": "Worktrees skill (task isolation)",
   "description": "Create a skill for git worktree-based task isolation. Each task runs in a clean worktree, preventing cross-contamination. Integrates with Linear skill to create worktrees from issue IDs. Based on CTO's Linear worktree workflow pattern.",
   "acceptanceCriteria": [
-    { "text": "Create ~/.claude/commands/worktrees/ directory structure", "checked": false },
-    { "text": "Create SKILL.md router (~50 lines) with workflow references", "checked": false },
-    { "text": "Create workflows/create.md for creating new worktree from branch/issue", "checked": false },
-    { "text": "Create workflows/list.md for listing active worktrees", "checked": false },
-    { "text": "Create workflows/switch.md for switching between worktrees", "checked": false },
-    { "text": "Create workflows/cleanup.md for removing completed worktrees", "checked": false },
-    { "text": "Create workflows/from-linear.md to create worktree from Linear issue ID", "checked": false },
-    { "text": "Worktrees created in ~/worktrees/<repo>/<branch> by default", "checked": false },
-    { "text": "Auto-name branch from Linear issue (e.g., feature/LIN-123-description)", "checked": false },
-    { "text": "Symlink to ~/.claude/commands/worktrees", "checked": false },
-    { "text": "Typecheck passes (zsh -n on any scripts)", "checked": false }
+    { "text": "Create ~/.claude/commands/worktrees/ directory structure", "checked": true },
+    { "text": "Create SKILL.md router (~50 lines) with workflow references", "checked": true },
+    { "text": "Create workflows/create.md for creating new worktree from branch/issue", "checked": true },
+    { "text": "Create workflows/list.md for listing active worktrees", "checked": true },
+    { "text": "Create workflows/switch.md for switching between worktrees", "checked": true },
+    { "text": "Create workflows/cleanup.md for removing completed worktrees", "checked": true },
+    { "text": "Create workflows/from-linear.md to create worktree from Linear issue ID", "checked": true },
+    { "text": "Worktrees created in ~/worktrees/<repo>/<branch> by default", "checked": true },
+    { "text": "Auto-name branch from Linear issue (e.g., feature/LIN-123-description)", "checked": true },
+    { "text": "Symlink to ~/.claude/commands/worktrees", "checked": true },
+    { "text": "Typecheck passes (zsh -n on any scripts)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": "US-033"
+  "passes": true,
+  "blockedBy": null
 }
