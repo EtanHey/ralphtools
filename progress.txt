@@ -755,3 +755,48 @@ New test verifies:
 - jq `type` function returns "string" or "object" for distinguishing formats
 - Normalization should happen at ingestion time, not display time
 - Using a helper function keeps the main logic clean and testable
+
+## Iteration 24 - BUG-010: Live criteria updates still not working
+**Status**: COMPLETED
+
+Fixed the live criteria progress updates that weren't updating during Claude execution.
+
+### Root Cause
+When ZSH creates a background subshell with `{ ... } &`, variables are **copied at fork time**. The polling loop was started in a subshell that had `RALPH_CRITERIA_ROW=0` and `RALPH_STORIES_ROW=0` because those globals were only set AFTER the subshell forked.
+
+### Solution
+Pass row positions as function parameters to `_ralph_start_polling_loop()`, which become local variables captured at call time. The subshell then has correct values.
+
+```zsh
+# Before: subshell sees stale globals
+_ralph_start_polling_loop "$story" "$dir"
+
+# After: row positions passed as params
+_ralph_start_polling_loop "$story" "$dir" "$RALPH_CRITERIA_ROW" "$RALPH_STORIES_ROW"
+```
+
+### Changes Made
+
+**New Functions:**
+- `_ralph_debug_live()` - Debug logging for live updates (enable with `RALPH_DEBUG_LIVE=true`)
+- `_ralph_update_criteria_display_at_row()` - Update criteria bar at explicit row
+- `_ralph_update_stories_display_at_row()` - Update stories bar at explicit row
+- `_ralph_handle_file_change_with_rows()` - Handle file changes with explicit row positions
+
+**Modified Functions:**
+- `_ralph_start_watcher()` - Added debug logging
+- `_ralph_start_polling_loop()` - Now accepts row positions as params 3 and 4
+- Caller site now passes `$RALPH_CRITERIA_ROW` and `$RALPH_STORIES_ROW`
+
+**Documentation:**
+- Created `docs/live-updates.md` explaining the architecture
+
+### Files Modified
+- `/Users/etanheyman/Desktop/Gits/ralphtools/ralph.zsh`
+- `/Users/etanheyman/Desktop/Gits/ralphtools/docs/live-updates.md` (NEW)
+
+### Learnings
+- ZSH background subshells (`{ ... } &`) copy variables at fork time
+- Parent's subsequent variable updates are NOT visible to forked subshell
+- Solution: Pass values as function parameters, which become locals captured at call time
+- Debug logging controlled by env var (`RALPH_DEBUG_LIVE=true`) is a feature, not temporary code

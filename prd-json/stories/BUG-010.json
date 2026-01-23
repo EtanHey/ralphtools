@@ -1,0 +1,37 @@
+{
+  "id": "BUG-010",
+  "title": "Live criteria updates still not working - verify full chain",
+  "description": "Even after BUG-008, the live criteria progress bar doesn't update during iteration. Need to verify: fswatch running, FIFO working, polling loop running, display update working.",
+  "type": "bug",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "passes": true,
+  "acceptanceCriteria": [
+    {
+      "text": "Add debug logging to _ralph_start_watcher() to confirm fswatch starts",
+      "checked": true
+    },
+    {
+      "text": "Add debug logging to _ralph_start_polling_loop() to confirm loop starts",
+      "checked": true
+    },
+    {
+      "text": "Verify RALPH_CRITERIA_ROW and RALPH_STORIES_ROW are set correctly",
+      "checked": true
+    },
+    {
+      "text": "Test: Run Ralph, watch criteria bar update from 0/N to 1/N as Claude works",
+      "checked": true
+    },
+    {
+      "text": "Remove debug logging after confirming fix works",
+      "checked": true
+    },
+    {
+      "text": "Document in docs/live-updates.md how the system works",
+      "checked": true
+    }
+  ],
+  "dependencies": []
+}

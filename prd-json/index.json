@@ -2,12 +2,12 @@
   "$schema": "https://ralph.dev/schemas/prd-index.schema.json",
   "generatedAt": "2026-01-23T15:30:00Z",
   "stats": {
-    "total": 32,
-    "completed": 24,
-    "pending": 8,
+    "total": 34,
+    "completed": 25,
+    "pending": 9,
     "blocked": 0
   },
-  "nextStory": "BUG-010",
+  "nextStory": "US-054",
   "storyOrder": [
     "BUG-003",
     "BUG-004",
@@ -40,17 +40,20 @@
     "US-058",
     "US-059",
     "US-060",
-    "V-008"
+    "US-061",
+    "V-008",
+    "V-009"
   ],
   "pending": [
-    "BUG-010",
     "US-054",
     "US-055",
     "US-056",
     "US-057",
     "US-058",
     "US-059",
-    "US-060"
+    "US-060",
+    "US-061",
+    "V-009"
   ],
   "blocked": [],
   "newStories": []

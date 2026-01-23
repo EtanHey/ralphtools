@@ -394,6 +394,11 @@ _ralph_check_fswatch() {
   fi
 }
 
+# Debug logging for live updates system (enable with RALPH_DEBUG_LIVE=true)
+_ralph_debug_live() {
+  [[ "$RALPH_DEBUG_LIVE" == "true" ]] && echo "[LIVE-DEBUG] $(date '+%H:%M:%S') $*" >> /tmp/ralph-live-debug.log
+}
+
 # Start file watcher in background
 # Usage: _ralph_start_watcher "/path/to/prd-json"
 # Sets RALPH_WATCHER_PID and RALPH_WATCHER_FIFO
@@ -414,13 +419,18 @@ _ralph_start_watcher() {
     return 1
   }
 
+  _ralph_debug_live "start_watcher: tool=$watcher_tool, stories_dir=$stories_dir"
+
   # Create FIFO for communication and PID file for cleanup
   RALPH_WATCHER_FIFO="/tmp/ralph_watcher_$$_fifo"
   RALPH_WATCHER_PIDFILE="/tmp/ralph_watcher_$$_pid"
   mkfifo "$RALPH_WATCHER_FIFO" 2>/dev/null || {
+    _ralph_debug_live "start_watcher: FAILED to create FIFO"
     RALPH_LIVE_ENABLED=false
     return 1
   }
+
+  _ralph_debug_live "start_watcher: FIFO created at $RALPH_WATCHER_FIFO"
 
   # Start watcher in background based on platform
   # Disable job control to suppress [N] PID and "suspended (tty output)" messages
@@ -463,6 +473,7 @@ _ralph_start_watcher() {
     disown $RALPH_WATCHER_PID 2>/dev/null
   fi
 
+  _ralph_debug_live "start_watcher: SUCCESS, PID=$RALPH_WATCHER_PID"
   return 0
 }
 
@@ -543,11 +554,17 @@ _ralph_update_criteria_display() {
 
   [[ "$RALPH_CRITERIA_ROW" -le 0 ]] && return 1
 
-  # Debounce: check if enough time has passed
-  local current_time=$(($(date +%s%N 2>/dev/null || echo "$(date +%s)000000000") / 1000000))
-  local elapsed=$((current_time - RALPH_LAST_UPDATE_TIME))
-  [[ "$elapsed" -lt "$RALPH_DEBOUNCE_MS" ]] && return 0
-  RALPH_LAST_UPDATE_TIME=$current_time
+  _ralph_update_criteria_display_at_row "$story_id" "$json_dir" "$RALPH_CRITERIA_ROW"
+}
+
+# Update criteria progress bar at explicit row position (used by background polling loop)
+# Usage: _ralph_update_criteria_display_at_row "US-031" "/path/to/prd-json" row
+_ralph_update_criteria_display_at_row() {
+  local story_id="$1"
+  local json_dir="$2"
+  local row="$3"
+
+  [[ "$row" -le 0 ]] && return 1
 
   # Get updated criteria progress
   local criteria_stats=$(_ralph_get_story_criteria_progress "$story_id" "$json_dir")
@@ -556,11 +573,13 @@ _ralph_update_criteria_display() {
 
   [[ "$criteria_total" -le 0 ]] && return 0
 
+  _ralph_debug_live "update_criteria: story=$story_id, checked=$criteria_checked/$criteria_total, row=$row"
+
   # Build new progress bar (no leading text, just bar + numbers)
   local criteria_bar=$(_ralph_criteria_progress "$criteria_checked" "$criteria_total")
 
   # Update in-place (col 16 is where the bar starts after "║  ☐ Criteria:  ")
-  _ralph_update_progress_inplace "$RALPH_CRITERIA_ROW" "$criteria_bar" 16
+  _ralph_update_progress_inplace "$row" "$criteria_bar" 16
 }
 
 # Update stories progress bar when index.json changes
@@ -570,17 +589,30 @@ _ralph_update_stories_display() {
 
   [[ "$RALPH_STORIES_ROW" -le 0 ]] && return 1
 
+  _ralph_update_stories_display_at_row "$json_dir" "$RALPH_STORIES_ROW"
+}
+
+# Update stories progress bar at explicit row position (used by background polling loop)
+# Usage: _ralph_update_stories_display_at_row "/path/to/prd-json" row
+_ralph_update_stories_display_at_row() {
+  local json_dir="$1"
+  local row="$2"
+
+  [[ "$row" -le 0 ]] && return 1
+
   # Get updated story counts
   local story_completed=$(jq -r '.stats.completed // 0' "$json_dir/index.json" 2>/dev/null)
   local story_total=$(jq -r '.stats.total // 0' "$json_dir/index.json" 2>/dev/null)
 
   [[ "$story_total" -le 0 ]] && return 0
 
+  _ralph_debug_live "update_stories: completed=$story_completed/$story_total, row=$row"
+
   # Build new progress bar
   local story_bar=$(_ralph_story_progress "$story_completed" "$story_total")
 
   # Update in-place (col 16 is where the bar starts after "║  📚 Stories:  ")
-  _ralph_update_progress_inplace "$RALPH_STORIES_ROW" "$story_bar" 16
+  _ralph_update_progress_inplace "$row" "$story_bar" 16
 }
 
 # Handle file change event (called from poll loop)
@@ -601,6 +633,26 @@ _ralph_handle_file_change() {
   fi
 }
 
+# Handle file change event with explicit row positions (used by background polling loop)
+# Usage: _ralph_handle_file_change_with_rows "/path/to/file" "US-031" "/path/to/prd-json" criteria_row stories_row
+_ralph_handle_file_change_with_rows() {
+  local changed_file="$1"
+  local current_story="$2"
+  local json_dir="$3"
+  local criteria_row="$4"
+  local stories_row="$5"
+
+  local filename=$(basename "$changed_file")
+
+  if [[ "$filename" == "${current_story}.json" ]]; then
+    # Current story file changed - update criteria bar
+    _ralph_update_criteria_display_at_row "$current_story" "$json_dir" "$criteria_row"
+  elif [[ "$filename" == "index.json" ]]; then
+    # Index changed - update stories bar
+    _ralph_update_stories_display_at_row "$json_dir" "$stories_row"
+  fi
+}
+
 # Store row positions when drawing the iteration header
 # This must be called AFTER drawing the box, while cursor is still in position
 # Usage: _ralph_store_progress_rows $criteria_row $stories_row
@@ -614,28 +666,48 @@ RALPH_POLLING_PID=""
 
 # Start background polling loop during Claude execution
 # This runs in parallel with the Claude command to handle file change events
-# Usage: _ralph_start_polling_loop "US-031" "/path/to/prd-json"
+# Usage: _ralph_start_polling_loop "US-031" "/path/to/prd-json" criteria_row stories_row
 _ralph_start_polling_loop() {
   local current_story="$1"
   local json_dir="$2"
+  local criteria_row="${3:-0}"
+  local stories_row="${4:-0}"
+
+  _ralph_debug_live "start_polling_loop: story=$current_story, criteria_row=$criteria_row, stories_row=$stories_row"
 
   # Don't start if live updates disabled or watcher not running
-  [[ "$RALPH_LIVE_ENABLED" != "true" ]] && return 1
-  [[ -z "$RALPH_WATCHER_FIFO" || ! -p "$RALPH_WATCHER_FIFO" ]] && return 1
+  [[ "$RALPH_LIVE_ENABLED" != "true" ]] && { _ralph_debug_live "start_polling_loop: SKIPPED - live updates disabled"; return 1; }
+  [[ -z "$RALPH_WATCHER_FIFO" || ! -p "$RALPH_WATCHER_FIFO" ]] && { _ralph_debug_live "start_polling_loop: SKIPPED - no FIFO"; return 1; }
+
+  # Don't start if row positions not set (nothing to update)
+  if [[ "$criteria_row" -le 0 && "$stories_row" -le 0 ]]; then
+    _ralph_debug_live "start_polling_loop: SKIPPED - no row positions set"
+    return 1
+  fi
 
   # Suppress job control messages
   setopt LOCAL_OPTIONS NO_MONITOR NO_NOTIFY
 
+  # Capture the FIFO path for the subshell
+  local fifo_path="$RALPH_WATCHER_FIFO"
+
   # Start polling loop in background
-  # The loop reads from the FIFO and updates display in-place
+  # Pass row positions as local variables so subshell has correct values
   {
+    # Use local copies of row positions (subshell doesn't see parent's globals)
+    local local_criteria_row="$criteria_row"
+    local local_stories_row="$stories_row"
+
+    _ralph_debug_live "polling_loop: STARTED in subshell, criteria_row=$local_criteria_row, stories_row=$local_stories_row"
+
     while true; do
       # Non-blocking read with short timeout
       local changed_file=""
-      if read -t 0.2 changed_file < "$RALPH_WATCHER_FIFO" 2>/dev/null; then
+      if read -t 0.2 changed_file < "$fifo_path" 2>/dev/null; then
         if [[ -n "$changed_file" ]]; then
-          # Handle the file change
-          _ralph_handle_file_change "$changed_file" "$current_story" "$json_dir"
+          _ralph_debug_live "polling_loop: file changed: $changed_file"
+          # Handle the file change with row positions
+          _ralph_handle_file_change_with_rows "$changed_file" "$current_story" "$json_dir" "$local_criteria_row" "$local_stories_row"
         fi
       fi
       # Small sleep to prevent CPU spinning
@@ -645,6 +717,7 @@ _ralph_start_polling_loop() {
   RALPH_POLLING_PID=$!
   disown $RALPH_POLLING_PID 2>/dev/null
 
+  _ralph_debug_live "start_polling_loop: SUCCESS, PID=$RALPH_POLLING_PID"
   return 0
 }
 
@@ -3155,8 +3228,9 @@ At the START of any iteration that needs browser verification:
       fi
 
       # Start background polling for live progress updates
+      # Pass row positions so the background subshell has correct values
       if [[ "$use_json_mode" == "true" && "$RALPH_LIVE_ENABLED" == "true" ]]; then
-        _ralph_start_polling_loop "$current_story" "$PRD_JSON_DIR"
+        _ralph_start_polling_loop "$current_story" "$PRD_JSON_DIR" "$RALPH_CRITERIA_ROW" "$RALPH_STORIES_ROW"
       fi
 
       # Run CLI with output capture (tee for checking promises)
