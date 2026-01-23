@@ -1,7 +1,7 @@
 {
   "id": "US-038",
   "title": "Session isolation via git worktree",
-  "description": "Ralph pollutes Claude /resume history. Solution: Ralph runs in a git worktree which gives it a separate Claude session history. When done, changes merge back to main. PRD instructions tell Claude to provide user the proper cd + source commands to run Ralph in the worktree.",
+  "description": "Ralph pollutes Claude /resume history. Solution: Ralph runs in a git worktree which gives it a separate Claude session history (confirmed: sessions stored per-directory). CAVEAT: Session lost when worktree deleted (GitHub issue #15776). Consider using ccmanager to preserve history, or save session summary before cleanup.",
   "acceptanceCriteria": [
     { "text": "Research: Verify git worktree gives separate Claude session", "checked": false },
     { "text": "ralph-start creates worktree at ~/worktrees/<repo>/ralph-session", "checked": false },

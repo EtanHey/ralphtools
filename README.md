@@ -159,7 +159,23 @@ Detailed docs for AI agents in [`docs/`](docs/):
 
 ## Changelog
 
+### v2.0.0 (planned - critique-waves approved)
+- Skills-first architecture (replaces MCPs with CLI wrappers)
+- `/skills` discovery command
+- Linear, Convex, Worktrees, Install Wizard skills
+- Session isolation via git worktree
+- Enhanced archive with cleanup
+- Per-project notification channels
+
 ### v1.4.0
+- **Smart Model Routing**: AUDIT→opus, US→sonnet, V→haiku, story-level `"model"` override
+- **Live criteria sync**: fswatch file watching, ANSI cursor updates (no flash)
+- **1Password Environments**: `op run --env-file` integration
+- **Progressive disclosure skills**: GitHub + 1Password skills (SKILL.md → workflows/)
+- **Box drawing alignment**: emoji width calculation, variation selector handling
+- **ANSI color fixes**: full escape sequences, semantic color schemes
+- **ralph-setup wizard**: gum-based first-run experience
+- **Multi-agent audit**: AUDIT-001 pattern with parallel verification
 - Internal Brave Browser Manager fallback (`scripts/brave-manager.js`)
 - Kiro browser verification support via fallback
 - Dynamic Gemini model selection (`-G-gemini-3-flash-preview`)
