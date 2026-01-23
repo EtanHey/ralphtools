@@ -6,6 +6,7 @@
   "priority": "high",
   "storyPoints": 1,
   "status": "pending",
+  "blockedBy": "INFRASTRUCTURE: Directory rename cannot happen while Ralph is running. See BUG-012 for user manual steps.",
   "acceptanceCriteria": [
     {"text": "All symlinks in ~/.claude/commands/ resolve (ls -la, no broken links)", "checked": false},
     {"text": "source ~/.config/ralph/ralph.zsh succeeds without errors", "checked": false},
