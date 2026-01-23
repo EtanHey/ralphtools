@@ -3,20 +3,22 @@
   "title": "Enhanced iteration status with gum interactivity",
   "description": "Consolidate ralph-live into main ralph command. Show live dashboard between iterations: progress bar, cost, time elapsed. Deprecate ralph-live (keep as alias to ralph-status). If gum available, allow keyboard toggles: [v]erbose output, [p]ause after iteration, [s]kip current story, [q]uit gracefully.",
   "acceptanceCriteria": [
-    { "text": "Show progress bar: ████░░░░ 23/35 (65%)", "checked": false },
-    { "text": "Show elapsed time since ralph started (e.g., '⏱ 12m 34s')", "checked": false },
-    { "text": "Show cumulative cost: 💰 $2.34", "checked": false },
-    { "text": "Show current story + model + iteration on one line", "checked": false },
-    { "text": "Compact: all status fits in 4-5 lines", "checked": false },
-    { "text": "If gum available, show keybind hints: [v]erbose [p]ause [s]kip [q]uit", "checked": false },
-    { "text": "[v] toggles showing full claude output vs summary only", "checked": false },
-    { "text": "[p] pauses after current iteration for review", "checked": false },
-    { "text": "[s] skips current story, moves to next", "checked": false },
-    { "text": "[q] finishes current iteration then exits gracefully", "checked": false },
-    { "text": "Works without gum (just no interactive controls)", "checked": false },
-    { "text": "Deprecate ralph-live: make it alias to ralph-status with note", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Show progress bar: ████░░░░ 23/35 (65%)", "checked": true },
+    { "text": "Show elapsed time since ralph started (e.g., '⏱ 12m 34s')", "checked": true },
+    { "text": "Show cumulative cost: 💰 $2.34", "checked": true },
+    { "text": "Show current story + model + iteration on one line", "checked": true },
+    { "text": "Compact: all status fits in 4-5 lines", "checked": true },
+    { "text": "If gum available, show keybind hints: [v]erbose [p]ause [s]kip [q]uit", "checked": true },
+    { "text": "[v] toggles showing full claude output vs summary only", "checked": true },
+    { "text": "[p] pauses after current iteration for review", "checked": true },
+    { "text": "[s] skips current story, moves to next", "checked": true },
+    { "text": "[q] finishes current iteration then exits gracefully", "checked": true },
+    { "text": "Works without gum (just no interactive controls)", "checked": true },
+    { "text": "Deprecate ralph-live: make it alias to ralph-status with note", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T18:30:00Z",
+  "completedBy": "opus"
 }

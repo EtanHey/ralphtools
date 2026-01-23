@@ -330,6 +330,153 @@ _ralph_get_story_criteria_progress() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# ELAPSED TIME & STATUS HELPERS
+# ═══════════════════════════════════════════════════════════════════
+
+# Format elapsed time from seconds to human-readable (e.g., "12m 34s")
+# Usage: _ralph_format_elapsed 754 → "12m 34s"
+_ralph_format_elapsed() {
+  local seconds="$1"
+  local hours=$((seconds / 3600))
+  local mins=$(((seconds % 3600) / 60))
+  local secs=$((seconds % 60))
+
+  if [[ $hours -gt 0 ]]; then
+    printf "%dh %dm %ds" $hours $mins $secs
+  elif [[ $mins -gt 0 ]]; then
+    printf "%dm %ds" $mins $secs
+  else
+    printf "%ds" $secs
+  fi
+}
+
+# Show compact between-iterations status (4-5 lines max)
+# Usage: _ralph_show_iteration_status $json_dir $start_time $i $MAX $current_story $model $compact
+_ralph_show_iteration_status() {
+  local json_dir="$1"
+  local start_time="$2"
+  local iteration="$3"
+  local max_iter="$4"
+  local story="$5"
+  local model="$6"
+  local compact="$7"
+  local pause_enabled="$8"
+  local verbose_enabled="$9"
+  local has_gum="${10}"
+
+  # Calculate elapsed time
+  local now=$(date +%s)
+  local elapsed=$((now - start_time))
+  local elapsed_str=$(_ralph_format_elapsed $elapsed)
+
+  # Get stats
+  local completed=$(jq -r '.stats.completed // 0' "$json_dir/index.json" 2>/dev/null)
+  local total=$(jq -r '.stats.total // 0' "$json_dir/index.json" 2>/dev/null)
+  local pending=$(jq -r '.stats.pending // 0' "$json_dir/index.json" 2>/dev/null)
+  local percent=0
+  [[ "$total" -gt 0 ]] && percent=$((completed * 100 / total))
+
+  # Get cumulative cost
+  local cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+
+  # Build progress bar (10 chars)
+  local bar_filled=$((percent * 10 / 100))
+  local bar_empty=$((10 - bar_filled))
+  local progress_bar=""
+  for ((j=0; j<bar_filled; j++)); do progress_bar+="█"; done
+  for ((j=0; j<bar_empty; j++)); do progress_bar+="░"; done
+
+  # Color the story and model
+  local colored_story=$(_ralph_color_story_id "$story")
+  local colored_model=$(_ralph_color_model "$model")
+  local colored_cost=$(_ralph_color_cost "$cost")
+
+  if [[ "$compact" == "true" ]]; then
+    # Compact: 2 lines
+    echo ""
+    echo -e "── ${progress_bar} ${completed}/${total} (${percent}%) │ ⏱ ${elapsed_str} │ 💰 ${colored_cost} ──"
+  else
+    # Normal: 4-5 lines with full info
+    echo ""
+    echo "┌───────────────────────────────────────────────────────────────┐"
+    echo -e "│  ${progress_bar} ${completed}/${total} (${percent}%)$(printf '%*s' $((35 - ${#completed} - ${#total} - ${#percent})) '')│"
+    echo -e "│  📖 ${colored_story} │ 🧠 ${colored_model} │ 🔄 ${iteration}/${max_iter}$(printf '%*s' $((30 - ${#story} - ${#model} - ${#iteration} - ${#max_iter})) '')│"
+    echo -e "│  ⏱ ${elapsed_str} │ 💰 ${colored_cost}$(printf '%*s' $((41 - ${#elapsed_str} - ${#cost})) '')│"
+
+    # Show keybind hints if gum available
+    if [[ "$has_gum" -eq 0 ]]; then
+      local hints="[v]erbose "
+      [[ "$verbose_enabled" == "true" ]] && hints+="✓ " || hints+="  "
+      hints+="[p]ause "
+      [[ "$pause_enabled" == "true" ]] && hints+="✓ " || hints+="  "
+      hints+="[s]kip [q]uit"
+      echo -e "│  ${RALPH_COLOR_GRAY}${hints}${RALPH_COLOR_RESET}$(printf '%*s' $((42 - ${#hints})) '')│"
+    fi
+    echo "└───────────────────────────────────────────────────────────────┘"
+  fi
+}
+
+# Check for keyboard input (non-blocking) and handle controls
+# Usage: _ralph_check_keyboard pause_var verbose_var skip_var quit_var
+# Returns: sets variables by name reference
+_ralph_check_keyboard() {
+  local -n pause_ref="$1"
+  local -n verbose_ref="$2"
+  local -n skip_ref="$3"
+  local -n quit_ref="$4"
+
+  # Only works with gum installed
+  [[ $RALPH_HAS_GUM -ne 0 ]] && return
+
+  # Non-blocking read with timeout
+  local key=""
+  if read -t 0.1 -k 1 key 2>/dev/null; then
+    case "$key" in
+      v|V)
+        if [[ "$verbose_ref" == "true" ]]; then
+          verbose_ref="false"
+          echo -e "\n${RALPH_COLOR_GRAY}[verbose mode OFF]${RALPH_COLOR_RESET}"
+        else
+          verbose_ref="true"
+          echo -e "\n${RALPH_COLOR_GREEN}[verbose mode ON]${RALPH_COLOR_RESET}"
+        fi
+        ;;
+      p|P)
+        if [[ "$pause_ref" == "true" ]]; then
+          pause_ref="false"
+          echo -e "\n${RALPH_COLOR_GRAY}[pause after iteration OFF]${RALPH_COLOR_RESET}"
+        else
+          pause_ref="true"
+          echo -e "\n${RALPH_COLOR_YELLOW}[will pause after this iteration]${RALPH_COLOR_RESET}"
+        fi
+        ;;
+      s|S)
+        skip_ref="true"
+        echo -e "\n${RALPH_COLOR_YELLOW}[skipping current story...]${RALPH_COLOR_RESET}"
+        ;;
+      q|Q)
+        quit_ref="true"
+        echo -e "\n${RALPH_COLOR_YELLOW}[will quit after current iteration completes]${RALPH_COLOR_RESET}"
+        ;;
+    esac
+  fi
+}
+
+# Wait for user to press a key when paused
+# Usage: _ralph_wait_for_resume
+_ralph_wait_for_resume() {
+  echo ""
+  echo -e "${RALPH_COLOR_YELLOW}⏸️  PAUSED - Press any key to continue, or [q] to quit...${RALPH_COLOR_RESET}"
+  local key=""
+  read -k 1 key
+  if [[ "$key" == "q" || "$key" == "Q" ]]; then
+    return 1  # Signal to quit
+  fi
+  echo ""
+  return 0
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # INTERACTIVE CONFIGURATION
 # ═══════════════════════════════════════════════════════════════════
 
@@ -1441,6 +1588,13 @@ function ralph() {
   local compact_mode=false   # Compact output mode (less verbose)
   local debug_mode=false     # Debug output mode (more verbose)
 
+  # Interactive control variables (gum-enabled features)
+  local ralph_start_time=$(date +%s)  # Track when ralph started
+  local pause_enabled=false           # Pause after current iteration
+  local verbose_enabled=true          # Show full claude output (default on)
+  local skip_story=false              # Skip current story
+  local quit_requested=false          # Graceful quit after iteration
+
   # Valid app names for app-specific mode (parsed from space-separated config)
   local valid_apps=(${=RALPH_VALID_APPS})
 
@@ -2128,7 +2282,7 @@ At the end of EVERY iteration, provide an expressive summary:
 After completing task, check PRD state:
 - ALL stories have passes=true (or pending array empty): output <promise>COMPLETE</promise>
 - ALL remaining stories are blocked: output <promise>ALL_BLOCKED</promise>
-- Some stories still pending: end response (next iteration continues)" 2>&1 | tee "$RALPH_TMP"
+- Some stories still pending: end response (next iteration continues)" 2>&1 | if [[ "$verbose_enabled" == "true" ]]; then tee "$RALPH_TMP"; else cat > "$RALPH_TMP"; fi
 
       # Capture exit code of Claude (pipestatus[1] in zsh gets first command in pipe)
       # Note: zsh uses lowercase 'pipestatus' and 1-indexed arrays
@@ -2358,32 +2512,23 @@ After completing task, check PRD state:
       _ralph_auto_unblock "$PRD_JSON_DIR"
     fi
 
-    # Show remaining tasks (suppress any debug output)
-    local remaining
+    # Show enhanced between-iterations status (with progress bar, elapsed time, cost)
     local remaining_stats
     if [[ "$use_json_mode" == "true" ]]; then
-      remaining=$(_ralph_json_remaining_count "$PRD_JSON_DIR" 2>/dev/null)
       remaining_stats=$(_ralph_json_remaining_stats "$PRD_JSON_DIR" 2>/dev/null)
+      # Use the new enhanced status display
+      _ralph_show_iteration_status "$PRD_JSON_DIR" "$ralph_start_time" "$i" "$MAX" "$current_story" "$routed_model" "$compact_mode" "$pause_enabled" "$verbose_enabled" "$RALPH_HAS_GUM"
     else
-      remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
       remaining_stats="? ?"
-    fi
-    if [[ "$compact_mode" == "true" ]]; then
-      # Compact mode: minimal between-iteration display
-      echo "── 📋 ${remaining} remaining │ ⏳ ${SLEEP}s ──"
-    else
-      # Normal mode: full box
-      echo "┌───────────────────────────────────────────────────────────────┐"
-      echo "│  📋 Remaining: $remaining$(printf '%*s' $((46 - ${#remaining})) '')│"
-      # Show story progress bar (JSON mode only)
-      if [[ "$use_json_mode" == "true" ]]; then
-        local end_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-        local end_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-        local end_story_bar=$(_ralph_story_progress "$end_completed" "$end_total")
-        echo -e "│  📚 Stories:  ${end_story_bar}$(printf '%*s' $((35 - ${#end_completed} - ${#end_total})) '')│"
+      local remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
+      if [[ "$compact_mode" == "true" ]]; then
+        echo "── 📋 ${remaining} remaining │ ⏳ ${SLEEP}s ──"
+      else
+        echo "┌───────────────────────────────────────────────────────────────┐"
+        echo "│  📋 Remaining: $remaining$(printf '%*s' $((46 - ${#remaining})) '')│"
+        echo "│  ⏳ Pausing ${SLEEP}s before next iteration...$(printf '%*s' $((35 - ${#SLEEP})) '')│"
+        echo "└───────────────────────────────────────────────────────────────┘"
       fi
-      echo "│  ⏳ Pausing ${SLEEP}s before next iteration...$(printf '%*s' $((35 - ${#SLEEP})) '')│"
-      echo "└───────────────────────────────────────────────────────────────┘"
     fi
 
     # Per-iteration notification if enabled
@@ -2392,7 +2537,31 @@ After completing task, check PRD state:
       _ralph_ntfy "$ntfy_topic" "iteration" "$current_story" "$routed_model" "$i" "$remaining_stats" "$iter_cost"
     fi
 
+    # Handle pause if enabled (pause BEFORE sleep, not during Claude)
+    if [[ "$pause_enabled" == "true" ]]; then
+      if ! _ralph_wait_for_resume; then
+        # User pressed q during pause
+        quit_requested=true
+      fi
+      pause_enabled=false  # Reset after pausing
+    fi
+
+    # Check for graceful quit request
+    if [[ "$quit_requested" == "true" ]]; then
+      local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+      echo ""
+      echo -e "${RALPH_COLOR_YELLOW}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  🛑 QUIT REQUESTED after $(_ralph_bold "$i") iterations                      ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  💰 Total cost: $(_ralph_color_cost "$total_cost")$(printf '%*s' $((44 - ${#total_cost})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
+      rm -f "$RALPH_TMP"
+      return 0
+    fi
+
     sleep $SLEEP
+
+    # Reset skip flag for next iteration
+    skip_story=false
   done
 
   # Apply queued updates, auto-unblock, and count remaining for final message
@@ -3136,18 +3305,14 @@ EOF
   rm -f "$prompt_file"
 }
 
-# ralph-live - Live refreshing PRD status (Ctrl+C to exit)
+# ralph-live - DEPRECATED: Now an alias to ralph-status
+# Interactive status is now built into the main ralph command
 function ralph-live() {
-  local interval="${1:-3}"  # Default 3 second refresh
-
-  echo "📺 Ralph Live Status (refreshing every ${interval}s, Ctrl+C to exit)"
   echo ""
-
-  while true; do
-    clear
-    ralph-status
-    sleep "$interval"
-  done
+  echo -e "${RALPH_COLOR_YELLOW}⚠️  ralph-live is deprecated. Interactive status is now built into 'ralph'.${RALPH_COLOR_RESET}"
+  echo -e "${RALPH_COLOR_GRAY}   Use 'ralph-status' for current PRD status, or run 'ralph' for the full loop.${RALPH_COLOR_RESET}"
+  echo ""
+  ralph-status "$@"
 }
 
 # ralph-status - Show detailed status of all Ralph PRDs

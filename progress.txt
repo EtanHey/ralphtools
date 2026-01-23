@@ -522,3 +522,32 @@
 - Updated stats: completed=28, pending=6, blocked=5
 ---
 
+## Iteration 31 - US-021 Enhanced iteration status with gum interactivity
+- Model: opus
+- Implemented enhanced between-iterations status display with:
+  - Progress bar: ████░░░░ 23/35 (65%) style
+  - Elapsed time since ralph started (e.g., '12m 34s')
+  - Cumulative cost display: 💰 $2.34
+  - Current story + model + iteration on one line
+  - Compact mode support (2 lines vs 4-5 lines)
+- Added gum-based interactive controls (when gum installed):
+  - [v] toggles verbose mode (show full claude output vs silent)
+  - [p] pauses after current iteration for review
+  - [s] skips current story (flag set for next iteration)
+  - [q] quits gracefully after current iteration completes
+  - Keybind hints shown in status box when gum available
+- New helper functions:
+  - _ralph_format_elapsed(): Formats seconds to "Xh Ym Zs" format
+  - _ralph_show_iteration_status(): Renders the enhanced status display
+  - _ralph_check_keyboard(): Non-blocking keyboard input handling
+  - _ralph_wait_for_resume(): Pause mode wait for user input
+- Added interactive control variables to ralph():
+  - ralph_start_time: Track when ralph started
+  - pause_enabled, verbose_enabled, skip_story, quit_requested
+- Verbose mode controls tee vs cat redirection of claude output
+- Deprecated ralph-live: Now shows deprecation warning and calls ralph-status
+- All 13 acceptance criteria completed
+- Typecheck passes (zsh -n ralph.zsh)
+- Updated stats: completed=29, pending=5, blocked=5
+---
+
