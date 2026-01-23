@@ -1,0 +1,16 @@
+{
+  "id": "US-066",
+  "title": "Add PRD Skill Reference to CLAUDE.md Files",
+  "description": "Update CLAUDE.md files to tell Claude to use /prd skill when working with PRDs, stories, or Ralph. The skill itself has the authoritative documentation - CLAUDE.md just needs to point there.",
+  "type": "feature",
+  "priority": "critical",
+  "storyPoints": 1,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Add to global ~/.claude/CLAUDE.md: 'When adding PRD stories or working with Ralph, use /prd skill'", "checked": false},
+    {"text": "Add to ralphtools/CLAUDE.md: 'For PRD story format and management, invoke /prd skill'", "checked": false},
+    {"text": "Verify /prd skill contains story format documentation (criteria objects, file locations, etc.)", "checked": false},
+    {"text": "If /prd skill missing format docs, add them to the skill", "checked": false}
+  ],
+  "dependencies": []
+}

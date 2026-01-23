@@ -1,0 +1,64 @@
+{
+  "id": "US-061",
+  "title": "Create /update skill for standardized story management",
+  "description": "Create an /update skill that any Claude (interactive or Ralph) uses to add stories to the PRD. Auto-detects if Ralph is running and routes to update.json or directly to index.json + stories/. This ensures all Claudes use the same interface instead of manual file manipulation.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 5,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Create skills/update/ directory with SKILL.md + workflows/",
+      "checked": false
+    },
+    {
+      "text": "SKILL.md explains when to use /update vs manual edits",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/add-story.md for adding new stories",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/add-bug.md for adding bug reports",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/update-story.md for modifying existing stories",
+      "checked": false
+    },
+    {
+      "text": "Auto-detect Ralph running: check for lock file or pgrep for ralph tee process",
+      "checked": false
+    },
+    {
+      "text": "If Ralph running: write to prd-json/update.json with newStories array",
+      "checked": false
+    },
+    {
+      "text": "If Ralph NOT running: write directly to stories/ and update index.json",
+      "checked": false
+    },
+    {
+      "text": "Always convert string criteria to {text, checked: false} objects",
+      "checked": false
+    },
+    {
+      "text": "Create scripts/add-story.sh that handles the detection and routing logic",
+      "checked": false
+    },
+    {
+      "text": "Symlink to ~/.claude/commands/update",
+      "checked": false
+    },
+    {
+      "text": "Test: Run /update while Ralph is running - verify goes to update.json",
+      "checked": false
+    },
+    {
+      "text": "Test: Run /update while Ralph is NOT running - verify goes to index.json",
+      "checked": false
+    }
+  ],
+  "dependencies": []
+}

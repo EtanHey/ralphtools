@@ -1,0 +1,44 @@
+{
+  "id": "US-060",
+  "title": "Expand critique-waves.md to Progressive Disclosure Structure",
+  "description": "Convert the single-file critique-waves.md skill into a directory-based skill with SKILL.md router, workflows, and scripts, following the github skill pattern.",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Create skills/critique-waves/ directory structure mirroring github skill pattern",
+      "checked": false
+    },
+    {
+      "text": "Create SKILL.md with: YAML frontmatter, overview, quick actions table, and links to workflows",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/setup.md covering: verification folder creation, instructions.md template, tracker.md initialization",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/run-wave.md covering: launching agents in parallel, collecting results, updating tracker",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/iteration.md covering: handling failures, resetting counters, continuing until consensus goal",
+      "checked": false
+    },
+    {
+      "text": "Create scripts/init-tracker.sh that initializes the verification folder structure with proper templates",
+      "checked": false
+    },
+    {
+      "text": "Remove old critique-waves.md single file after directory structure is complete",
+      "checked": false
+    },
+    {
+      "text": "Update symlink at ~/.claude/commands/critique-waves to point to new directory",
+      "checked": false
+    }
+  ],
+  "dependencies": []
+}

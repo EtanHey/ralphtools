@@ -7,14 +7,38 @@
   "storyPoints": 3,
   "status": "completed",
   "acceptanceCriteria": [
-    "Scan ~/.claude/commands/ for all skill directories",
-    "Check each skill against the reference pattern: github skill (SKILL.md, workflows/, scripts/)",
-    "Identify skills that are single .md files but should be expanded",
-    "Identify skills missing workflows/ directory",
-    "Identify skills missing scripts/ when they reference bash commands",
-    "Create a report file: docs.local/skill-audit-report.md",
-    "Report lists: compliant skills, non-compliant skills with specific issues",
-    "Do NOT fix anything - audit only"
+    {
+      "text": "Scan ~/.claude/commands/ for all skill directories",
+      "checked": false
+    },
+    {
+      "text": "Check each skill against the reference pattern: github skill (SKILL.md, workflows/, scripts/)",
+      "checked": false
+    },
+    {
+      "text": "Identify skills that are single .md files but should be expanded",
+      "checked": false
+    },
+    {
+      "text": "Identify skills missing workflows/ directory",
+      "checked": false
+    },
+    {
+      "text": "Identify skills missing scripts/ when they reference bash commands",
+      "checked": false
+    },
+    {
+      "text": "Create a report file: docs.local/skill-audit-report.md",
+      "checked": false
+    },
+    {
+      "text": "Report lists: compliant skills, non-compliant skills with specific issues",
+      "checked": false
+    },
+    {
+      "text": "Do NOT fix anything - audit only",
+      "checked": false
+    }
   ],
   "dependencies": [],
   "passes": true

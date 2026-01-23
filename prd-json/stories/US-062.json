@@ -1,0 +1,20 @@
+{
+  "id": "US-062",
+  "title": "Audit and Plan Rename: ralphtools → claude-golem",
+  "description": "Create comprehensive inventory of everything that needs to change when renaming the repository from 'ralphtools' to 'claude-golem'. DO NOT execute any changes - planning only.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Inventory all symlinks in ~/.claude/commands/ pointing to ralphtools", "checked": false},
+    {"text": "List all files with 'ralphtools' in their content (grep -r)", "checked": false},
+    {"text": "Document current git remote URLs", "checked": false},
+    {"text": "List all scripts that source or reference ralphtools path", "checked": false},
+    {"text": "Check ~/.config/ralph/ for any hardcoded paths", "checked": false},
+    {"text": "Document the CLAUDE.md files that reference ralphtools", "checked": false},
+    {"text": "Create docs.local/rename-plan.md with full migration checklist", "checked": false},
+    {"text": "DO NOT make any changes - this is audit only", "checked": false}
+  ],
+  "dependencies": []
+}

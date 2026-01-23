@@ -1,0 +1,48 @@
+{
+  "id": "US-059",
+  "title": "Expand brave.md to Progressive Disclosure Structure",
+  "description": "Convert the single-file brave.md skill into a directory-based skill with SKILL.md router and workflows, following the github skill pattern.",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Create skills/brave/ directory structure mirroring github skill pattern",
+      "checked": false
+    },
+    {
+      "text": "Create SKILL.md with: YAML frontmatter, quick actions table, decision tree, and links to workflows",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/navigation.md covering: tabs, switch, navigate, back, forward commands",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/inspection.md covering: inspect, screenshot, errors commands",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/interaction.md covering: click, type, hover, scroll, press, drag commands",
+      "checked": false
+    },
+    {
+      "text": "Create workflows/debugging.md covering: eval command and advanced verification patterns",
+      "checked": false
+    },
+    {
+      "text": "Remove old brave.md single file after directory structure is complete",
+      "checked": false
+    },
+    {
+      "text": "Update symlink at ~/.claude/commands/brave to point to new directory",
+      "checked": false
+    },
+    {
+      "text": "No scripts/ directory needed - brave-manager is already an external CLI tool",
+      "checked": false
+    }
+  ],
+  "dependencies": []
+}

@@ -1,0 +1,19 @@
+{
+  "id": "US-068",
+  "title": "CLAUDE.md Layering System",
+  "description": "Define and document the CLAUDE.md hierarchy: global level (~/.claude/CLAUDE.md), project level (project/CLAUDE.md), and how they interact. Clarify what belongs at each level.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Document 3-tier hierarchy: global > project > (optional) personal", "checked": false},
+    {"text": "Define what belongs at global level (user preferences, browser choice, commit rules)", "checked": false},
+    {"text": "Define what belongs at project level (project-specific tooling, paths, patterns)", "checked": false},
+    {"text": "Document how Claude merges/prioritizes layers", "checked": false},
+    {"text": "Create template for each layer with clear sections", "checked": false},
+    {"text": "Add 'use /prd for PRD work' and 'use /1password for secrets' pointers", "checked": false},
+    {"text": "Update ~/.claude/CLAUDE.md with layer documentation", "checked": false}
+  ],
+  "dependencies": []
+}

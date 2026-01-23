@@ -1,0 +1,52 @@
+{
+  "id": "V-009",
+  "title": "Verify Ralph v1.5 integration - live updates, MCP registry, /update skill",
+  "description": "End-to-end verification that all v1.5 features work together: live criteria updates, per-project notifications, MCP registry, /update skill, and skill structure compliance.",
+  "type": "verification",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Run Ralph on ralphtools - verify live criteria bar updates during iteration",
+      "checked": false
+    },
+    {
+      "text": "Run ralph-status in separate terminal - verify criteria checkboxes update",
+      "checked": false
+    },
+    {
+      "text": "Verify per-project ntfy topics work (run Ralph on two projects, get separate notifications)",
+      "checked": false
+    },
+    {
+      "text": "Test /update skill: add story while Ralph running → goes to update.json",
+      "checked": false
+    },
+    {
+      "text": "Test /update skill: add story while Ralph NOT running → goes to index.json",
+      "checked": false
+    },
+    {
+      "text": "Verify MCP registry loads project-specific MCPs (if US-055-057 complete)",
+      "checked": false
+    },
+    {
+      "text": "Run tests/test-ralph.zsh - all tests pass",
+      "checked": false
+    },
+    {
+      "text": "Verify all skills in ~/.claude/commands/ follow correct structure",
+      "checked": false
+    },
+    {
+      "text": "No debug output leaks (remaining_stats, etc.)",
+      "checked": false
+    }
+  ],
+  "dependencies": [
+    "BUG-009",
+    "BUG-010",
+    "US-061"
+  ]
+}

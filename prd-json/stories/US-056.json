@@ -1,0 +1,38 @@
+{
+  "id": "US-056",
+  "title": "Core registry functions",
+  "description": "Add _ralph_load_registry, _ralph_get_project_config, _ralph_build_mcp_config, _ralph_inject_secrets functions to ralph.zsh.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "_ralph_load_registry() loads and caches registry.json",
+      "checked": false
+    },
+    {
+      "text": "_ralph_get_project_config() finds project by path",
+      "checked": false
+    },
+    {
+      "text": "_ralph_current_project() returns project name for cwd",
+      "checked": false
+    },
+    {
+      "text": "_ralph_build_mcp_config() merges global + project MCPs",
+      "checked": false
+    },
+    {
+      "text": "_ralph_inject_secrets() resolves op:// refs and exports env vars",
+      "checked": false
+    },
+    {
+      "text": "Typecheck passes (zsh -n ralph.zsh)",
+      "checked": false
+    }
+  ],
+  "dependencies": [
+    "US-055"
+  ]
+}

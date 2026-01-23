@@ -1,0 +1,18 @@
+{
+  "id": "US-064",
+  "title": "Update Local References: Symlinks and Paths",
+  "description": "Update all local symlinks and path references to use claude-golem instead of ralphtools.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Rename local directory: mv ~/Desktop/Gits/ralphtools ~/Desktop/Gits/claude-golem", "checked": false},
+    {"text": "Update symlinks in ~/.claude/commands/ to point to new path", "checked": false},
+    {"text": "Update ~/.config/ralph/ symlink if exists", "checked": false},
+    {"text": "Update any CLAUDE.md files referencing old path", "checked": false},
+    {"text": "Update ralph.zsh if it has hardcoded paths", "checked": false},
+    {"text": "Run: source ~/.config/ralph/ralph.zsh to reload", "checked": false}
+  ],
+  "dependencies": ["V-010"]
+}

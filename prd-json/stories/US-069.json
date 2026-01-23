@@ -1,0 +1,20 @@
+{
+  "id": "US-069",
+  "title": "Create /update Skill for Story Management",
+  "description": "Create a new /update skill that provides the correct way to add stories to a PRD. Handles both cases: when Ralph is running (use update.json) and when Ralph is not running (edit index.json directly).",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Create skills/update/SKILL.md with router and quick actions", "checked": false},
+    {"text": "Create workflows/add-story.md - how to add a single story", "checked": false},
+    {"text": "Create workflows/add-multiple.md - how to add multiple stories", "checked": false},
+    {"text": "Document story JSON format: {text, checked} for criteria, NOT strings", "checked": false},
+    {"text": "Document when to use update.json (Ralph active) vs index.json (Ralph not active)", "checked": false},
+    {"text": "Document ID conventions: US-XXX, BUG-XXX, V-XXX", "checked": false},
+    {"text": "Include complete story JSON template", "checked": false},
+    {"text": "Symlink to ~/.claude/commands/update", "checked": false}
+  ],
+  "dependencies": []
+}

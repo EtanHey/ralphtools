@@ -1,0 +1,18 @@
+{
+  "id": "US-063",
+  "title": "Execute GitHub Repo Rename to claude-golem",
+  "description": "Use gh CLI to rename the GitHub repository from ralphtools to claude-golem, then update local git remote.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Verify gh auth status is working", "checked": false},
+    {"text": "Run: gh repo rename claude-golem (from ralphtools directory)", "checked": false},
+    {"text": "Update local git remote: git remote set-url origin <new-url>", "checked": false},
+    {"text": "Verify git remote -v shows new claude-golem URL", "checked": false},
+    {"text": "Test git fetch works with new remote", "checked": false},
+    {"text": "Verify old URL redirects to new (GitHub auto-redirect)", "checked": false}
+  ],
+  "dependencies": ["US-062"]
+}

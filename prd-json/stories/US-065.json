@@ -1,0 +1,17 @@
+{
+  "id": "US-065",
+  "title": "Cleanup: Update Documentation and README",
+  "description": "Final cleanup - update all documentation to reflect new claude-golem name. Only run after all verifications pass.",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 1,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Update README.md with new repo name and description", "checked": false},
+    {"text": "Update CLAUDE.md project instructions", "checked": false},
+    {"text": "Update any installation instructions referencing ralphtools", "checked": false},
+    {"text": "Add 'Renamed from ralphtools' note in changelog", "checked": false},
+    {"text": "Commit and push all documentation updates", "checked": false}
+  ],
+  "dependencies": ["V-012"]
+}

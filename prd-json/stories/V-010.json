@@ -1,0 +1,18 @@
+{
+  "id": "V-010",
+  "title": "Verify: GitHub Rename Success and Remote Access",
+  "description": "First verification round - confirm GitHub rename worked and remote operations function correctly.",
+  "type": "verification",
+  "priority": "high",
+  "storyPoints": 1,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "gh repo view shows claude-golem as repo name", "checked": false},
+    {"text": "git push works to new remote", "checked": false},
+    {"text": "git pull works from new remote", "checked": false},
+    {"text": "Old ralphtools URL redirects correctly (curl -I)", "checked": false},
+    {"text": "GitHub web UI shows correct repo name", "checked": false},
+    {"text": "If ANY check fails, STOP and create bug story", "checked": false}
+  ],
+  "dependencies": ["US-063"]
+}

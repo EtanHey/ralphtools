@@ -1,0 +1,42 @@
+{
+  "id": "US-057",
+  "title": "Ralph uses registry for MCPs",
+  "description": "Update ralph() main loop to detect project, build MCP config, inject secrets before spawning Claude. Different projects get different MCPs automatically.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Ralph detects current project from registry based on cwd",
+      "checked": false
+    },
+    {
+      "text": "Ralph builds project-specific MCP config (temp file)",
+      "checked": false
+    },
+    {
+      "text": "Ralph passes --mcp-config to claude CLI",
+      "checked": false
+    },
+    {
+      "text": "Ralph calls _ralph_inject_secrets before each iteration",
+      "checked": false
+    },
+    {
+      "text": "Shows '📦 Project: {name}' and '🔌 MCPs: {list}' in startup output",
+      "checked": false
+    },
+    {
+      "text": "Domica gets supabase+linear MCPs, songscript gets different MCPs",
+      "checked": false
+    },
+    {
+      "text": "Typecheck passes (zsh -n ralph.zsh)",
+      "checked": false
+    }
+  ],
+  "dependencies": [
+    "US-056"
+  ]
+}
