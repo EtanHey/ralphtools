@@ -13,3 +13,17 @@ Moved AUDIT-001 to blocked array, set nextStory to BUG-013.
 ### Learnings
 - Always check dependencies[] field in story JSON before starting
 - If a dependency story is not completed, the dependent story should be blocked
+
+## Iteration 2
+Story: BUG-013 - Debug output 'remaining_stats' still leaking to display
+Status: COMPLETED (opus)
+Changes:
+- Added `setopt localoptions noxtrace` to 10+ helper functions to prevent xtrace output leakage
+- Functions guarded: _ralph_format_elapsed, _ralph_show_iteration_status, _ralph_get_story_criteria_progress, _ralph_get_total_criteria, _ralph_update_criteria_display_at_row, _ralph_update_stories_display_at_row, _ralph_handle_file_change, _ralph_handle_file_change_with_rows, _ralph_start_polling_loop, _ralph_ntfy
+- Added debug output auditing section to docs/configuration.md with grep commands
+- Added comment "# DEBUG OUTPUT - guard with RALPH_DEBUG_LIVE" above _ralph_debug_live function
+
+### Learnings
+- The xtrace output format `var='value value'` with single quotes indicates zsh trace output, not explicit echo
+- `setopt localoptions noxtrace` prevents xtrace leakage within function scope
+- Even if parent function sets noxtrace, it's good practice to guard all helper functions defensively

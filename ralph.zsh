@@ -350,6 +350,7 @@ _ralph_criteria_progress() {
 # Usage: _ralph_get_story_criteria_progress "US-001" "/path/to/prd-json"
 # Returns: "checked total" space-separated
 _ralph_get_story_criteria_progress() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local story_id="$1"
   local json_dir="$2"
   local story_file="$json_dir/stories/${story_id}.json"
@@ -369,6 +370,7 @@ _ralph_get_story_criteria_progress() {
 # Usage: _ralph_get_total_criteria "/path/to/prd-json"
 # Returns: "checked total" space-separated
 _ralph_get_total_criteria() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local json_dir="$1"
   local stories_dir="$json_dir/stories"
 
@@ -420,6 +422,7 @@ _ralph_check_fswatch() {
   fi
 }
 
+# DEBUG OUTPUT - guard with RALPH_DEBUG_LIVE
 # Debug logging for live updates system (enable with RALPH_DEBUG_LIVE=true)
 _ralph_debug_live() {
   [[ "$RALPH_DEBUG_LIVE" == "true" ]] && echo "[LIVE-DEBUG] $(date '+%H:%M:%S') $*" >> /tmp/ralph-live-debug.log
@@ -586,6 +589,7 @@ _ralph_update_criteria_display() {
 # Update criteria progress bar at explicit row position (used by background polling loop)
 # Usage: _ralph_update_criteria_display_at_row "US-031" "/path/to/prd-json" row
 _ralph_update_criteria_display_at_row() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local story_id="$1"
   local json_dir="$2"
   local row="$3"
@@ -621,6 +625,7 @@ _ralph_update_stories_display() {
 # Update stories progress bar at explicit row position (used by background polling loop)
 # Usage: _ralph_update_stories_display_at_row "/path/to/prd-json" row
 _ralph_update_stories_display_at_row() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local json_dir="$1"
   local row="$2"
 
@@ -644,6 +649,7 @@ _ralph_update_stories_display_at_row() {
 # Handle file change event (called from poll loop)
 # Usage: _ralph_handle_file_change "/path/to/file" "US-031" "/path/to/prd-json"
 _ralph_handle_file_change() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local changed_file="$1"
   local current_story="$2"
   local json_dir="$3"
@@ -662,6 +668,7 @@ _ralph_handle_file_change() {
 # Handle file change event with explicit row positions (used by background polling loop)
 # Usage: _ralph_handle_file_change_with_rows "/path/to/file" "US-031" "/path/to/prd-json" criteria_row stories_row
 _ralph_handle_file_change_with_rows() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local changed_file="$1"
   local current_story="$2"
   local json_dir="$3"
@@ -694,6 +701,7 @@ RALPH_POLLING_PID=""
 # This runs in parallel with the Claude command to handle file change events
 # Usage: _ralph_start_polling_loop "US-031" "/path/to/prd-json" criteria_row stories_row
 _ralph_start_polling_loop() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local current_story="$1"
   local json_dir="$2"
   local criteria_row="${3:-0}"
@@ -712,7 +720,7 @@ _ralph_start_polling_loop() {
   fi
 
   # Suppress job control messages
-  setopt LOCAL_OPTIONS NO_MONITOR NO_NOTIFY
+  setopt LOCAL_OPTIONS NO_MONITOR NO_NOTIFY noxtrace
 
   # Capture the FIFO path for the subshell
   local fifo_path="$RALPH_WATCHER_FIFO"
@@ -834,6 +842,7 @@ _ralph_init_colors() {
 # Format elapsed time from seconds to human-readable (e.g., "12m 34s")
 # Usage: _ralph_format_elapsed 754 → "12m 34s"
 _ralph_format_elapsed() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local seconds="$1"
   local hours=$((seconds / 3600))
   local mins=$(((seconds % 3600) / 60))
@@ -851,6 +860,7 @@ _ralph_format_elapsed() {
 # Show compact between-iterations status (4-5 lines max)
 # Usage: _ralph_show_iteration_status $json_dir $start_time $i $MAX $current_story $model $compact
 _ralph_show_iteration_status() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local json_dir="$1"
   local start_time="$2"
   local iteration="$3"
@@ -2284,6 +2294,7 @@ ralph-costs() {
 #   Line 2: 🔄iteration story_id model (e.g. '🔄5 TEST-004 haiku')
 #   Line 3: 📚stories ☐criteria 💵cost (e.g. '📚26 ☐129 💵$0.28')
 _ralph_ntfy() {
+  setopt localoptions noxtrace  # Prevent debug output leaking to terminal
   local topic="$1"
   local event="$2"  # complete, blocked, error, iteration, max_iterations
   local story_id="${3:-}"

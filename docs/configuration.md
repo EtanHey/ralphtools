@@ -78,6 +78,25 @@ Configure valid app names:
 export RALPH_VALID_APPS="frontend backend mobile expo"
 ```
 
+## Debug Output Auditing
+
+To check for unguarded debug output in `ralph.zsh`:
+
+```bash
+# Find potential debug echo statements that might leak to terminal
+# (Excludes echo | awk/cut pipes which are legitimate parsing, not debug output)
+grep -En '^\s*echo.*debug|^\s*echo.*DEBUG|^\s*echo.*remaining' ralph.zsh | grep -v '/dev/null' | grep -v '>> /tmp' | grep -v 'echo "\$'
+
+# Count noxtrace guards in ralph.zsh (should be 10+)
+grep -c 'noxtrace' ralph.zsh
+```
+
+**Rules for debug output:**
+- All debug echo statements must be guarded with `[[ "$RALPH_DEBUG" == "true" ]]`
+- Or redirected to log file: `>> /tmp/ralph-debug.log`
+- Add comment `# DEBUG OUTPUT - guard with RALPH_DEBUG` above each debug line
+- All helper functions that process stats should have `setopt localoptions noxtrace`
+
 ## Pre-Commit Hooks
 
 Safety hooks prevent common bugs.

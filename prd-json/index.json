@@ -3,11 +3,11 @@
   "generatedAt": "2026-01-23T17:49:00Z",
   "stats": {
     "total": 30,
-    "completed": 0,
-    "pending": 23,
+    "completed": 1,
+    "pending": 22,
     "blocked": 7
   },
-  "nextStory": "BUG-013",
+  "nextStory": "BUG-014",
   "storyOrder": [
     "AUDIT-001",
     "BUG-013",
@@ -41,7 +41,6 @@
     "V-012"
   ],
   "pending": [
-    "BUG-013",
     "BUG-014",
     "BUG-015",
     "BUG-016",

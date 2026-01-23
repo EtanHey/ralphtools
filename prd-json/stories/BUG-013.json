@@ -11,10 +11,10 @@
     {"text": "Wrap ALL debug output in: [[ \"$RALPH_DEBUG\" == \"true\" ]] && echo ...", "checked": true},
     {"text": "Or redirect to debug log: echo ... >> /tmp/ralph-debug.log", "checked": true},
     {"text": "Add comment '# DEBUG OUTPUT - guard with RALPH_DEBUG' above each debug line", "checked": true},
-    {"text": "Run Ralph 3+ iterations and confirm NO debug output leaks", "checked": false},
+    {"text": "Run Ralph 3+ iterations and confirm NO debug output leaks", "checked": true},
     {"text": "Create grep command in docs to audit for unguarded debug output", "checked": true}
   ],
   "dependencies": [],
-  "passes": false,
+  "passes": true,
   "technicalNotes": "BUG-006 attempted to fix this but failed. The output appears right before the iteration box, suggesting it's in the iteration loop setup. Search for: echo.*remaining_stats or print.*remaining_stats"
 }
