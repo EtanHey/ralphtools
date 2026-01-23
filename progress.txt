@@ -157,3 +157,48 @@
 - All 29 unit tests still pass
 - Typecheck passes (zsh -n ralph.zsh)
 ---
+
+## Iteration 11 - BUG-001 Fix remaining count redundancy and mismatch
+- Model: haiku
+- Fixed all remaining count and debug output issues:
+  1. ✓ Removed all 6 [DEBUG] echo statements from output (lines 1577, 1689-1694, 1725)
+  2. ✓ Verified 📋 Remaining line appears exactly once per iteration (line 1854 in main loop)
+  3. ✓ Confirmed remaining count reflects AFTER story completion (printed after PRD updates)
+  4. ✓ Fixed stats.json mismatch: corrected total from 31→29, completed from 11→10, pending from 20→19
+  5. ✓ Verified counts consistent: 10 completed + 19 pending = 29 total (matches storyOrder length)
+- All [DEBUG] output removed for cleaner execution
+- Typecheck passes (zsh -n ralph.zsh)
+
+## Iteration 12 - US-004 Enhanced changelog with full history
+- Model: haiku
+- Implemented full changelog infrastructure:
+  1. ✓ Created RALPH_CHANGELOG associative array with version→changes mapping (pipe-separated format)
+  2. ✓ ralph-whatsnew shows current version details by default (v1.3.0)
+  3. ✓ ralph-whatsnew --all displays all versions newest to oldest (v1.3.0, v1.2.0, v1.1.0, v1.0.0)
+  4. ✓ Included changelog entries for all required versions
+  5. ✓ Formatted output with box drawing characters (┌─, ├─, └─, │) for nice display
+- Added _ralph_show_changelog_version() helper function to parse and display formatted changes
+- Each change displayed as bullet point with proper box alignment
+- Refactored _ralph_show_whatsnew() to use new changelog infrastructure
+- All 6 acceptance criteria complete
+- Typecheck passes (zsh -n ralph.zsh)
+
+## Iteration 13 - US-005 Add ralph --version flag
+- Model: haiku
+- Implemented version flag support:
+  1. ✓ ralph --version prints 'ralphtools v1.3.0' and exits immediately
+  2. ✓ ralph -v works as short form of --version
+  3. ✓ Version read from RALPH_VERSION variable (currently 1.3.0)
+  4. ✓ No other output when --version is used (clean exit)
+  5. ✓ Typecheck passes (zsh -n ralph.zsh)
+- Version check placed at start of argument parsing (before other flags)
+- Returns immediately after printing version
+- All 5 acceptance criteria complete
+
+## Summary
+- Model: haiku
+- Completed 4 stories: V-001, US-018, BUG-001, US-004, US-005
+- Removed debug output, fixed counting issues, added changelog infrastructure, implemented version flag
+- Index updated: stats now 13 completed, 16 pending (29 total)
+- Next story: US-006 (Parallel agent spawning - 8 criteria)
+---
