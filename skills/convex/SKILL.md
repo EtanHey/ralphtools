@@ -28,6 +28,7 @@ If no `convex/` directory: Run `npx convex init` to initialize.
 | Export data | [workflows/data-export.md](workflows/data-export.md) |
 | Import data | [workflows/data-import.md](workflows/data-import.md) |
 | Inspect/validate schema | [workflows/schema.md](workflows/schema.md) |
+| Fix errors | [workflows/troubleshooting.md](workflows/troubleshooting.md) |
 
 ---
 
@@ -67,3 +68,28 @@ npx convex logs --name prod       # View production logs
 2. **Deploy key for CI** - Production deploys need `CONVEX_DEPLOY_KEY` (see deploy workflow)
 3. **Backup before import** - Always export before importing data
 4. **Review schema changes** - Schema migrations can be destructive
+
+---
+
+## 🚨 CRITICAL: Auto-Clean Before Any Convex Command
+
+**ALWAYS prefix Convex commands with this cleanup:**
+
+```bash
+rm -f convex/*.js 2>/dev/null; npx convex dev
+```
+
+### The "Two output files" Error
+
+If you see:
+```
+✘ [ERROR] Two output files share the same path but have different contents: out/auth.js
+```
+
+**Cause:** Orphan `.js` files in `convex/` folder (from git worktrees, crashes, or manual operations).
+
+**Fix:** `rm -f convex/*.js` then retry.
+
+**Prevention:** Always use the cleanup prefix. Only `.ts` files belong in convex/.
+
+See [workflows/troubleshooting.md](workflows/troubleshooting.md) for details.

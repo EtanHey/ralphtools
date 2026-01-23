@@ -24,13 +24,25 @@ If not logged in: `npx convex login`
 
 ---
 
+## CRITICAL: Clean Before Deploy
+
+**ALWAYS run cleanup before any deploy:**
+
+```bash
+rm -f convex/*.js 2>/dev/null
+```
+
+This prevents the "Two output files share the same path" esbuild error.
+
+---
+
 ## Interactive Deployment (Manual)
 
-### Step 1: Deploy with prompts
+### Step 1: Clean and deploy
 
 Run:
 ```bash
-npx convex deploy
+rm -f convex/*.js 2>/dev/null; npx convex deploy
 ```
 
 This will:
@@ -66,10 +78,11 @@ Store in 1Password:
 op item create --category "API Credential" --title "convex" --vault "Private" "deploy-key=prod:..."
 ```
 
-### Step 2: Deploy with key
+### Step 2: Clean and deploy with key
 
 Run:
 ```bash
+rm -f convex/*.js 2>/dev/null
 CONVEX_DEPLOY_KEY=$(op read "op://Private/convex/deploy-key")
 npx convex deploy --cmd 'npm run build'
 ```

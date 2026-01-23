@@ -22,13 +22,34 @@ Run:
 
 ---
 
+## CRITICAL: Clean Before Starting
+
+**ALWAYS run this before starting Convex dev server:**
+
+```bash
+rm -f convex/*.js 2>/dev/null; npx convex dev
+```
+
+### Why This Is Required
+
+The error `Two output files share the same path but have different contents: out/filename.js` occurs when:
+1. **Git worktrees** copy compiled .js files alongside .ts source files
+2. **Convex crashes** mid-compilation leaving orphan .js files
+3. **Manual file operations** accidentally create .js duplicates
+
+The Convex bundler (esbuild) finds BOTH `.ts` and `.js` files with the same name and fails because they'd both output to the same path.
+
+**Prevention:** The `rm -f convex/*.js` is safe - only `.ts` files belong in convex/. Any `.js` files are compilation artifacts that should be deleted.
+
+---
+
 ## Start Dev Server
 
-### Option A: Standard start
+### Option A: Standard start (with auto-clean)
 
 Run:
 ```bash
-npx convex dev
+rm -f convex/*.js 2>/dev/null; npx convex dev
 ```
 
 This will:
