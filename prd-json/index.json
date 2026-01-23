@@ -3,11 +3,11 @@
   "generatedAt": "2026-01-23T14:15:00Z",
   "stats": {
     "total": 47,
-    "completed": 42,
+    "completed": 46,
     "pending": 3,
-    "blocked": 4
+    "blocked": 0
   },
-  "nextStory": "AUDIT-001",
+  "nextStory": "V-007",
   "storyOrder": [
     "TEST-001",
     "TEST-002",
@@ -58,14 +58,9 @@
     "V-007"
   ],
   "pending": [
-    "AUDIT-001",
-    "US-025",
-    "US-029"
-  ],
-  "blocked": [
-    "US-026",
+    "V-007",
     "US-027",
-    "US-028",
-    "V-007"
-  ]
+    "US-028"
+  ],
+  "blocked": []
 }

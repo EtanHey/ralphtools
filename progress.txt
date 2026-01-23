@@ -730,3 +730,25 @@
 - Typecheck passes (zsh -n ralph.zsh)
 - Updated stats: completed=42, pending=3, blocked=4
 ---
+
+## Iteration 39 - US-026 Core registry functions with 1Password Environments
+- Model: opus
+- Verified existing functions already implemented from previous iterations:
+  1. ✓ _ralph_load_registry() - loads and returns registry.json content (line 1256)
+  2. ✓ _ralph_get_project_config() - finds project by matching cwd to paths (line 1266)
+  3. ✓ _ralph_current_project() - returns project name for cwd (line 1282)
+  4. ✓ _ralph_build_mcp_config() - merges global + project MCPs (line 1289)
+  5. ✓ _ralph_inject_secrets() - resolves op:// refs and exports (line 1322)
+- Added new function:
+  - _ralph_generate_env_1password() - creates .env.1password file for 1Password Environments
+  - Outputs format: KEY=op://vault/item/field (official 1Password Environments pattern)
+  - Includes project secrets and global MCP secrets
+  - Used with 'op run --env-file' for secure secret injection
+- Also updated index.json housekeeping:
+  - Moved AUDIT-001, US-025, US-029 from pending to completed (already had passes=true)
+  - Unblocked V-007 (blocker US-029 completed)
+  - Unblocked US-027 and US-028 (blocker US-026 completed)
+- All 7 acceptance criteria completed
+- Typecheck passes (zsh -n ralph.zsh)
+- Updated stats: completed=46, pending=3, blocked=0
+---

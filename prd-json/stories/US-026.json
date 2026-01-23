@@ -3,14 +3,14 @@
   "title": "Core registry functions with 1Password Environments",
   "description": "Add functions to load registry, detect current project, build MCP config, and generate .env.1password files for 1Password Environments. Use official 'op run --env-file' pattern instead of manual secret injection. See https://developer.1password.com/docs/environments/",
   "acceptanceCriteria": [
-    { "text": "_ralph_load_registry() loads and returns registry.json content", "checked": false },
-    { "text": "_ralph_get_project_config() finds project config by matching cwd to project paths", "checked": false },
-    { "text": "_ralph_current_project() returns project name for current directory", "checked": false },
-    { "text": "_ralph_build_mcp_config() merges global MCPs + project-specific MCPs into .mcp.json format", "checked": false },
-    { "text": "_ralph_generate_env_1password() creates .env.1password file with op:// references from registry secrets", "checked": false },
-    { "text": "Generated .env.1password uses format: KEY=op://vault/item/field", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "_ralph_load_registry() loads and returns registry.json content", "checked": true },
+    { "text": "_ralph_get_project_config() finds project config by matching cwd to project paths", "checked": true },
+    { "text": "_ralph_current_project() returns project name for current directory", "checked": true },
+    { "text": "_ralph_build_mcp_config() merges global MCPs + project-specific MCPs into .mcp.json format", "checked": true },
+    { "text": "_ralph_generate_env_1password() creates .env.1password file with op:// references from registry secrets", "checked": true },
+    { "text": "Generated .env.1password uses format: KEY=op://vault/item/field", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": "US-025"
+  "passes": true,
+  "blockedBy": null
 }

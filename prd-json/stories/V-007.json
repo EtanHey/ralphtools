@@ -11,5 +11,5 @@
     { "text": "Context usage: verify skill loads <500 tokens for simple operations", "checked": false }
   ],
   "passes": false,
-  "blockedBy": "US-029"
+  "blockedBy": null
 }
