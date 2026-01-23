@@ -1035,3 +1035,49 @@ Integrated registry-based MCP configuration into the Ralph main loop. Different 
 - Special MCPs with project-specific tokens need dynamic config generation
 - Temp files for MCP config cleaned up by cleanup_ralph() trap
 
+## Iteration 31 - US-058: ralph-setup wizard enhancement for MCPs
+**Status**: COMPLETED
+
+Enhanced ralph-setup wizard to configure MCPs per project, select from mcpDefinitions, and migrate .env secrets to 1Password refs.
+
+### Changes Made
+
+**New helper function `_ralph_get_available_mcps()` (lines 6120-6131):**
+- Gets available MCPs from registry mcpDefinitions
+- Falls back to hardcoded RALPH_AVAILABLE_MCPS if registry not available
+
+**Enhanced `_ralph_setup_configure_mcps_for_project()` (lines 6430-6515):**
+- Now uses `_ralph_get_available_mcps()` instead of hardcoded list
+- Shows available MCPs from registry mcpDefinitions
+- Better UI with count display
+
+**New MCP definitions management (lines 6517-6773):**
+- `_ralph_setup_manage_mcp_definitions()` - Main menu with add/view/remove options
+- `_ralph_setup_add_mcp_definition()` - Add new MCP with command, args, and env vars
+- `_ralph_setup_view_mcp_definition()` - View MCP definition details as JSON
+- `_ralph_setup_remove_mcp_definition()` - Remove MCP with warning about projects using it
+
+**Enhanced `_ralph_setup_migrate_secrets()` (lines 6878-7001):**
+- Scans .env files first and shows what secrets exist
+- Counts plain secrets vs op:// refs already migrated
+- New "Scan .env files (preview migration)" option
+- Shows keys only (not values) for security
+
+**Enhanced `_ralph_setup_view_config()` (lines 7036-7119):**
+- Pretty-printed output with color coding and sections
+- Shows registry version
+- Projects section with all details (path, MCPs, secrets)
+- MCP Definitions section with commands and env var counts
+- Global MCPs section
+
+**Updated main menu (lines 6181-6214):**
+- Added "Manage MCP definitions" option
+- Updated menu numbers to accommodate new option
+
+### Learnings
+- jq can iterate registry mcpDefinitions with `.mcpDefinitions | keys[]`
+- Scanning .env files: use `grep -v "^#" | grep -v "^$" | grep "="` to find secrets
+- Show keys only (`sed 's/=.*/=***/'`) when displaying secrets for security
+- gum input with --placeholder provides good UX for interactive prompts
+- Validate JSON with `echo "$json" | jq -e '.'` before writing to registry
+

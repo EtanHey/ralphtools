@@ -6114,8 +6114,21 @@ function _ralph_setup_mcps() {
 #   - Viewing current configuration
 # ═══════════════════════════════════════════════════════════════════
 
-# List of available MCPs for multi-select
+# List of available MCPs for multi-select (fallback if registry not available)
 RALPH_AVAILABLE_MCPS=("figma" "linear" "supabase" "browser-tools" "context7")
+
+# Get available MCPs from registry mcpDefinitions
+function _ralph_get_available_mcps() {
+  if [[ -f "$RALPH_REGISTRY_FILE" ]]; then
+    local mcps=($(jq -r '.mcpDefinitions | keys[]' "$RALPH_REGISTRY_FILE" 2>/dev/null))
+    if [[ ${#mcps[@]} -gt 0 ]]; then
+      echo "${mcps[@]}"
+      return 0
+    fi
+  fi
+  # Fallback to hardcoded list
+  echo "${RALPH_AVAILABLE_MCPS[@]}"
+}
 
 function ralph-setup() {
   local GREEN='\033[0;32m'
@@ -6170,6 +6183,7 @@ function ralph-setup() {
       choice=$(gum choose \
         "📂 Add new project" \
         "🔧 Configure MCPs for a project" \
+        "➕ Manage MCP definitions" \
         "🔐 Configure 1Password Environments" \
         "🔑 Migrate secrets to 1Password" \
         "📋 View current configuration" \
@@ -6180,20 +6194,22 @@ function ralph-setup() {
       echo ""
       echo "  1) 📂 Add new project"
       echo "  2) 🔧 Configure MCPs for a project"
-      echo "  3) 🔐 Configure 1Password Environments"
-      echo "  4) 🔑 Migrate secrets to 1Password"
-      echo "  5) 📋 View current configuration"
-      echo "  6) 🚪 Exit setup"
+      echo "  3) ➕ Manage MCP definitions"
+      echo "  4) 🔐 Configure 1Password Environments"
+      echo "  5) 🔑 Migrate secrets to 1Password"
+      echo "  6) 📋 View current configuration"
+      echo "  7) 🚪 Exit setup"
       echo ""
-      echo -n "Choose [1-6]: "
+      echo -n "Choose [1-7]: "
       read menu_choice
       case "$menu_choice" in
         1) choice="📂 Add new project" ;;
         2) choice="🔧 Configure MCPs for a project" ;;
-        3) choice="🔐 Configure 1Password Environments" ;;
-        4) choice="🔑 Migrate secrets to 1Password" ;;
-        5) choice="📋 View current configuration" ;;
-        6|*) choice="🚪 Exit setup" ;;
+        3) choice="➕ Manage MCP definitions" ;;
+        4) choice="🔐 Configure 1Password Environments" ;;
+        5) choice="🔑 Migrate secrets to 1Password" ;;
+        6) choice="📋 View current configuration" ;;
+        7|*) choice="🚪 Exit setup" ;;
       esac
     fi
 
@@ -6203,6 +6219,9 @@ function ralph-setup() {
         ;;
       *"Configure MCPs"*)
         _ralph_setup_configure_mcps
+        ;;
+      *"Manage MCP definitions"*)
+        _ralph_setup_manage_mcp_definitions
         ;;
       *"Configure 1Password Environments"*)
         _ralph_setup_configure_op_environments
@@ -6418,31 +6437,35 @@ function _ralph_setup_configure_mcps_for_project() {
   local project_name="$1"
   local GREEN='\033[0;32m'
   local YELLOW='\033[0;33m'
+  local CYAN='\033[0;36m'
   local NC='\033[0m'
 
   echo ""
   echo "Configuring MCPs for: ${YELLOW}$project_name${NC}"
   echo ""
 
+  # Get available MCPs from registry mcpDefinitions
+  local available_mcps=($(_ralph_get_available_mcps))
+
   # Get current MCPs for this project
   local current_mcps=$(jq -r --arg name "$project_name" '.projects[$name].mcps // [] | join(",")' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+
+  echo "${CYAN}Available MCPs from registry (${#available_mcps[@]}):${NC}"
+  echo ""
 
   local selected_mcps=()
 
   if [[ $RALPH_HAS_GUM -eq 0 ]]; then
-    # GUM mode - multi-select
-    echo "Available MCPs (space to select, enter to confirm):"
-    local mcp_list=""
-    for mcp in "${RALPH_AVAILABLE_MCPS[@]}"; do
-      if [[ "$current_mcps" == *"$mcp"* ]]; then
-        mcp_list+="$mcp (current),"
-      else
-        mcp_list+="$mcp,"
-      fi
+    # GUM mode - multi-select with current selections pre-marked
+    # Build list with descriptions
+    local mcp_options=()
+    for mcp in "${available_mcps[@]}"; do
+      local marker=""
+      [[ "$current_mcps" == *"$mcp"* ]] && marker=" (current)"
+      mcp_options+=("${mcp}${marker}")
     done
-    mcp_list="${mcp_list%,}"
 
-    local selections=$(printf '%s\n' "${RALPH_AVAILABLE_MCPS[@]}" | gum choose --no-limit --header "Select MCPs:")
+    local selections=$(printf '%s\n' "${available_mcps[@]}" | gum choose --no-limit --header "Select MCPs (space to select, enter to confirm):")
     while IFS= read -r mcp; do
       [[ -n "$mcp" ]] && selected_mcps+=("$mcp")
     done <<< "$selections"
@@ -6450,7 +6473,7 @@ function _ralph_setup_configure_mcps_for_project() {
     # Fallback mode - numbered multi-select
     echo "Available MCPs:"
     local i=1
-    for mcp in "${RALPH_AVAILABLE_MCPS[@]}"; do
+    for mcp in "${available_mcps[@]}"; do
       local marker=" "
       [[ "$current_mcps" == *"$mcp"* ]] && marker="*"
       echo "  $i) [$marker] $mcp"
@@ -6461,8 +6484,8 @@ function _ralph_setup_configure_mcps_for_project() {
     echo -n "> "
     read mcp_choices
     for choice in $mcp_choices; do
-      if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -ge 1 ]] && [[ "$choice" -le ${#RALPH_AVAILABLE_MCPS[@]} ]]; then
-        selected_mcps+=("${RALPH_AVAILABLE_MCPS[$choice]}")
+      if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -ge 1 ]] && [[ "$choice" -le ${#available_mcps[@]} ]]; then
+        selected_mcps+=("${available_mcps[$choice]}")
       fi
     done
   fi
@@ -6489,6 +6512,264 @@ function _ralph_setup_configure_mcps_for_project() {
 
   # Regenerate launchers
   _ralph_generate_launchers_from_registry
+}
+
+# Helper: Manage MCP definitions in the registry
+function _ralph_setup_manage_mcp_definitions() {
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local CYAN='\033[0;36m'
+  local RED='\033[0;31m'
+  local NC='\033[0m'
+
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  ➕ Manage MCP Definitions                                  │"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  echo ""
+
+  # Ensure registry exists
+  if [[ ! -f "$RALPH_REGISTRY_FILE" ]]; then
+    echo "${YELLOW}No registry found. Creating one...${NC}"
+    _ralph_migrate_to_registry
+  fi
+
+  # Show current MCP definitions
+  local mcp_count=$(jq '.mcpDefinitions | length' "$RALPH_REGISTRY_FILE" 2>/dev/null || echo "0")
+  echo "${CYAN}Current MCP definitions ($mcp_count):${NC}"
+  echo ""
+  jq -r '.mcpDefinitions | keys[] | "  • \(.)"' "$RALPH_REGISTRY_FILE" 2>/dev/null
+  echo ""
+
+  local action=""
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    action=$(gum choose \
+      "➕ Add new MCP definition" \
+      "👁️  View MCP definition details" \
+      "🗑️  Remove MCP definition" \
+      "⬅️  Back to main menu")
+  else
+    echo "What would you like to do?"
+    echo ""
+    echo "  1) ➕ Add new MCP definition"
+    echo "  2) 👁️  View MCP definition details"
+    echo "  3) 🗑️  Remove MCP definition"
+    echo "  4) ⬅️  Back to main menu"
+    echo ""
+    echo -n "Choose [1-4]: "
+    read action_choice
+    case "$action_choice" in
+      1) action="➕ Add new MCP" ;;
+      2) action="👁️  View MCP" ;;
+      3) action="🗑️  Remove MCP" ;;
+      *) action="⬅️  Back" ;;
+    esac
+  fi
+
+  case "$action" in
+    *"Add new MCP"*)
+      _ralph_setup_add_mcp_definition
+      ;;
+    *"View MCP"*)
+      _ralph_setup_view_mcp_definition
+      ;;
+    *"Remove MCP"*)
+      _ralph_setup_remove_mcp_definition
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
+# Helper: Add a new MCP definition to the registry
+function _ralph_setup_add_mcp_definition() {
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local CYAN='\033[0;36m'
+  local RED='\033[0;31m'
+  local NC='\033[0m'
+
+  echo ""
+  echo "Adding a new MCP definition..."
+  echo ""
+
+  local mcp_name=""
+  local mcp_command=""
+  local mcp_args=""
+  local mcp_env=""
+
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    mcp_name=$(gum input --placeholder "MCP name (e.g., my-mcp)")
+    [[ -z "$mcp_name" ]] && return 1
+
+    mcp_command=$(gum input --placeholder "Command (e.g., npx, node, python)")
+    [[ -z "$mcp_command" ]] && return 1
+
+    mcp_args=$(gum input --placeholder "Args as JSON array (e.g., [\"-y\", \"@some/mcp\"])")
+    [[ -z "$mcp_args" ]] && mcp_args="[]"
+
+    echo "Environment variables (optional, JSON object):"
+    mcp_env=$(gum input --placeholder "{\"KEY\": \"value\"}")
+    [[ -z "$mcp_env" ]] && mcp_env="{}"
+  else
+    echo -n "MCP name (e.g., my-mcp): "
+    read mcp_name
+    [[ -z "$mcp_name" ]] && return 1
+
+    echo -n "Command (e.g., npx, node, python): "
+    read mcp_command
+    [[ -z "$mcp_command" ]] && return 1
+
+    echo -n "Args as JSON array (e.g., [\"-y\", \"@some/mcp\"]): "
+    read mcp_args
+    [[ -z "$mcp_args" ]] && mcp_args="[]"
+
+    echo -n "Environment variables (JSON object, optional): "
+    read mcp_env
+    [[ -z "$mcp_env" ]] && mcp_env="{}"
+  fi
+
+  # Validate JSON
+  if ! echo "$mcp_args" | jq -e '.' &>/dev/null; then
+    echo "${RED}Error: Invalid JSON for args${NC}"
+    return 1
+  fi
+  if ! echo "$mcp_env" | jq -e '.' &>/dev/null; then
+    echo "${RED}Error: Invalid JSON for env${NC}"
+    return 1
+  fi
+
+  # Check if MCP already exists
+  local existing=$(jq -r --arg name "$mcp_name" '.mcpDefinitions[$name] // empty' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+  if [[ -n "$existing" ]]; then
+    echo "${YELLOW}Warning: MCP '$mcp_name' already exists${NC}"
+    if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+      gum confirm "Overwrite existing definition?" || return 1
+    else
+      echo -n "Overwrite existing definition? [y/N]: "
+      read overwrite
+      [[ "$overwrite" != [Yy]* ]] && return 1
+    fi
+  fi
+
+  # Add to registry
+  jq --arg name "$mcp_name" \
+     --arg cmd "$mcp_command" \
+     --argjson args "$mcp_args" \
+     --argjson env "$mcp_env" \
+     '.mcpDefinitions[$name] = {command: $cmd, args: $args, env: $env}' \
+     "$RALPH_REGISTRY_FILE" > "${RALPH_REGISTRY_FILE}.tmp"
+  mv "${RALPH_REGISTRY_FILE}.tmp" "$RALPH_REGISTRY_FILE"
+
+  echo ""
+  echo "${GREEN}✓ MCP definition '$mcp_name' added!${NC}"
+  echo ""
+}
+
+# Helper: View details of an MCP definition
+function _ralph_setup_view_mcp_definition() {
+  local CYAN='\033[0;36m'
+  local YELLOW='\033[0;33m'
+  local NC='\033[0m'
+
+  echo ""
+  local mcps=($(jq -r '.mcpDefinitions | keys[]' "$RALPH_REGISTRY_FILE" 2>/dev/null))
+
+  if [[ ${#mcps[@]} -eq 0 ]]; then
+    echo "${YELLOW}No MCP definitions found${NC}"
+    return 1
+  fi
+
+  local selected_mcp=""
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    selected_mcp=$(printf '%s\n' "${mcps[@]}" | gum choose --header "Select MCP to view:")
+  else
+    echo "Available MCPs:"
+    local i=1
+    for mcp in "${mcps[@]}"; do
+      echo "  $i) $mcp"
+      ((i++))
+    done
+    echo -n "Choose MCP [1-${#mcps[@]}]: "
+    read mcp_choice
+    if [[ "$mcp_choice" =~ ^[0-9]+$ ]] && [[ "$mcp_choice" -ge 1 ]] && [[ "$mcp_choice" -le ${#mcps[@]} ]]; then
+      selected_mcp="${mcps[$mcp_choice]}"
+    fi
+  fi
+
+  [[ -z "$selected_mcp" ]] && return 1
+
+  echo ""
+  echo "${CYAN}MCP: $selected_mcp${NC}"
+  echo ""
+  jq --arg name "$selected_mcp" '.mcpDefinitions[$name]' "$RALPH_REGISTRY_FILE" 2>/dev/null
+  echo ""
+}
+
+# Helper: Remove an MCP definition from the registry
+function _ralph_setup_remove_mcp_definition() {
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local RED='\033[0;31m'
+  local NC='\033[0m'
+
+  echo ""
+  local mcps=($(jq -r '.mcpDefinitions | keys[]' "$RALPH_REGISTRY_FILE" 2>/dev/null))
+
+  if [[ ${#mcps[@]} -eq 0 ]]; then
+    echo "${YELLOW}No MCP definitions found${NC}"
+    return 1
+  fi
+
+  local selected_mcp=""
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    selected_mcp=$(printf '%s\n' "${mcps[@]}" | gum choose --header "Select MCP to remove:")
+  else
+    echo "Available MCPs:"
+    local i=1
+    for mcp in "${mcps[@]}"; do
+      echo "  $i) $mcp"
+      ((i++))
+    done
+    echo -n "Choose MCP to remove [1-${#mcps[@]}]: "
+    read mcp_choice
+    if [[ "$mcp_choice" =~ ^[0-9]+$ ]] && [[ "$mcp_choice" -ge 1 ]] && [[ "$mcp_choice" -le ${#mcps[@]} ]]; then
+      selected_mcp="${mcps[$mcp_choice]}"
+    fi
+  fi
+
+  [[ -z "$selected_mcp" ]] && return 1
+
+  # Confirm deletion
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    gum confirm "Remove MCP definition '$selected_mcp'?" || return 1
+  else
+    echo -n "Remove MCP definition '$selected_mcp'? [y/N]: "
+    read confirm
+    [[ "$confirm" != [Yy]* ]] && return 1
+  fi
+
+  # Remove from registry
+  jq --arg name "$selected_mcp" 'del(.mcpDefinitions[$name])' \
+     "$RALPH_REGISTRY_FILE" > "${RALPH_REGISTRY_FILE}.tmp"
+  mv "${RALPH_REGISTRY_FILE}.tmp" "$RALPH_REGISTRY_FILE"
+
+  echo ""
+  echo "${GREEN}✓ MCP definition '$selected_mcp' removed${NC}"
+  echo ""
+
+  # Warn about projects using this MCP
+  local projects_using=$(jq -r --arg mcp "$selected_mcp" '.projects | to_entries[] | select(.value.mcps | index($mcp)) | .key' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+  if [[ -n "$projects_using" ]]; then
+    echo "${YELLOW}Warning: The following projects still reference this MCP:${NC}"
+    echo "$projects_using" | while read -r proj; do
+      echo "  • $proj"
+    done
+    echo ""
+    echo "You may want to reconfigure their MCPs."
+    echo ""
+  fi
 }
 
 # Helper: Configure 1Password Environments for the current project
@@ -6608,30 +6889,85 @@ function _ralph_setup_migrate_secrets() {
   echo "└─────────────────────────────────────────────────────────────┘"
   echo ""
 
+  # Scan for .env files in current directory
+  local env_files=()
+  local env_secrets_count=0
+
+  echo "${CYAN}Scanning for .env files...${NC}"
+  echo ""
+
+  for env_file in .env .env.local .env.development .env.production .env.staging .env.test; do
+    if [[ -f "$env_file" ]]; then
+      # Count non-comment, non-empty lines with = (secrets)
+      local secrets=$(grep -v "^#" "$env_file" 2>/dev/null | grep -v "^$" | grep "=" | wc -l | tr -d ' ')
+      # Count lines already using op://
+      local op_refs=$(grep "op://" "$env_file" 2>/dev/null | wc -l | tr -d ' ')
+      local plain_secrets=$((secrets - op_refs))
+
+      if [[ "$plain_secrets" -gt 0 ]]; then
+        env_files+=("$env_file")
+        env_secrets_count=$((env_secrets_count + plain_secrets))
+        echo "  📄 ${YELLOW}$env_file${NC}: ${plain_secrets} secrets (${op_refs} already using op://)"
+      elif [[ "$secrets" -gt 0 ]]; then
+        echo "  ✅ ${GREEN}$env_file${NC}: All $secrets secrets already use op://"
+      fi
+    fi
+  done
+
+  if [[ ${#env_files[@]} -eq 0 ]]; then
+    echo "  ${GREEN}✓ No .env files with plain secrets found${NC}"
+    echo ""
+    echo "All secrets are either migrated or you don't have .env files."
+    echo ""
+    return 0
+  fi
+
+  echo ""
+  echo "Found ${YELLOW}$env_secrets_count${NC} plain secrets in ${#env_files[@]} file(s)"
+  echo ""
+
   local migrate_choice=""
 
   if [[ $RALPH_HAS_GUM -eq 0 ]]; then
     migrate_choice=$(gum choose \
+      "🔍 Scan .env files (preview migration)" \
       "📄 Migrate .env file to 1Password" \
       "⚙️  Migrate MCP config secrets" \
       "⬅️  Back to main menu")
   else
-    echo "What would you like to migrate?"
+    echo "What would you like to do?"
     echo ""
-    echo "  1) 📄 Migrate .env file to 1Password"
-    echo "  2) ⚙️  Migrate MCP config secrets"
-    echo "  3) ⬅️  Back to main menu"
+    echo "  1) 🔍 Scan .env files (preview migration)"
+    echo "  2) 📄 Migrate .env file to 1Password"
+    echo "  3) ⚙️  Migrate MCP config secrets"
+    echo "  4) ⬅️  Back to main menu"
     echo ""
-    echo -n "Choose [1-3]: "
+    echo -n "Choose [1-4]: "
     read migrate_opt
     case "$migrate_opt" in
-      1) migrate_choice="📄 Migrate .env file" ;;
-      2) migrate_choice="⚙️  Migrate MCP config" ;;
+      1) migrate_choice="🔍 Scan .env" ;;
+      2) migrate_choice="📄 Migrate .env file" ;;
+      3) migrate_choice="⚙️  Migrate MCP config" ;;
       *) migrate_choice="⬅️  Back" ;;
     esac
   fi
 
   case "$migrate_choice" in
+    *"Scan .env"*)
+      echo ""
+      echo "${CYAN}Scanning .env files for secrets...${NC}"
+      echo ""
+      for env_file in "${env_files[@]}"; do
+        echo "━━━ ${YELLOW}$env_file${NC} ━━━"
+        # Show keys only (not values) for security
+        grep -v "^#" "$env_file" 2>/dev/null | grep -v "^$" | grep "=" | grep -v "op://" | sed 's/=.*/=***/' | head -20
+        echo ""
+      done
+      echo "${YELLOW}To migrate these secrets to 1Password:${NC}"
+      echo "  ${CYAN}ralph-secrets migrate .env --dry-run${NC}  # Preview"
+      echo "  ${CYAN}ralph-secrets migrate .env${NC}            # Execute"
+      echo ""
+      ;;
     *".env file"*)
       echo ""
       echo "${CYAN}For .env migration, use the ralph-secrets command:${NC}"
@@ -6702,6 +7038,7 @@ function _ralph_setup_view_config() {
   local GREEN='\033[0;32m'
   local YELLOW='\033[0;33m'
   local CYAN='\033[0;36m'
+  local BOLD='\033[1m'
   local NC='\033[0m'
 
   echo ""
@@ -6712,23 +7049,66 @@ function _ralph_setup_view_config() {
 
   # Show registry
   if [[ -f "$RALPH_REGISTRY_FILE" ]]; then
-    echo "${CYAN}Registry: $RALPH_REGISTRY_FILE${NC}"
+    local version=$(jq -r '.version // "unknown"' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+    echo "${CYAN}Registry:${NC} $RALPH_REGISTRY_FILE (v$version)"
     echo ""
 
-    # Projects
+    # Projects - pretty printed
     local project_count=$(jq '.projects | length' "$RALPH_REGISTRY_FILE" 2>/dev/null)
-    echo "${YELLOW}Projects ($project_count):${NC}"
-
-    jq -r '.projects | to_entries[] | "  \(.key)\n    Path: \(.value.path)\n    MCPs: \(if .value.mcps | length > 0 then (.value.mcps | join(", ")) else "(none)" end)\n    Secrets: \(if .value.secrets | length > 0 then (.value.secrets | keys | length | tostring) + " configured" else "(none)" end)"' "$RALPH_REGISTRY_FILE" 2>/dev/null
-
+    echo "${BOLD}${YELLOW}═══ Projects ($project_count) ═══${NC}"
     echo ""
+
+    jq -r '.projects | to_entries[] | .key' "$RALPH_REGISTRY_FILE" 2>/dev/null | while read -r project_name; do
+      local path=$(jq -r --arg name "$project_name" '.projects[$name].path' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+      local mcps=$(jq -r --arg name "$project_name" '.projects[$name].mcps // [] | join(", ")' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+      local secrets_count=$(jq -r --arg name "$project_name" '.projects[$name].secrets | keys | length' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+      local display_name=$(jq -r --arg name "$project_name" '.projects[$name].displayName // empty' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+
+      echo "  ${BOLD}${GREEN}$project_name${NC}"
+      [[ -n "$display_name" ]] && echo "    ${CYAN}Display:${NC} $display_name"
+      echo "    ${CYAN}Path:${NC}    $path"
+      if [[ -n "$mcps" ]]; then
+        echo "    ${CYAN}MCPs:${NC}    $mcps"
+      else
+        echo "    ${CYAN}MCPs:${NC}    (none)"
+      fi
+      if [[ "$secrets_count" -gt 0 ]]; then
+        local secret_keys=$(jq -r --arg name "$project_name" '.projects[$name].secrets | keys | join(", ")' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+        echo "    ${CYAN}Secrets:${NC} $secrets_count configured ($secret_keys)"
+      else
+        echo "    ${CYAN}Secrets:${NC} (none)"
+      fi
+      echo ""
+    done
+
+    # MCP Definitions
+    local mcp_def_count=$(jq '.mcpDefinitions | length' "$RALPH_REGISTRY_FILE" 2>/dev/null || echo "0")
+    if [[ "$mcp_def_count" -gt 0 ]]; then
+      echo "${BOLD}${YELLOW}═══ MCP Definitions ($mcp_def_count) ═══${NC}"
+      echo ""
+      jq -r '.mcpDefinitions | to_entries[] | .key' "$RALPH_REGISTRY_FILE" 2>/dev/null | while read -r mcp_name; do
+        local cmd=$(jq -r --arg name "$mcp_name" '.mcpDefinitions[$name].command // empty' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+        local args=$(jq -r --arg name "$mcp_name" '.mcpDefinitions[$name].args // [] | join(" ")' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+        local env_count=$(jq -r --arg name "$mcp_name" '.mcpDefinitions[$name].env // {} | keys | length' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+
+        echo "  ${GREEN}•${NC} ${BOLD}$mcp_name${NC}"
+        if [[ -n "$cmd" ]]; then
+          echo "      ${CYAN}Command:${NC} $cmd $args"
+        fi
+        if [[ "$env_count" -gt 0 ]]; then
+          echo "      ${CYAN}Env vars:${NC} $env_count"
+        fi
+      done
+      echo ""
+    fi
 
     # Global MCPs
-    local global_mcp_count=$(jq '.global.mcps | length' "$RALPH_REGISTRY_FILE" 2>/dev/null)
+    local global_mcp_count=$(jq '.global.mcps | length' "$RALPH_REGISTRY_FILE" 2>/dev/null || echo "0")
     if [[ "$global_mcp_count" -gt 0 ]]; then
-      echo "${YELLOW}Global MCPs ($global_mcp_count):${NC}"
+      echo "${BOLD}${YELLOW}═══ Global MCPs ($global_mcp_count) ═══${NC}"
+      echo ""
       jq -r '.global.mcps | keys[]' "$RALPH_REGISTRY_FILE" 2>/dev/null | while read -r mcp; do
-        echo "  • $mcp"
+        echo "  ${GREEN}•${NC} $mcp"
       done
       echo ""
     fi

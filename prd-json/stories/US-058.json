@@ -5,31 +5,32 @@
   "type": "feature",
   "priority": "medium",
   "storyPoints": 3,
-  "status": "pending",
+  "status": "completed",
+  "passes": true,
   "acceptanceCriteria": [
     {
       "text": "ralph-setup shows 'Configure MCPs' option in main menu",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Configure project: select MCPs from available mcpDefinitions",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Scan .env: offers to migrate secrets to 1Password refs",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Manage MCPs: add new MCP definitions to registry",
-      "checked": false
+      "checked": true
     },
     {
       "text": "View registry: pretty-print current project configs",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Typecheck passes (zsh -n ralph.zsh)",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [
