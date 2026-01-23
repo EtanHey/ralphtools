@@ -650,3 +650,27 @@
   - Final Status: PASS
 - Updated stats: completed=41, pending=3, blocked=4
 ---
+
+## Iteration 36 - US-029 Rebuild GitHub skill with progressive disclosure
+- Model: opus
+- Restructured the GitHub skill from a 213-line monolithic file into progressive disclosure architecture:
+  1. Created ~/.claude/commands/github/ directory structure with workflows/ and scripts/ subdirs
+  2. SKILL.md is now a 69-line router (<100 line requirement met):
+     - Quick actions table routing to workflow files
+     - Prerequisites check (gh auth status)
+     - Available scripts table
+     - Decision tree for common tasks
+     - Safety rules section
+  3. Created 4 workflow files with imperative language:
+     - workflows/commits.md: Stage, commit, verify, amend workflows
+     - workflows/issues.md: Create, view, list, close, edit issue workflows
+     - workflows/pull-requests.md: Create, view, merge, review PR workflows
+     - workflows/troubleshooting.md: GITHUB_TOKEN fix, re-auth, push rejected, conflicts
+  4. Created 2 helper scripts:
+     - scripts/smart-commit.sh: Stages, commits with co-author, optionally pushes
+     - scripts/pre-push-check.sh: Validates before push (secrets, .env, branch)
+  5. Description includes all trigger keywords: commit, push, PR, issue, git, github
+  6. Removed old ~/.claude/commands/github.md single-file skill
+- All 13 acceptance criteria completed
+- Updated stats: completed=43, pending=1, blocked=4
+---
