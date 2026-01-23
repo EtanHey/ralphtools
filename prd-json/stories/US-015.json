@@ -3,12 +3,12 @@
   "title": "Progress bars for Ralph output",
   "description": "Add visual progress indicators for iteration and story completion.",
   "acceptanceCriteria": [
-    { "text": "Iteration progress bar shows X/MAX with filled/empty blocks", "checked": false },
-    { "text": "Story progress bar shows completed/total stories", "checked": false },
-    { "text": "Criteria progress shown as [████░░] 4/6 style", "checked": false },
-    { "text": "Progress bars use color (green for >75%, yellow for >50%, red for <50%)", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Iteration progress bar shows X/MAX with filled/empty blocks", "checked": true },
+    { "text": "Story progress bar shows completed/total stories", "checked": true },
+    { "text": "Criteria progress shown as [████░░] 4/6 style", "checked": true },
+    { "text": "Progress bars use color (green for >75%, yellow for >50%, red for <50%)", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }

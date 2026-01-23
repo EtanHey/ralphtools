@@ -436,3 +436,73 @@
 - Updated stats: completed=24, pending=8, blocked=5
 ---
 
+## Iteration 27 - US-013 Box drawing characters for Ralph output
+- Model: opus
+- Implemented polished terminal output with Unicode box drawing characters:
+  1. ✓ Iteration headers already use ╔═══╗ style boxes (lines 1564-1570)
+  2. ✓ Section dividers already use ─── horizontal lines throughout
+  3. ✓ Nested content uses │ for vertical borders in multiple sections
+  4. ✓ Corners use proper ┌┐└┘ (light) and ╔╗╚╝ (heavy) characters
+  5. ✓ Added new startup banner with ╔═══╗ box (lines 1519-1528)
+  6. ✓ Added status box with ┌───┐ for story counts and notifications
+  7. ✓ Converted ASCII --- to ─── in error log sections (lines 2004, 2007, 2010, 3987)
+  8. ✓ Updated completion/blocked/max-iterations boxes with full ╔═══╗ style
+  9. ✓ Updated "between iterations" display with ┌───┐ box
+  10. ✓ Typecheck passes (zsh -n ralph.zsh)
+  11. ✓ Visual test: displayed sample output with all box styles
+- All 6 acceptance criteria completed
+- Updated stats: completed=25, pending=7, blocked=5
+---
+
+## Iteration 28 - US-014 Enhanced color coding for Ralph output
+- Model: opus
+- Implemented semantic color coding throughout Ralph output:
+  1. ✓ Story ID colored by type: US=blue, V=purple, TEST=yellow, BUG=red, AUDIT=magenta
+  2. ✓ Model name colored: opus=gold, sonnet=cyan, haiku=green
+  3. ✓ Cost colored: green if <$0.50, yellow if <$2, red if >=$2
+  4. ✓ Success messages in green, errors in red, warnings in yellow
+  5. ✓ Iteration number bold/bright
+  6. ✓ Typecheck passes (zsh -n ralph.zsh)
+- Added new SEMANTIC COLOR HELPERS section with:
+  - Global color constants (RALPH_COLOR_*)
+  - _ralph_color_story_id() - colors story ID by prefix
+  - _ralph_color_model() - colors model name semantically
+  - _ralph_color_cost() - colors cost based on thresholds
+  - _ralph_success(), _ralph_error(), _ralph_warning() - semantic message colors
+  - _ralph_bold() - bold/bright text emphasis
+- Updated iteration header to show colored story ID, model, and bold iteration number
+- Updated ralph-costs to show colored total cost
+- Updated _ralph_show_routing to show colored story types and models
+- Updated completion box (ALL TASKS COMPLETE) with green border
+- Updated blocked box (ALL REMAINING TASKS BLOCKED) with yellow border
+- Updated max iterations box with yellow border
+- Updated error/retry messages with semantic colors
+- All 6 acceptance criteria completed
+- Updated stats: completed=26, pending=6, blocked=5
+---
+
+## Iteration 29 - US-015 Progress bars for Ralph output
+- Model: opus
+- Implemented visual progress indicators for iteration and story completion:
+  1. Added PROGRESS BAR HELPERS section with:
+     - _ralph_progress_color(): Returns color based on percentage (green >=75%, yellow >=50%, red <50%)
+     - _ralph_progress_bar(): Generates [████░░] style bars with color coding
+     - _ralph_iteration_progress(): Iteration X/MAX progress bar
+     - _ralph_story_progress(): Completed/total stories progress bar
+     - _ralph_criteria_progress(): Checked/total criteria progress bar
+     - _ralph_get_story_criteria_progress(): Gets checked/total for a story
+  2. Updated iteration header display:
+     - Added iteration progress bar: 📊 Iteration: [███░░░░░░░] 3/10
+     - Added story progress bar: 📚 Stories: [██████░░░░] 20/30
+     - Added criteria progress for current story: ☐ Criteria: [██████░░░░] 4/6
+  3. Updated "📋 Remaining" display with story progress bar
+  4. Updated "REACHED MAX ITERATIONS" box with story progress bar
+  5. All progress bars use color coding:
+     - Green: >=75% complete
+     - Yellow: >=50% complete
+     - Red: <50% complete
+- All 5 acceptance criteria completed
+- Typecheck passes (zsh -n ralph.zsh)
+- Updated stats: completed=27, pending=5, blocked=5
+---
+

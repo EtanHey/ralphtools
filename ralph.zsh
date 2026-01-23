@@ -142,6 +142,191 @@ else
 fi
 
 # ═══════════════════════════════════════════════════════════════════
+# SEMANTIC COLOR HELPERS
+# ═══════════════════════════════════════════════════════════════════
+# Global color constants (ANSI escape codes)
+RALPH_COLOR_RESET='\033[0m'
+RALPH_COLOR_BOLD='\033[1m'
+RALPH_COLOR_RED='\033[0;31m'
+RALPH_COLOR_GREEN='\033[0;32m'
+RALPH_COLOR_YELLOW='\033[1;33m'
+RALPH_COLOR_BLUE='\033[0;34m'
+RALPH_COLOR_MAGENTA='\033[0;35m'
+RALPH_COLOR_CYAN='\033[0;36m'
+RALPH_COLOR_GOLD='\033[0;33m'
+RALPH_COLOR_PURPLE='\033[0;35m'
+RALPH_COLOR_GRAY='\033[0;90m'
+
+# Color a story ID by its type prefix
+# Usage: _ralph_color_story_id "US-001" → colored string
+_ralph_color_story_id() {
+  local story_id="$1"
+  local prefix="${story_id%%-*}"
+  local color=""
+
+  case "$prefix" in
+    US)    color="$RALPH_COLOR_BLUE" ;;
+    V)     color="$RALPH_COLOR_PURPLE" ;;
+    TEST)  color="$RALPH_COLOR_YELLOW" ;;
+    BUG)   color="$RALPH_COLOR_RED" ;;
+    AUDIT) color="$RALPH_COLOR_MAGENTA" ;;
+    *)     color="$RALPH_COLOR_RESET" ;;
+  esac
+
+  echo -e "${color}${story_id}${RALPH_COLOR_RESET}"
+}
+
+# Color a model name semantically
+# Usage: _ralph_color_model "opus" → colored string
+_ralph_color_model() {
+  local model="$1"
+  local color=""
+
+  case "$model" in
+    opus)   color="$RALPH_COLOR_GOLD" ;;
+    sonnet) color="$RALPH_COLOR_CYAN" ;;
+    haiku)  color="$RALPH_COLOR_GREEN" ;;
+    *)      color="$RALPH_COLOR_RESET" ;;
+  esac
+
+  echo -e "${color}${model}${RALPH_COLOR_RESET}"
+}
+
+# Color a cost value based on thresholds
+# Usage: _ralph_color_cost "1.50" → colored "$1.50"
+_ralph_color_cost() {
+  local cost_str="$1"
+  # Remove $ prefix if present for comparison
+  local cost_val="${cost_str#\$}"
+  local color=""
+
+  # Compare as float: green <$0.50, yellow <$2, red >=$2
+  if (( $(echo "$cost_val < 0.50" | bc -l 2>/dev/null || echo "0") )); then
+    color="$RALPH_COLOR_GREEN"
+  elif (( $(echo "$cost_val < 2.00" | bc -l 2>/dev/null || echo "0") )); then
+    color="$RALPH_COLOR_YELLOW"
+  else
+    color="$RALPH_COLOR_RED"
+  fi
+
+  # Output with $ prefix
+  echo -e "${color}\$${cost_val}${RALPH_COLOR_RESET}"
+}
+
+# Success message in green
+# Usage: _ralph_success "All tests passed"
+_ralph_success() {
+  echo -e "${RALPH_COLOR_GREEN}$1${RALPH_COLOR_RESET}"
+}
+
+# Error message in red
+# Usage: _ralph_error "Build failed"
+_ralph_error() {
+  echo -e "${RALPH_COLOR_RED}$1${RALPH_COLOR_RESET}"
+}
+
+# Warning message in yellow
+# Usage: _ralph_warning "Deprecated API usage"
+_ralph_warning() {
+  echo -e "${RALPH_COLOR_YELLOW}$1${RALPH_COLOR_RESET}"
+}
+
+# Bold/bright text for emphasis
+# Usage: _ralph_bold "ITERATION 5"
+_ralph_bold() {
+  echo -e "${RALPH_COLOR_BOLD}$1${RALPH_COLOR_RESET}"
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# PROGRESS BAR HELPERS
+# ═══════════════════════════════════════════════════════════════════
+
+# Get color for progress bar based on percentage
+# Usage: _ralph_progress_color 75 → color code
+_ralph_progress_color() {
+  local percent="$1"
+  if (( percent >= 75 )); then
+    echo "$RALPH_COLOR_GREEN"
+  elif (( percent >= 50 )); then
+    echo "$RALPH_COLOR_YELLOW"
+  else
+    echo "$RALPH_COLOR_RED"
+  fi
+}
+
+# Generate a progress bar with filled/empty blocks
+# Usage: _ralph_progress_bar 4 6 10 → [████░░░░░░] 4/6
+# Args: current, total, bar_width (optional, default 10)
+_ralph_progress_bar() {
+  local current="$1"
+  local total="$2"
+  local width="${3:-10}"
+
+  # Handle edge cases
+  (( total <= 0 )) && total=1
+  (( current < 0 )) && current=0
+  (( current > total )) && current=$total
+
+  # Calculate percentage and filled blocks
+  local percent=$((current * 100 / total))
+  local filled=$((current * width / total))
+  local empty=$((width - filled))
+
+  # Get color based on percentage
+  local color=$(_ralph_progress_color $percent)
+
+  # Build the bar using Unicode blocks
+  local bar=""
+  for ((j=0; j<filled; j++)); do bar+="█"; done
+  for ((j=0; j<empty; j++)); do bar+="░"; done
+
+  echo -e "${color}[${bar}]${RALPH_COLOR_RESET} ${current}/${total}"
+}
+
+# Iteration progress bar: shows X/MAX iterations
+# Usage: _ralph_iteration_progress 3 10 → [███░░░░░░░] 3/10
+_ralph_iteration_progress() {
+  local current="$1"
+  local max="$2"
+  _ralph_progress_bar "$current" "$max" 10
+}
+
+# Story progress bar: shows completed/total stories
+# Usage: _ralph_story_progress 20 30 → [██████░░░░] 20/30
+_ralph_story_progress() {
+  local completed="$1"
+  local total="$2"
+  _ralph_progress_bar "$completed" "$total" 10
+}
+
+# Criteria progress bar: shows checked/total criteria for current story
+# Usage: _ralph_criteria_progress 4 6 → [██████░░░░] 4/6
+_ralph_criteria_progress() {
+  local checked="$1"
+  local total="$2"
+  _ralph_progress_bar "$checked" "$total" 10
+}
+
+# Get current story's criteria progress (checked/total)
+# Usage: _ralph_get_story_criteria_progress "US-001" "/path/to/prd-json"
+# Returns: "checked total" space-separated
+_ralph_get_story_criteria_progress() {
+  local story_id="$1"
+  local json_dir="$2"
+  local story_file="$json_dir/stories/${story_id}.json"
+
+  if [[ ! -f "$story_file" ]]; then
+    echo "0 0"
+    return
+  fi
+
+  local total=$(jq '[.acceptanceCriteria[]] | length' "$story_file" 2>/dev/null || echo 0)
+  local checked=$(jq '[.acceptanceCriteria[] | select(.checked == true)] | length' "$story_file" 2>/dev/null || echo 0)
+
+  echo "$checked $total"
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # INTERACTIVE CONFIGURATION
 # ═══════════════════════════════════════════════════════════════════
 
@@ -718,14 +903,14 @@ _ralph_show_routing() {
 
   if [[ "$strategy" == "smart" ]]; then
     echo "🧠 Smart Model Routing:"
-    echo "   US  → ${RALPH_MODEL_US:-sonnet}"
-    echo "   V   → ${RALPH_MODEL_V:-haiku}"
-    echo "   TEST→ ${RALPH_MODEL_TEST:-haiku}"
-    echo "   BUG → ${RALPH_MODEL_BUG:-sonnet}"
-    echo "   AUDIT→${RALPH_MODEL_AUDIT:-opus}"
-    echo "   ???→ ${RALPH_UNKNOWN_TASK_MODEL:-sonnet}"
+    echo -e "   $(_ralph_color_story_id "US")   → $(_ralph_color_model "${RALPH_MODEL_US:-sonnet}")"
+    echo -e "   $(_ralph_color_story_id "V")    → $(_ralph_color_model "${RALPH_MODEL_V:-haiku}")"
+    echo -e "   $(_ralph_color_story_id "TEST") → $(_ralph_color_model "${RALPH_MODEL_TEST:-haiku}")"
+    echo -e "   $(_ralph_color_story_id "BUG")  → $(_ralph_color_model "${RALPH_MODEL_BUG:-sonnet}")"
+    echo -e "   $(_ralph_color_story_id "AUDIT")→ $(_ralph_color_model "${RALPH_MODEL_AUDIT:-opus}")"
+    echo -e "   ???  → $(_ralph_color_model "${RALPH_UNKNOWN_TASK_MODEL:-sonnet}")"
   else
-    echo "🧠 Single Model: ${RALPH_DEFAULT_MODEL_CFG:-opus}"
+    echo -e "🧠 Single Model: $(_ralph_color_model "${RALPH_DEFAULT_MODEL_CFG:-opus}")"
   fi
 }
 
@@ -916,7 +1101,8 @@ ralph-costs() {
   local actual_count=$(jq -r '[.runs[] | select(.tokenSource == "actual")] | length' "$RALPH_COSTS_FILE" 2>/dev/null || echo "0")
 
   echo "${BOLD}Total Stories:${NC} $total_stories"
-  echo "${BOLD}Total Cost:${NC} \$$(printf '%.2f' $total_cost)"
+  local formatted_cost=$(printf '%.2f' $total_cost)
+  echo -e "${BOLD}Total Cost:${NC} $(_ralph_color_cost "$formatted_cost")"
   echo "${GRAY}($actual_count with actual token data, rest estimated)${NC}"
   echo ""
 
@@ -1516,11 +1702,17 @@ function ralph() {
   }
   trap cleanup_ralph EXIT
 
-  echo "🚀 Starting Ralph - Max $MAX iterations"
+  echo ""
+  echo "╔═══════════════════════════════════════════════════════════════╗"
+  echo "║  🚀 RALPH v${RALPH_VERSION}                                         ║"
+  echo "╠───────────────────────────────────────────────────────────────╣"
+  echo "║  📂 $(pwd | head -c 55)$(printf '%*s' $((55 - ${#$(pwd)})) '')║"
   if [[ -n "$app_mode" ]]; then
-    echo "📱 App: $app_mode (branch: $target_branch)"
+    echo "║  📱 App: $app_mode (branch: $target_branch)$(printf '%*s' $((45 - ${#app_mode} - ${#target_branch})) '')║"
   fi
-  echo "📂 Working in: $(pwd)"
+  echo "║  🔄 Max iterations: $MAX$(printf '%*s' $((42 - ${#MAX})) '')║"
+  echo "╚═══════════════════════════════════════════════════════════════╝"
+  echo ""
 
   # Show routing config (smart vs single)
   if [[ -z "$primary_model" && -z "$verify_model" ]]; then
@@ -1528,20 +1720,22 @@ function ralph() {
     _ralph_show_routing
   fi
   # Count and display based on mode
+  echo "┌─────────────────────────────────────────────────────────────┐"
   if [[ "$use_json_mode" == "true" ]]; then
     local pending=$(jq -r '.stats.pending // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
     local completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
     local blocked=$(jq -r '.stats.blocked // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    echo "📋 PRD: $pending stories pending | $completed completed | $blocked blocked"
+    echo "│  📋 Stories: $pending pending │ $completed completed │ $blocked blocked$(printf '%*s' $((27 - ${#pending} - ${#completed} - ${#blocked})) '')│"
   else
     local task_count=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
-    echo "📋 PRD: $task_count tasks remaining"
+    echo "│  📋 Tasks remaining: $task_count$(printf '%*s' $((38 - ${#task_count})) '')│"
   fi
   if $notify_enabled; then
-    echo "🔔 Notifications: ON (topic: $ntfy_topic)"
+    echo "│  🔔 Notifications: ON (topic: ${ntfy_topic})$(printf '%*s' $((28 - ${#ntfy_topic})) '')│"
   else
-    echo "🔕 Notifications: OFF"
+    echo "│  🔕 Notifications: OFF                                      │"
   fi
+  echo "└─────────────────────────────────────────────────────────────┘"
   echo ""
 
   for ((i=1; i<=$MAX; i++)); do
@@ -1562,11 +1756,35 @@ function ralph() {
 
     echo ""
     echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║  🔄 ITERATION $i of $MAX                                       ║"
+    echo -e "║  🔄 $(_ralph_bold "ITERATION $i") of $MAX                                       ║"
     echo "╠───────────────────────────────────────────────────────────────╣"
     echo "║  ⏱️  $(date '+%H:%M:%S')                                        ║"
-    [[ -n "$current_story" ]] && echo "║  📖 Story: $current_story$(printf '%*s' $((47 - ${#current_story})) '')║"
-    echo "║  🧠 Model: $effective_model$(printf '%*s' $((47 - ${#effective_model})) '')║"
+    # Show iteration progress bar
+    local iter_progress=$(_ralph_iteration_progress "$i" "$MAX")
+    echo -e "║  📊 Iteration: ${iter_progress}$(printf '%*s' $((36 - ${#i} - ${#MAX})) '')║"
+    if [[ -n "$current_story" ]]; then
+      local colored_story=$(_ralph_color_story_id "$current_story")
+      echo -e "║  📖 Story: ${colored_story}$(printf '%*s' $((47 - ${#current_story})) '')║"
+      # Show criteria progress for current story (JSON mode only)
+      if [[ "$use_json_mode" == "true" ]]; then
+        local criteria_stats=$(_ralph_get_story_criteria_progress "$current_story" "$PRD_JSON_DIR")
+        local criteria_checked=$(echo "$criteria_stats" | awk '{print $1}')
+        local criteria_total=$(echo "$criteria_stats" | awk '{print $2}')
+        if [[ "$criteria_total" -gt 0 ]]; then
+          local criteria_bar=$(_ralph_criteria_progress "$criteria_checked" "$criteria_total")
+          echo -e "║  ☐ Criteria:  ${criteria_bar}$(printf '%*s' $((35 - ${#criteria_checked} - ${#criteria_total})) '')║"
+        fi
+      fi
+    fi
+    local colored_model=$(_ralph_color_model "$effective_model")
+    echo -e "║  🧠 Model: ${colored_model}$(printf '%*s' $((47 - ${#effective_model})) '')║"
+    # Show story progress (JSON mode only)
+    if [[ "$use_json_mode" == "true" ]]; then
+      local story_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local story_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local story_bar=$(_ralph_story_progress "$story_completed" "$story_total")
+      echo -e "║  📚 Stories:  ${story_bar}$(printf '%*s' $((35 - ${#story_completed} - ${#story_total})) '')║"
+    fi
     echo "╚═══════════════════════════════════════════════════════════════╝"
     echo ""
 
@@ -1947,7 +2165,7 @@ After completing task, check PRD state:
 
         if [[ "$no_messages_retry_count" -lt "$no_messages_max_retries" ]]; then
           echo ""
-          echo "  ⚠️  'No messages returned' error detected - Retry $no_messages_retry_count/$no_messages_max_retries"
+          echo -e "  ⚠️  $(_ralph_warning "'No messages returned' error detected") - Retry $no_messages_retry_count/$no_messages_max_retries"
           echo "  📝 Error log: $no_msg_error_log"
           echo "  🔄 Generating fresh session ID for retry..."
           echo "  ⏳ Waiting 30 seconds (API cooldown)..."
@@ -1957,9 +2175,9 @@ After completing task, check PRD state:
         else
           # Max retries exhausted for this specific error - skip this story
           echo ""
-          echo "  ❌ 'No messages returned' persisted after $no_messages_max_retries retries."
+          echo -e "  ❌ $(_ralph_error "'No messages returned' persisted") after $no_messages_max_retries retries."
           echo "  📝 Full error log: $no_msg_error_log"
-          echo "  ⏭️  Skipping story '$current_story' and continuing to next..."
+          echo -e "  ⏭️  $(_ralph_warning "Skipping story") '$current_story' and continuing to next..."
 
           # Send ntfy notification for persistent failure
           if $notify_enabled; then
@@ -1993,13 +2211,13 @@ After completing task, check PRD state:
           echo "Working dir: $(pwd)"
           echo "Current story: $(_ralph_json_next_story "$PRD_JSON_DIR" 2>/dev/null || echo "unknown")"
           echo ""
-          echo "--- Last 30 lines of output ---"
+          echo "─── Last 30 lines of output ───────────────────────────────────"
           [[ -f "$RALPH_TMP" ]] && tail -30 "$RALPH_TMP"
           echo ""
-          echo "--- Error patterns searched ---"
+          echo "─── Error patterns searched ────────────────────────────────────"
           echo "$error_patterns"
           echo ""
-          echo "--- Pattern matches found ---"
+          echo "─── Pattern matches found ──────────────────────────────────────"
           [[ -f "$RALPH_TMP" ]] && grep -iE "$error_patterns" "$RALPH_TMP" 2>/dev/null || echo "(none)"
           echo ""
           echo "═══════════════════════════════════════════════════════════════"
@@ -2007,7 +2225,7 @@ After completing task, check PRD state:
 
         if [[ "$retry_count" -lt "$max_retries" ]]; then
           echo ""
-          echo "  ⚠️  Error detected (exit code: $exit_code) - Retrying ($retry_count/$max_retries)..."
+          echo -e "  ⚠️  $(_ralph_warning "Error detected") (exit code: $exit_code) - Retrying ($retry_count/$max_retries)..."
           echo "  📝 Error log: $error_log"
           [[ -f "$RALPH_TMP" ]] && tail -3 "$RALPH_TMP" 2>/dev/null | head -2
           echo "  ⏳ Waiting 15 seconds before retry..."
@@ -2015,7 +2233,7 @@ After completing task, check PRD state:
           continue
         else
           echo ""
-          echo "  ❌ Error persisted after $max_retries retries. Skipping iteration."
+          echo -e "  ❌ $(_ralph_error "Error persisted") after $max_retries retries. $(_ralph_warning "Skipping iteration.")"
           echo "  📝 Full error log: $error_log"
           if $notify_enabled; then
             local error_stats
@@ -2049,10 +2267,10 @@ After completing task, check PRD state:
     # Check if all tasks complete (search anywhere in output, not just on own line)
     if grep -q "<promise>COMPLETE</promise>" "$RALPH_TMP" 2>/dev/null; then
       echo ""
-      echo "═══════════════════════════════════════════════════════════════"
-      echo "  ✅ ALL TASKS COMPLETE after $i iterations!"
-      echo "  ⏱️  $(date '+%H:%M:%S')"
-      echo "═══════════════════════════════════════════════════════════════"
+      echo -e "${RALPH_COLOR_GREEN}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ✅ $(_ralph_success "ALL TASKS COMPLETE") after $(_ralph_bold "$i") iterations!                    ${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ⏱️  $(date '+%H:%M:%S')                                        ${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_GREEN}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
       # Send notification if enabled
       if $notify_enabled; then
         local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
@@ -2065,14 +2283,14 @@ After completing task, check PRD state:
     # Check if all remaining tasks are blocked (search anywhere in output, not just on own line)
     if grep -q "<promise>ALL_BLOCKED</promise>" "$RALPH_TMP" 2>/dev/null; then
       echo ""
-      echo "═══════════════════════════════════════════════════════════════"
-      echo "  ⏹️  ALL REMAINING TASKS BLOCKED after $i iterations"
-      echo "  ⏱️  $(date '+%H:%M:%S')"
-      echo ""
-      echo "  Review PRD.md for stories marked ⏹️ BLOCKED"
-      echo "  Address blockers (Figma access, Linear issues, etc.)"
-      echo "  Then run 'ralph' again to continue"
-      echo "═══════════════════════════════════════════════════════════════"
+      echo -e "${RALPH_COLOR_YELLOW}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⏹️  $(_ralph_warning "ALL REMAINING TASKS BLOCKED") after $(_ralph_bold "$i") iterations          ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⏱️  $(date '+%H:%M:%S')                                        ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}╠───────────────────────────────────────────────────────────────╣${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Review PRD.md for stories marked ⏹️ BLOCKED                   ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Address blockers (Figma access, Linear issues, etc.)         ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Then run 'ralph' again to continue                           ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+      echo -e "${RALPH_COLOR_YELLOW}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
       # Send notification if enabled
       if $notify_enabled; then
         local blocked_stats
@@ -2104,10 +2322,17 @@ After completing task, check PRD state:
       remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
       remaining_stats="? ?"
     fi
-    echo "───────────────────────────────────────────────────────────────"
-    echo "  📋 Remaining: $remaining"
-    echo "  ⏳ Pausing ${SLEEP}s before next iteration..."
-    echo "───────────────────────────────────────────────────────────────"
+    echo "┌───────────────────────────────────────────────────────────────┐"
+    echo "│  📋 Remaining: $remaining$(printf '%*s' $((46 - ${#remaining})) '')│"
+    # Show story progress bar (JSON mode only)
+    if [[ "$use_json_mode" == "true" ]]; then
+      local end_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local end_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local end_story_bar=$(_ralph_story_progress "$end_completed" "$end_total")
+      echo -e "│  📚 Stories:  ${end_story_bar}$(printf '%*s' $((35 - ${#end_completed} - ${#end_total})) '')│"
+    fi
+    echo "│  ⏳ Pausing ${SLEEP}s before next iteration...$(printf '%*s' $((35 - ${#SLEEP})) '')│"
+    echo "└───────────────────────────────────────────────────────────────┘"
 
     # Per-iteration notification if enabled
     if $notify_enabled; then
@@ -2118,9 +2343,6 @@ After completing task, check PRD state:
     sleep $SLEEP
   done
 
-  echo ""
-  echo "═══════════════════════════════════════════════════════════════"
-  echo "  ⚠️  REACHED MAX ITERATIONS ($MAX)"
   # Apply queued updates, auto-unblock, and count remaining for final message
   if [[ "$use_json_mode" == "true" ]]; then
     _ralph_apply_update_queue "$PRD_JSON_DIR"
@@ -2135,8 +2357,18 @@ After completing task, check PRD state:
     final_remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
     final_remaining_stats="? ?"
   fi
-  echo "  📋 Remaining: $final_remaining"
-  echo "═══════════════════════════════════════════════════════════════"
+  echo ""
+  echo -e "${RALPH_COLOR_YELLOW}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+  echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⚠️  $(_ralph_warning "REACHED MAX ITERATIONS") ($(_ralph_bold "$MAX"))$(printf '%*s' $((37 - ${#MAX})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+  echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  📋 Remaining: $final_remaining$(printf '%*s' $((47 - ${#final_remaining})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+  # Show story progress bar (JSON mode only)
+  if [[ "$use_json_mode" == "true" ]]; then
+    local final_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+    local final_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+    local final_story_bar=$(_ralph_story_progress "$final_completed" "$final_total")
+    echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  📚 Stories:  ${final_story_bar}$(printf '%*s' $((34 - ${#final_completed} - ${#final_total})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+  fi
+  echo -e "${RALPH_COLOR_YELLOW}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
   # Send notification if enabled
   if $notify_enabled; then
     local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
@@ -3976,7 +4208,7 @@ function ralph-auto() {
           echo "Working dir: $(pwd)"
           echo "Args: $@"
           echo ""
-          echo "--- Last error output ---"
+          echo "─── Last error output ──────────────────────────────────────────"
           [[ -f /tmp/ralph_output.md ]] && tail -50 /tmp/ralph_output.md
           echo ""
         } > "$crash_log"
