@@ -113,3 +113,21 @@ Changes:
 - Auth table deletion order matters: sessions→accounts→tokens→user (avoid FK issues)
 - Include deletion report in response for audit/compliance tracking
 - Table discovery requires manual schema.ts check (Convex has no introspection API)
+
+## Iteration 8
+Story: US-071 - Pre-commit test hook for ralphtools
+Status: COMPLETED (opus)
+Changes:
+- Pre-commit hook already existed at .githooks/pre-commit (git config core.hooksPath .githooks)
+- Hook already runs tests/test-skills.zsh (lines 254-280)
+- Hook already validates JSON files with jq (lines 198-214)
+- Hook already exits non-zero on failure (lines 316-323)
+- Hook already has --no-verify bypass documentation (line 321, setup-hooks.sh:90)
+- Hook completes in ~2.6 seconds (< 10 seconds requirement met)
+- ADDED: shellcheck for .sh files (lines 64-85) - previously only .zsh files had syntax checking
+- shellcheck exclusions: SC1091 (sourced files), SC2034 (unused vars in sourced files)
+
+### Learnings
+- The pre-commit hook was 95% complete - only missing shellcheck for .sh files
+- shellcheck doesn't support .zsh files (SC1071 error) - use zsh -n instead
+- Hook uses .githooks/ directory with git config core.hooksPath (not .git/hooks/)

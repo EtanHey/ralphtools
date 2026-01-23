@@ -53,13 +53,36 @@ else
   echo ""
 
   # ═══════════════════════════════════════════════════════════════
-  # 2. SHELLCHECK (skipped for zsh)
+  # 2. SHELLCHECK (for .sh files only - doesn't support zsh)
   # ═══════════════════════════════════════════════════════════════
   echo "${YELLOW}[2/8] ShellCheck Linting${NC}"
 
-  # ShellCheck doesn't support zsh (SC1071), so we skip it for .zsh files
-  # The zsh syntax check in step 1 is sufficient for catching syntax errors
-  echo "  ${GREEN}✓${NC} Skipped - ShellCheck doesn't support zsh (zsh -n used instead)"
+  # ShellCheck doesn't support zsh (SC1071), so we only run it on .sh files
+  # The zsh syntax check in step 1 is sufficient for .zsh files
+
+  # Get staged .sh files
+  STAGED_SH_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.sh$' || true)
+
+  if [[ -z "$STAGED_SH_FILES" ]]; then
+    echo "  ${GREEN}✓${NC} No .sh files staged"
+    echo "  Note: .zsh files use zsh -n for syntax checking (step 1)"
+  elif ! command -v shellcheck &> /dev/null; then
+    echo "  ${YELLOW}⚠${NC} shellcheck not installed - skipping .sh file linting"
+    echo "  Install with: brew install shellcheck"
+    WARNINGS=$((WARNINGS + 1))
+  else
+    for file in ${(f)STAGED_SH_FILES}; do
+      # Run shellcheck with common exclusions
+      # SC1091: Not following sourced file (can't resolve paths)
+      # SC2034: Variable appears unused (common in sourced files)
+      if shellcheck -e SC1091,SC2034 "$file" 2>&1; then
+        echo "  ${GREEN}✓${NC} $file"
+      else
+        echo "  ${RED}✗${NC} $file has shellcheck warnings/errors"
+        ERRORS=$((ERRORS + 1))
+      fi
+    done
+  fi
   echo ""
 
   # ═══════════════════════════════════════════════════════════════

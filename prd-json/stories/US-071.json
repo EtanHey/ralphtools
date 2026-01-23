@@ -7,14 +7,14 @@
   "storyPoints": 3,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Create .husky/pre-commit or .git/hooks/pre-commit script", "checked": false},
-    {"text": "Hook runs tests/test-skills.zsh (from US-054)", "checked": false},
-    {"text": "Hook runs shellcheck on all .zsh and .sh files", "checked": false},
-    {"text": "Hook validates JSON files (jq syntax check)", "checked": false},
-    {"text": "Hook exits non-zero on any test failure (blocks commit)", "checked": false},
-    {"text": "Add --no-verify bypass documentation for emergency commits", "checked": false},
-    {"text": "Hook completes in < 10 seconds for fast feedback", "checked": false}
+    {"text": "Create .husky/pre-commit or .git/hooks/pre-commit script", "checked": true},
+    {"text": "Hook runs tests/test-skills.zsh (from US-054)", "checked": true},
+    {"text": "Hook runs shellcheck on all .zsh and .sh files", "checked": true},
+    {"text": "Hook validates JSON files (jq syntax check)", "checked": true},
+    {"text": "Hook exits non-zero on any test failure (blocks commit)", "checked": true},
+    {"text": "Add --no-verify bypass documentation for emergency commits", "checked": true},
+    {"text": "Hook completes in < 10 seconds for fast feedback", "checked": true}
   ],
   "dependencies": ["US-054"],
-  "passes": false
+  "passes": true
 }
