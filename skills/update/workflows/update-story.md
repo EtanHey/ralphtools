@@ -39,20 +39,20 @@ When Ralph is running, create `prd-json/update.json` with `updateStories` array:
   "updateStories": [
     {
       "id": "US-042",
-      "changes": {
-        "priority": "critical",
-        "description": "Updated description with more detail",
-        "acceptanceCriteria": [
-          {"text": "Updated criterion 1", "checked": false},
-          {"text": "New criterion added", "checked": false}
-        ]
-      }
+      "priority": "critical",
+      "description": "Updated description with more detail",
+      "acceptanceCriteria": [
+        {"text": "Updated criterion 1", "checked": false},
+        {"text": "New criterion added", "checked": false}
+      ]
     }
   ]
 }
 ```
 
-**Supported changes:**
+**IMPORTANT:** Fields go at top level with `id` - do NOT nest under a `changes` key.
+
+**Supported fields:**
 - `title` - Story title
 - `description` - Full description
 - `priority` - critical/high/medium/low
@@ -148,13 +148,11 @@ jq '.pending -= ["US-042"] | .stats.pending -= 1 | .stats.completed += 1' \
   "updateStories": [
     {
       "id": "US-042",
-      "changes": {
-        "acceptanceCriteria": [
-          {"text": "Existing criterion 1", "checked": true},
-          {"text": "Existing criterion 2", "checked": false},
-          {"text": "NEW: Additional criterion", "checked": false}
-        ]
-      }
+      "acceptanceCriteria": [
+        {"text": "Existing criterion 1", "checked": true},
+        {"text": "Existing criterion 2", "checked": false},
+        {"text": "NEW: Additional criterion", "checked": false}
+      ]
     }
   ]
 }
@@ -167,10 +165,8 @@ jq '.pending -= ["US-042"] | .stats.pending -= 1 | .stats.completed += 1' \
   "updateStories": [
     {
       "id": "BUG-011",
-      "changes": {
-        "priority": "critical",
-        "description": "Escalated due to customer impact"
-      }
+      "priority": "critical",
+      "description": "Escalated due to customer impact"
     }
   ]
 }
@@ -183,11 +179,9 @@ jq '.pending -= ["US-042"] | .stats.pending -= 1 | .stats.completed += 1' \
   "updateStories": [
     {
       "id": "US-043",
-      "changes": {
-        "status": "blocked",
-        "blockedBy": "US-042",
-        "description": "Updated: blocked until US-042 completes"
-      }
+      "status": "blocked",
+      "blockedBy": "US-042",
+      "description": "Updated: blocked until US-042 completes"
     }
   ]
 }
@@ -200,9 +194,7 @@ jq '.pending -= ["US-042"] | .stats.pending -= 1 | .stats.completed += 1' \
   "updateStories": [
     {
       "id": "V-012",
-      "changes": {
-        "dependencies": ["US-042", "US-043"]
-      }
+      "dependencies": ["US-042", "US-043"]
     }
   ]
 }

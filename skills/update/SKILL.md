@@ -98,6 +98,64 @@ fi
 
 Ralph's live progress tracking requires the `{text, checked}` object format.
 
+## update.json Format (CRITICAL)
+
+When Ralph is running, use `prd-json/update.json` to add or update stories. Ralph processes **only these fields**:
+
+### `newStories` - Add New Stories
+
+Array of **full story objects** to create:
+
+```json
+{
+  "newStories": [
+    {
+      "id": "US-070",
+      "title": "Story title",
+      "description": "Full description",
+      "type": "feature",
+      "priority": "high",
+      "storyPoints": 2,
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Criterion 1", "checked": false},
+        {"text": "Criterion 2", "checked": false}
+      ],
+      "dependencies": []
+    }
+  ]
+}
+```
+
+### `updateStories` - Modify Existing Stories
+
+Array of **partial story updates** (id + fields to change):
+
+```json
+{
+  "updateStories": [
+    {
+      "id": "US-042",
+      "priority": "critical",
+      "description": "Updated description"
+    }
+  ]
+}
+```
+
+**IMPORTANT:** Fields are merged directly at top level - do NOT nest under a `changes` key.
+
+### Ignored Fields (WARNING)
+
+These fields in update.json are **silently ignored**:
+- `storyOrder`
+- `pending`
+- `blocked`
+- `stats`
+- `nextStory`
+
+Only use `newStories` and `updateStories` arrays.
+
 ## Troubleshooting
 
 | Problem | Solution |
@@ -106,3 +164,4 @@ Ralph's live progress tracking requires the `{text, checked}` object format.
 | Criteria progress broken | Verify criteria use `{text, checked}` format, not strings |
 | Update.json not processed | Ensure Ralph is actively running (check `/tmp/ralph_pid_*`) |
 | ID collision | Use `jq '.storyOrder[-1]'` to find highest ID |
+| updateStories not working | Fields must be at top level, NOT nested under `changes` |

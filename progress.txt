@@ -58,3 +58,21 @@ Changes:
 - PRD completion state has 3 outcomes: complete (pending=0,blocked=0), blocked (pending=0,blocked>0), or in-progress
 - Use different colors (green vs yellow) to visually distinguish completion states
 - Singular/plural handling: "1 story" vs "X stories" for user-friendly messages
+
+## Iteration 5
+Story: BUG-016 - update.json format undocumented and confusing
+Status: COMPLETED (opus)
+Changes:
+- Added comprehensive update.json format documentation to skills/update/SKILL.md
+- Documented that only `newStories` and `updateStories` arrays are processed
+- Fixed update-story.md workflow: removed incorrect nested `changes` key format
+- Fields in updateStories should be at top level with `id`, not nested under `changes`
+- Added validation in `_ralph_apply_update_queue()` to warn about ignored fields
+- Warning displays for any keys besides newStories/updateStories (e.g., storyOrder, pending)
+- Tested merge functionality - story creation, index.json update, and update.json cleanup all work
+- All 43 tests pass
+
+### Learnings
+- jq's `.[0] * .[1]` merge operator means updateStories fields must be at top level with id
+- Documentation discrepancies can lead to silent failures (storyOrder/pending were being ignored)
+- Adding validation warnings helps users catch format mistakes early

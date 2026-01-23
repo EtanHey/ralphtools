@@ -2522,6 +2522,13 @@ _ralph_apply_update_queue() {
   [[ -f "$update_file" ]] || return 1
   [[ -f "$index_file" ]] || return 1
 
+  # Warn about ignored fields in update.json
+  local ignored_fields=$(jq -r 'keys[] | select(. != "newStories" and . != "updateStories")' "$update_file" 2>/dev/null)
+  if [[ -n "$ignored_fields" ]]; then
+    echo "${RALPH_COLOR_YELLOW}⚠ Warning: update.json has ignored fields: $(echo $ignored_fields | tr '\n' ', ')${RALPH_COLOR_RESET}"
+    echo "${RALPH_COLOR_YELLOW}  Only 'newStories' and 'updateStories' are processed${RALPH_COLOR_RESET}"
+  fi
+
   local tmp_file=$(mktemp)
   local new_stories_count=0
   local update_stories_count=0

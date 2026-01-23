@@ -7,13 +7,13 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Document correct update.json format in skills/update/SKILL.md", "checked": false},
-    {"text": "newStories: array of full story objects to create", "checked": false},
-    {"text": "updateStories: array of partial story updates (id + fields to change)", "checked": false},
-    {"text": "Update /update skill workflows to use correct format", "checked": false},
-    {"text": "Add validation: warn if update.json has storyOrder/pending (ignored)", "checked": false},
-    {"text": "Test: Create update.json with newStories, verify merge works", "checked": false}
+    {"text": "Document correct update.json format in skills/update/SKILL.md", "checked": true},
+    {"text": "newStories: array of full story objects to create", "checked": true},
+    {"text": "updateStories: array of partial story updates (id + fields to change)", "checked": true},
+    {"text": "Update /update skill workflows to use correct format", "checked": true},
+    {"text": "Add validation: warn if update.json has storyOrder/pending (ignored)", "checked": true},
+    {"text": "Test: Create update.json with newStories, verify merge works", "checked": true}
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true
 }
