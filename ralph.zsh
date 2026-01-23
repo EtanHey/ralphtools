@@ -893,10 +893,16 @@ ralph-config() {
     if gum confirm "Enable ntfy notifications?"; then
       notifications_enabled="true"
       echo ""
-      echo "📬 Enter your ntfy topic name:"
-      ntfy_topic=$(gum input --placeholder "ralph-notifications")
-      [[ -z "$ntfy_topic" ]] && ntfy_topic="ralph-notifications"
-      echo "   Topic: $ntfy_topic"
+      local topic_mode=$(gum choose "Per-project topics (recommended)" "Fixed topic")
+      if [[ "$topic_mode" == "Per-project topics (recommended)" ]]; then
+        ntfy_topic=""  # Empty = per-project mode
+        echo "   📬 Topic: Per-project (etans-ralph-{project})"
+      else
+        echo "📬 Enter your fixed ntfy topic name:"
+        ntfy_topic=$(gum input --placeholder "ralph-notifications")
+        [[ -z "$ntfy_topic" ]] && ntfy_topic="ralph-notifications"
+        echo "   📬 Topic: $ntfy_topic (fixed)"
+      fi
     else
       notifications_enabled="false"
       ntfy_topic=""
@@ -941,10 +947,23 @@ ralph-config() {
     case "$notify_choice" in
       [Yy]*)
         notifications_enabled="true"
-        echo -n "   Enter ntfy topic [ralph-notifications]: "
-        read ntfy_topic
-        [[ -z "$ntfy_topic" ]] && ntfy_topic="ralph-notifications"
-        echo "   Topic: $ntfy_topic"
+        echo "   Topic mode:"
+        echo "   1) Per-project (recommended) - etans-ralph-{project}"
+        echo "   2) Fixed topic"
+        echo -n "   Choose [1/2]: "
+        read topic_mode_choice
+        case "$topic_mode_choice" in
+          2)
+            echo -n "   Enter ntfy topic [ralph-notifications]: "
+            read ntfy_topic
+            [[ -z "$ntfy_topic" ]] && ntfy_topic="ralph-notifications"
+            echo "   📬 Topic: $ntfy_topic (fixed)"
+            ;;
+          *)
+            ntfy_topic=""  # Empty = per-project mode
+            echo "   📬 Topic: Per-project (etans-ralph-{project})"
+            ;;
+        esac
         ;;
       *)
         notifications_enabled="false"
@@ -1192,7 +1211,12 @@ _ralph_load_config() {
     # Load notification settings
     local notify_enabled=$(jq -r '.notifications.enabled // false' "$RALPH_CONFIG_FILE" 2>/dev/null)
     if [[ "$notify_enabled" == "true" ]]; then
-      RALPH_NTFY_TOPIC=$(jq -r '.notifications.ntfyTopic // "ralph-notifications"' "$RALPH_CONFIG_FILE" 2>/dev/null)
+      local config_topic=$(jq -r '.notifications.ntfyTopic // ""' "$RALPH_CONFIG_FILE" 2>/dev/null)
+      # Empty string or "auto" means use per-project topics (don't set RALPH_NTFY_TOPIC)
+      # Any other value is an explicit override
+      if [[ -n "$config_topic" && "$config_topic" != "auto" && "$config_topic" != "null" ]]; then
+        RALPH_NTFY_TOPIC="$config_topic"
+      fi
     fi
 
     # Load defaults

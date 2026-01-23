@@ -1,0 +1,20 @@
+{
+  "id": "BUG-007",
+  "title": "Per-project ntfy topics not working - config overrides",
+  "description": "The per-project notification topic feature (etans-ralph-{project}) is bypassed because the config file stores a fixed ntfyTopic that overrides the per-project logic. Parallel Ralphs on different projects all send to the same topic.",
+  "type": "bug",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    { "text": "Config ntfyTopic value of '' or 'auto' enables per-project topics", "checked": true },
+    { "text": "Per-project topic format: {RALPH_NTFY_PREFIX}-{project_name}", "checked": true },
+    { "text": "Ralph on ralphtools sends to etans-ralph-ralphtools", "checked": true },
+    { "text": "Ralph on songscript sends to etans-ralph-songscript", "checked": true },
+    { "text": "Display shows actual topic being used", "checked": true },
+    { "text": "Config can still override with explicit topic if desired", "checked": true },
+    { "text": "Update docs/notifications.md with how to enable per-project vs fixed topic", "checked": true }
+  ],
+  "passes": true,
+  "dependencies": []
+}

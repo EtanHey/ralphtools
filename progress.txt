@@ -583,3 +583,30 @@ Lines 3261, 3316, and 3388 were calling `_ralph_json_remaining_stats` without st
 - `setopt localoptions noxtrace` only takes effect AFTER it executes, so the setopt line itself may still produce trace output
 - For belt-and-suspenders protection, use BOTH: noxtrace in the function AND `2>/dev/null` at call sites
 - The output format `varname='value'` is the telltale sign of xtrace debug output
+
+## Iteration 19 - BUG-007: Per-project ntfy topics not working
+**Status**: COMPLETED
+
+Fixed the bug where config file `ntfyTopic` value was overriding per-project topic logic, causing all Ralph instances to send notifications to the same fixed topic.
+
+### Root Cause
+When config file had `ntfyTopic` set (even to defaults like "ralph-notifications"), it was loaded into `RALPH_NTFY_TOPIC` global variable. Later, the per-project fallback logic `${RALPH_NTFY_TOPIC:-${RALPH_NTFY_PREFIX}-${project_name}}` never triggered because `RALPH_NTFY_TOPIC` was already set.
+
+### Solution
+1. Changed config loading logic to only set `RALPH_NTFY_TOPIC` if the config value is non-empty, not "auto", and not "null"
+2. Empty string `""` or `"auto"` in config now enables per-project topics (recommended default)
+3. Updated `ralph-setup` wizard to offer "Per-project topics (recommended)" vs "Fixed topic" choice
+4. Updated both gum and fallback (read-based) setup flows
+
+### Files Modified
+- `/Users/etanheyman/Desktop/Gits/ralphtools/ralph.zsh`
+  - Config loading (lines 1195-1200): Added conditional to skip setting `RALPH_NTFY_TOPIC` for empty/"auto" values
+  - Setup wizard gum flow (lines 892-909): Added topic mode choice
+  - Setup wizard fallback flow (lines 944-972): Added topic mode choice
+- `/Users/etanheyman/Desktop/Gits/ralphtools/docs/notifications.md`
+  - Added "Config File (ralph-config.json)" section explaining per-project vs fixed topic configuration
+
+### Learnings
+- Config values of empty string, "auto", or not set should all enable per-project behavior
+- Setup wizards should default to per-project and make fixed topic opt-in
+- The display at line 2677 already correctly shows the actual topic being used

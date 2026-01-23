@@ -45,6 +45,38 @@ This ensures:
 
 ## Configuration
 
+### Config File (ralph-config.json)
+
+The config file's `ntfyTopic` setting controls topic behavior:
+
+| `ntfyTopic` Value | Behavior |
+|-------------------|----------|
+| `""` (empty) | **Per-project topics** (recommended) - `{prefix}-{project}` |
+| `"auto"` | Same as empty - per-project topics |
+| `"my-topic"` | **Fixed topic** - all projects use this topic |
+
+**Example config for per-project topics:**
+```json
+{
+  "notifications": {
+    "enabled": true,
+    "ntfyTopic": ""
+  }
+}
+```
+
+**Example config for fixed topic:**
+```json
+{
+  "notifications": {
+    "enabled": true,
+    "ntfyTopic": "my-fixed-topic"
+  }
+}
+```
+
+Run `ralph-setup` to configure interactively.
+
 ### Environment Variables
 
 ```bash
