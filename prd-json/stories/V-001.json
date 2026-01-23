@@ -6,10 +6,12 @@
     { "text": "Source ralph.zsh successfully", "checked": true },
     { "text": "Run ralph-config and verify gum prompts appear (or fallback works)", "checked": true },
     { "text": "Verify config.json is created with correct structure", "checked": true },
-    { "text": "Delete config.json, run ralph 1, verify first-run prompt appears", "checked": false },
-    { "text": "Test ralph 1 -y creates default config without prompting", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Delete config.json, run ralph 1, verify first-run prompt appears", "checked": true },
+    { "text": "Test ralph 1 -y creates default config without prompting", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-23T04:15:00Z",
+  "completedBy": "haiku",
   "blockedBy": null
 }
