@@ -1188,3 +1188,40 @@ Converted the single-file critique-waves.md skill into a directory-based skill w
 - Flow diagrams in SKILL.md help visualize multi-step processes
 - Maximum rounds safeguard prevents infinite loops
 
+
+## Iteration 34 - US-061: Create /update skill for standardized story management
+**Status**: COMPLETED
+
+Created the /update skill with comprehensive Ralph detection and routing for story management.
+
+### Files Created/Modified
+
+**skills/update/workflows/add-bug.md:**
+- Bug report-specific workflow
+- Includes priority guide for bugs
+- Bug report template with reproduction steps
+
+**skills/update/workflows/update-story.md:**
+- Modify existing story metadata
+- Add/update acceptance criteria
+- Block/unblock stories
+- Mark stories complete
+
+**skills/update/scripts/add-story.sh:**
+- Auto-detects Ralph running via tee process or watcher PID
+- Routes to update.json (Ralph active) or direct edit (Ralph not active)
+- Supports --force-update and --force-direct flags
+- Auto-generates story IDs if not provided
+- Validates type, priority, and story points
+
+### Ralph Detection Methods
+1. `pgrep -f "tee /tmp/ralph_output_"` - Primary detection for active Ralph
+2. `ls /tmp/ralph_watcher_*_pid` - Check for fswatch watcher PID files
+3. `ls /tmp/ralph_pid_*` - Legacy PID file check
+
+### Learnings
+- Ralph detection via PID files is unreliable - tee process is more reliable indicator
+- Use `printf '%s' "$var"` instead of `echo "$var"` to avoid trailing newlines in jq
+- The update skill provides consistent interface for both Ralph and interactive Claude
+- Test with --force-direct to simulate Ralph-not-running scenarios during Ralph sessions
+
