@@ -5,35 +5,36 @@
   "type": "feature",
   "priority": "high",
   "storyPoints": 3,
-  "status": "pending",
+  "status": "completed",
+  "passes": true,
   "acceptanceCriteria": [
     {
       "text": "Ralph detects current project from registry based on cwd",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Ralph builds project-specific MCP config (temp file)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Ralph passes --mcp-config to claude CLI",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Ralph calls _ralph_inject_secrets before each iteration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Shows '📦 Project: {name}' and '🔌 MCPs: {list}' in startup output",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Domica gets supabase+linear MCPs, songscript gets different MCPs",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Typecheck passes (zsh -n ralph.zsh)",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [

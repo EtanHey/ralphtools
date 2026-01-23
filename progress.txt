@@ -1001,3 +1001,37 @@ All core registry functions were already implemented in ralph.zsh during US-055 
 - Registry infrastructure was built as part of US-055 migration work
 - Functions already support the full workflow: load → find project → build config → inject secrets
 
+## Iteration 30 - US-057: Ralph uses registry for MCPs
+**Status**: COMPLETED
+
+Integrated registry-based MCP configuration into the Ralph main loop. Different projects now automatically get different MCPs based on registry configuration.
+
+### Changes Made
+
+**ralph.zsh - Startup section (lines 2937-2955):**
+- Build MCP config from registry after project detection
+- Write MCP config to temp file `/tmp/ralph-mcp-config-$$.json`
+- Display project name with `📦 Project: {name}`
+- Display MCPs with `🔌 MCPs: {list}`
+
+**ralph.zsh - CLI command building (lines 3287-3295):**
+- Add `--mcp-config` flag to Claude CLI if MCP config file exists
+- Call `_ralph_inject_secrets` before each iteration to export secrets to environment
+
+**ralph.zsh - _ralph_build_mcp_config (lines 1698-1723):**
+- Enhanced to handle special MCPs (linear, supabase) that require project-specific tokens
+- Dynamically builds MCP config using project secrets from registry
+- Falls back to mcpDefinitions for standard MCPs
+
+### Verification Results
+- Domica MCPs: Context7, browser-tools, figma-local, figma-remote, linear, supabase, tempmail (7 MCPs)
+- Songscript MCPs: Context7, browser-tools, tempmail (3 MCPs)
+- Different projects get different MCPs ✓
+- Typecheck passes ✓
+
+### Learnings
+- Claude CLI `--mcp-config` accepts JSON file path for MCP server configuration
+- Linear MCP requires `LINEAR_API_TOKEN` env var, supabase requires token in args
+- Special MCPs with project-specific tokens need dynamic config generation
+- Temp files for MCP config cleaned up by cleanup_ralph() trap
+

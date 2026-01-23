@@ -1685,7 +1685,7 @@ _ralph_build_mcp_config() {
 
   # Get MCP definitions and build final config
   local mcp_defs=$(echo "$registry" | jq '.mcpDefinitions // {}')
-  local project_secrets=$(echo "$registry" | jq -r --arg proj "$project_name" '
+  local project_secrets=$(echo "$registry" | jq --arg proj "$project_name" '
     .projects[$proj].secrets // {}
   ')
 
@@ -1694,6 +1694,34 @@ _ralph_build_mcp_config() {
 
   for mcp in ${(f)project_mcps}; do
     local mcp_def=$(echo "$mcp_defs" | jq --arg m "$mcp" '.[$m] // empty')
+
+    # Handle special MCPs that require project-specific tokens
+    if [[ -z "$mcp_def" ]]; then
+      case "$mcp" in
+        linear)
+          # Build linear MCP config using project's LINEAR_API_TOKEN
+          local linear_token=$(echo "$project_secrets" | jq -r '.LINEAR_API_TOKEN // empty')
+          if [[ -n "$linear_token" && "$linear_token" != "null" ]]; then
+            mcp_def=$(jq -n --arg token "$linear_token" '{
+              "command": "npx",
+              "args": ["-y", "@tacticlaunch/mcp-linear"],
+              "env": {"LINEAR_API_TOKEN": $token}
+            }')
+          fi
+          ;;
+        supabase)
+          # Build supabase MCP config using project's SUPABASE_ACCESS_TOKEN
+          local supabase_token=$(echo "$project_secrets" | jq -r '.SUPABASE_ACCESS_TOKEN // empty')
+          if [[ -n "$supabase_token" && "$supabase_token" != "null" ]]; then
+            mcp_def=$(jq -n --arg token "$supabase_token" '{
+              "command": "npx",
+              "args": ["-y", "@supabase/mcp-server-supabase@latest", "--access-token", $token]
+            }')
+          fi
+          ;;
+      esac
+    fi
+
     if [[ -n "$mcp_def" ]]; then
       result=$(echo "$result" | jq --arg m "$mcp" --argjson def "$mcp_def" '.[$m] = $def')
     fi
@@ -2934,8 +2962,23 @@ function ralph() {
     echo "🔐 1Password: Not installed (using environment variables)"
   fi
 
+  # Build MCP config from registry if project detected
+  local ralph_project_mcps=""
   if [[ -n "$ralph_project_name" ]]; then
     echo "📦 Project: $ralph_project_name"
+
+    # Build MCP config and write to temp file
+    local mcp_config=$(_ralph_build_mcp_config "$ralph_project_name" 2>/dev/null)
+    if [[ -n "$mcp_config" && "$mcp_config" != '{"mcpServers": {}}' ]]; then
+      ralph_mcp_config_file="/tmp/ralph-mcp-config-$$.json"
+      echo "$mcp_config" > "$ralph_mcp_config_file"
+
+      # Extract MCP names for display
+      ralph_project_mcps=$(echo "$mcp_config" | jq -r '.mcpServers | keys | join(", ")' 2>/dev/null)
+      if [[ -n "$ralph_project_mcps" ]]; then
+        echo "🔌 MCPs: $ralph_project_mcps"
+      fi
+    fi
   fi
   echo ""
 
@@ -3268,6 +3311,16 @@ function ralph() {
           cli_cmd_arr=(claude --chrome --dangerously-skip-permissions --session-id "$iteration_session_id")
           ;;
       esac
+
+      # Add --mcp-config if MCP config file exists (project-specific MCPs from registry)
+      if [[ -n "$ralph_mcp_config_file" && -f "$ralph_mcp_config_file" ]]; then
+        cli_cmd_arr+=(--mcp-config "$ralph_mcp_config_file")
+      fi
+
+      # Inject secrets from registry before running Claude
+      if [[ -n "$ralph_project_name" ]]; then
+        _ralph_inject_secrets "$ralph_project_name" 2>/dev/null
+      fi
 
       # Wrap CLI command with 'op run --env-file' if 1Password is available
       # This injects secrets from the .env.1password file into the environment
