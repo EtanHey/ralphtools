@@ -31,6 +31,33 @@ To add/modify stories, use `update.json`:
 2. Write changes to `update.json` (not index.json!)
 3. Ralph merges automatically on next run
 
+## Session Isolation (Worktree Mode)
+
+Ralph can run in an isolated git worktree to prevent polluting the main project's Claude `/resume` history.
+
+### Why Use Worktrees?
+- Each worktree gets its own Claude session history (stored per-directory)
+- `/resume` in main project stays clean for human work
+- Ralph iterations don't crowd out your conversation history
+
+### Workflow
+```bash
+# 1. From main project, create isolated session
+ralph-start 50 -S        # Creates worktree + outputs command
+
+# 2. Copy the command and run it:
+cd ~/worktrees/<repo>/ralph-session && source ~/.config/ralph/ralph.zsh && ralph 50 -S
+
+# 3. When done, merge back and cleanup:
+ralph-cleanup            # Syncs changes, removes worktree
+```
+
+### How It Works
+1. `ralph-start` creates worktree at `~/worktrees/<repo>/ralph-session`
+2. Copies `prd-json/` and `progress.txt` to worktree
+3. Claude sees this as a separate directory → separate session
+4. `ralph-cleanup` merges commits and removes the worktree
+
 ## Testing (CRITICAL)
 
 **Test file:** `tests/test-ralph.zsh`

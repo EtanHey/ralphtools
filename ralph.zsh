@@ -3364,6 +3364,10 @@ function ralph-help() {
   echo "  ${BOLD}ralph-watch${NC}           Live tail of current Ralph output"
   echo "  ${BOLD}ralph-stop${NC}            Kill all running Ralph processes"
   echo ""
+  echo "${GREEN}Session Isolation:${NC}"
+  echo "  ${BOLD}ralph-start${NC}           Create worktree for isolated Ralph session"
+  echo "  ${BOLD}ralph-cleanup${NC}         Merge changes and remove worktree"
+  echo ""
   echo "${GRAY}Flags:${NC}"
   echo "  ${BOLD}-QN${NC}                   Enable ntfy notifications"
   echo "  ${BOLD}--compact, -c${NC}         Compact output mode (less verbose)"
@@ -3617,6 +3621,240 @@ EOF
   echo "       └── V-001.json"
   echo ""
   echo "   Edit the JSON files to add your user stories"
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# WORKTREE-BASED SESSION ISOLATION
+# ═══════════════════════════════════════════════════════════════════
+# Ralph pollutes Claude /resume history. Running in a git worktree gives
+# Ralph its own separate Claude session (sessions stored per-directory).
+#
+# Workflow:
+#   1. ralph-start        → creates worktree, outputs cd + ralph command
+#   2. (user runs ralph in worktree)
+#   3. ralph-cleanup      → merges changes, removes worktree
+# ═══════════════════════════════════════════════════════════════════
+
+# ralph-start - Create a worktree for Ralph session isolation
+# Usage: ralph-start [args to pass to ralph]
+# Creates worktree at ~/worktrees/<repo>/ralph-session
+function ralph-start() {
+  local CYAN='\033[0;36m'
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[1;33m'
+  local RED='\033[0;31m'
+  local BOLD='\033[1m'
+  local NC='\033[0m'
+
+  # Get repo info
+  local repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [[ -z "$repo_root" ]]; then
+    echo "${RED}❌ Not in a git repository${NC}"
+    return 1
+  fi
+
+  local repo_name=$(basename "$repo_root")
+  local current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  local worktree_base="$HOME/worktrees/$repo_name"
+  local worktree_path="$worktree_base/ralph-session"
+
+  echo ""
+  echo "${CYAN}${BOLD}🌳 Ralph Session Isolation${NC}"
+  echo ""
+
+  # Check if worktree already exists
+  if [[ -d "$worktree_path" ]]; then
+    echo "${YELLOW}⚠️  Worktree already exists: $worktree_path${NC}"
+    echo ""
+    echo "   Options:"
+    echo "   1. cd $worktree_path && source ~/.config/ralph/ralph.zsh && ralph $@"
+    echo "   2. ralph-cleanup (to remove it first)"
+    echo ""
+    read -q "REPLY?Resume existing worktree? (y/n) "
+    echo ""
+    if [[ "$REPLY" == "y" ]]; then
+      _ralph_output_worktree_command "$worktree_path" "$@"
+      return 0
+    else
+      return 1
+    fi
+  fi
+
+  # Create worktree directory structure
+  mkdir -p "$worktree_base"
+
+  echo "📁 Creating worktree at: $worktree_path"
+  echo "   Source branch: $current_branch"
+  echo ""
+
+  # Create the worktree (uses current branch as source)
+  if ! git worktree add "$worktree_path" -b "ralph-session-$(date +%Y%m%d)" 2>/dev/null; then
+    # Branch might already exist, try without -b
+    if ! git worktree add "$worktree_path" HEAD 2>&1; then
+      echo "${RED}❌ Failed to create worktree${NC}"
+      return 1
+    fi
+  fi
+
+  echo "${GREEN}✓ Worktree created${NC}"
+  echo ""
+
+  # Copy prd-json if it exists (worktree starts clean)
+  if [[ -d "$repo_root/prd-json" ]]; then
+    cp -r "$repo_root/prd-json" "$worktree_path/"
+    echo "${GREEN}✓ Copied prd-json/ to worktree${NC}"
+  fi
+
+  # Copy progress.txt if it exists
+  if [[ -f "$repo_root/progress.txt" ]]; then
+    cp "$repo_root/progress.txt" "$worktree_path/"
+    echo "${GREEN}✓ Copied progress.txt to worktree${NC}"
+  fi
+
+  echo ""
+  echo "${CYAN}─────────────────────────────────────────────────────────────${NC}"
+  echo ""
+  echo "${BOLD}Session isolated! Run this command to start Ralph:${NC}"
+  echo ""
+
+  _ralph_output_worktree_command "$worktree_path" "$@"
+
+  echo ""
+  echo "${CYAN}─────────────────────────────────────────────────────────────${NC}"
+  echo ""
+  echo "When done, run ${BOLD}ralph-cleanup${NC} from the worktree to merge back."
+  echo ""
+}
+
+# Helper to output the cd + source + ralph command
+_ralph_output_worktree_command() {
+  local worktree_path="$1"
+  shift
+  local ralph_args="$@"
+
+  local BOLD='\033[1m'
+  local NC='\033[0m'
+
+  if [[ -n "$ralph_args" ]]; then
+    echo "  ${BOLD}cd $worktree_path && source ~/.config/ralph/ralph.zsh && ralph $ralph_args${NC}"
+  else
+    echo "  ${BOLD}cd $worktree_path && source ~/.config/ralph/ralph.zsh && ralph${NC}"
+  fi
+}
+
+# ralph-cleanup - Merge worktree changes and remove it
+# Usage: ralph-cleanup [--force]
+# Must be run from within a Ralph worktree
+function ralph-cleanup() {
+  local CYAN='\033[0;36m'
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[1;33m'
+  local RED='\033[0;31m'
+  local BOLD='\033[1m'
+  local NC='\033[0m'
+
+  local force=false
+  [[ "$1" == "--force" ]] && force=true
+
+  # Check if we're in a worktree
+  local worktree_path=$(pwd)
+  local git_dir=$(git rev-parse --git-dir 2>/dev/null)
+
+  if [[ ! "$git_dir" =~ "worktrees" ]]; then
+    echo "${RED}❌ Not in a git worktree${NC}"
+    echo "   Run this from within a Ralph worktree (created by ralph-start)"
+    return 1
+  fi
+
+  # Get main repo path and branch info
+  local main_repo=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null | sed 's|/.git$||')
+  local current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+  echo ""
+  echo "${CYAN}${BOLD}🧹 Ralph Cleanup${NC}"
+  echo ""
+  echo "   Worktree: $worktree_path"
+  echo "   Main repo: $main_repo"
+  echo "   Branch: $current_branch"
+  echo ""
+
+  # Check for uncommitted changes
+  local git_status=$(git status --porcelain 2>/dev/null)
+  if [[ -n "$git_status" ]]; then
+    echo "${YELLOW}⚠️  Uncommitted changes detected:${NC}"
+    git status --short
+    echo ""
+
+    if [[ "$force" != "true" ]]; then
+      read -q "REPLY?Commit these changes before cleanup? (y/n) "
+      echo ""
+      if [[ "$REPLY" == "y" ]]; then
+        git add -A
+        git commit -m "Ralph session: $(date +%Y-%m-%d)"
+      else
+        read -q "REPLY?Discard changes and continue? (y/n) "
+        echo ""
+        if [[ "$REPLY" != "y" ]]; then
+          return 1
+        fi
+      fi
+    fi
+  fi
+
+  # Copy back prd-json and progress.txt (the important state)
+  echo "📋 Syncing state back to main repo..."
+
+  if [[ -d "$worktree_path/prd-json" ]]; then
+    cp -r "$worktree_path/prd-json" "$main_repo/"
+    echo "${GREEN}✓ Synced prd-json/${NC}"
+  fi
+
+  if [[ -f "$worktree_path/progress.txt" ]]; then
+    cp "$worktree_path/progress.txt" "$main_repo/"
+    echo "${GREEN}✓ Synced progress.txt${NC}"
+  fi
+
+  # Merge branch back to original
+  echo ""
+  echo "🔀 Merging changes to main repo..."
+
+  # Navigate to main repo
+  cd "$main_repo" || { echo "${RED}❌ Failed to cd to main repo${NC}"; return 1; }
+
+  # Get the original branch (stored in worktree name or default to main/master)
+  local target_branch=$(git branch --show-current 2>/dev/null)
+  if [[ -z "$target_branch" ]]; then
+    target_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  fi
+
+  # Merge the worktree branch
+  if [[ "$current_branch" != "$target_branch" ]]; then
+    if git merge "$current_branch" --no-edit 2>/dev/null; then
+      echo "${GREEN}✓ Merged $current_branch into $target_branch${NC}"
+    else
+      echo "${YELLOW}⚠️  Merge had conflicts or nothing to merge${NC}"
+    fi
+  fi
+
+  # Remove the worktree
+  echo ""
+  echo "🗑️  Removing worktree..."
+
+  git worktree remove "$worktree_path" --force 2>/dev/null
+
+  # Delete the temporary branch
+  git branch -d "$current_branch" 2>/dev/null || git branch -D "$current_branch" 2>/dev/null
+
+  # Prune stale worktree references
+  git worktree prune 2>/dev/null
+
+  echo "${GREEN}✓ Worktree removed${NC}"
+  echo ""
+  echo "${GREEN}${BOLD}✅ Cleanup complete!${NC}"
+  echo ""
+  echo "   Your main project is at: $main_repo"
+  echo "   /resume in Claude will now show clean history"
+  echo ""
 }
 
 # ralph-archive [app] - Archive completed stories to docs.local

@@ -3,17 +3,17 @@
   "title": "Session isolation via git worktree",
   "description": "Ralph pollutes Claude /resume history. Solution: Ralph runs in a git worktree which gives it a separate Claude session history (confirmed: sessions stored per-directory). CAVEAT: Session lost when worktree deleted (GitHub issue #15776). Consider using ccmanager to preserve history, or save session summary before cleanup.",
   "acceptanceCriteria": [
-    { "text": "Research: Verify git worktree gives separate Claude session", "checked": false },
-    { "text": "ralph-start creates worktree at ~/worktrees/<repo>/ralph-session", "checked": false },
-    { "text": "Worktree has its own .claude/ directory for session isolation", "checked": false },
-    { "text": "PRD AGENTS.md includes instructions for worktree-based execution", "checked": false },
-    { "text": "On completion, Ralph outputs: cd <path> && source ... && ralph ...", "checked": false },
-    { "text": "Changes in worktree can be merged back to main branch", "checked": false },
-    { "text": "/resume in main project shows clean history (no Ralph iterations)", "checked": false },
-    { "text": "ralph-cleanup removes worktree after merge", "checked": false },
-    { "text": "Document worktree session pattern in docs/", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Research: Verify git worktree gives separate Claude session", "checked": true },
+    { "text": "ralph-start creates worktree at ~/worktrees/<repo>/ralph-session", "checked": true },
+    { "text": "Worktree has its own .claude/ directory for session isolation", "checked": true },
+    { "text": "PRD AGENTS.md includes instructions for worktree-based execution", "checked": true },
+    { "text": "On completion, Ralph outputs: cd <path> && source ... && ralph ...", "checked": true },
+    { "text": "Changes in worktree can be merged back to main branch", "checked": true },
+    { "text": "/resume in main project shows clean history (no Ralph iterations)", "checked": true },
+    { "text": "ralph-cleanup removes worktree after merge", "checked": true },
+    { "text": "Document worktree session pattern in docs/", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
   "blockedBy": null
 }

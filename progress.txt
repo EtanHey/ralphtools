@@ -113,3 +113,31 @@ Files modified:
 - Per-project topics allow subscribing only to active projects
 - Fixed Claude topic ensures Claude alerts are never buried in Ralph iterations
 - [Ralph] prefix in title makes notifications easily identifiable at a glance
+
+## Iteration 6 - US-038: Session isolation via git worktree
+**Status**: COMPLETED
+
+Implemented worktree-based session isolation to keep Ralph from polluting main project's Claude /resume history:
+
+Commands added:
+- `ralph-start [args]` - Creates worktree at ~/worktrees/<repo>/ralph-session, outputs cd + ralph command
+- `ralph-cleanup [--force]` - Merges changes back to main repo, removes worktree
+
+How it works:
+- Claude sessions are stored per-directory in ~/.claude/projects/
+- Each directory path gets its own session storage
+- Git worktrees create a linked copy at a different path
+- Claude sees worktree as a separate project → separate session history
+- `/resume` in main project stays clean (no Ralph iterations)
+
+Files created/modified:
+- /Users/etanheyman/Desktop/Gits/ralphtools/ralph.zsh - Added ralph-start, ralph-cleanup, _ralph_output_worktree_command
+- /Users/etanheyman/Desktop/Gits/ralphtools/docs/session-isolation.md - Full documentation
+- /Users/etanheyman/Desktop/Gits/ralphtools/prd-json/AGENTS.md - Added worktree workflow section
+
+### Learnings
+- Claude sessions stored in ~/.claude/projects/ with path encoded (dashes replace slashes)
+- Worktrees at different paths get completely separate session histories
+- Must copy prd-json/ and progress.txt to worktree for Ralph to work
+- ralph-cleanup syncs state back before removing worktree
+- git worktree prune cleans up stale references
