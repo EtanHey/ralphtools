@@ -1,5 +1,0 @@
-{
-  "addStories": ["US-013", "US-014", "US-015", "US-016", "V-005"],
-  "insertAfter": "V-004",
-  "stats": { "total": 26, "pending": 24 }
-}

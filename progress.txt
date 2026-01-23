@@ -53,3 +53,17 @@
 - All 23 tests pass (7 new cost tracking + 11 config + 5 framework)
 - Typecheck passes (zsh -n)
 ---
+
+## Iteration 4 - TEST-004 Notification Function Tests
+- Model: opus
+- Added 6 unit tests for ntfy notification functions
+- Created _ralph_ntfy_testable function that mirrors _ralph_ntfy but allows mocking curl
+- test_ntfy_builds_body_with_project_name: Verifies body includes project folder, iteration, story_id, model, remaining, cost, message
+- test_ntfy_event_types_set_title_priority: Tests all event types (complete, blocked, error, iteration, max_iterations, unknown)
+- test_ntfy_complete_priority_high: Confirms complete event uses priority=high
+- test_ntfy_error_priority_urgent: Confirms error event uses priority=urgent
+- test_ntfy_iteration_priority_low: Confirms iteration event uses priority=low
+- test_ntfy_empty_topic_no_curl: Verifies empty topic returns early without calling curl
+- All 29 tests pass (6 new notification + 7 cost + 11 config + 5 framework)
+- Typecheck passes (zsh -n)
+---

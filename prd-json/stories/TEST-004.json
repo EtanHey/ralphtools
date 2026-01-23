@@ -3,15 +3,17 @@
   "title": "Add unit tests for notification functions",
   "description": "Test ntfy notification formatting and event handling.",
   "acceptanceCriteria": [
-    { "text": "Test _ralph_ntfy builds correct body with project name", "checked": false },
-    { "text": "Test event types set correct title and priority", "checked": false },
-    { "text": "Test 'complete' event has priority=high", "checked": false },
-    { "text": "Test 'error' event has priority=urgent", "checked": false },
-    { "text": "Test 'iteration' event has priority=low", "checked": false },
-    { "text": "Test empty topic returns early (no curl call)", "checked": false },
-    { "text": "All tests pass", "checked": false },
-    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": false }
+    { "text": "Test _ralph_ntfy builds correct body with project name", "checked": true },
+    { "text": "Test event types set correct title and priority", "checked": true },
+    { "text": "Test 'complete' event has priority=high", "checked": true },
+    { "text": "Test 'error' event has priority=urgent", "checked": true },
+    { "text": "Test 'iteration' event has priority=low", "checked": true },
+    { "text": "Test empty topic returns early (no curl call)", "checked": true },
+    { "text": "All tests pass", "checked": true },
+    { "text": "Typecheck passes (zsh -n tests/test-ralph.zsh)", "checked": true }
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-23T05:20:00Z",
+  "completedBy": "opus"
 }

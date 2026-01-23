@@ -1,0 +1,19 @@
+{
+  "id": "US-017",
+  "title": "Auto-sync AGENTS.md to all AI tools",
+  "description": "Automatically sync AGENTS.md to all AI tool-specific files via git pre-commit hook. One source of truth, auto-distributed.",
+  "acceptanceCriteria": [
+    { "text": "Create sync-agents.sh script in ralph config", "checked": false },
+    { "text": "Script copies AGENTS.md → CLAUDE.md", "checked": false },
+    { "text": "Script copies AGENTS.md → .cursorrules", "checked": false },
+    { "text": "Script copies AGENTS.md → .windsurfrules", "checked": false },
+    { "text": "Script creates .github/ → copilot-instructions.md", "checked": false },
+    { "text": "Create install-hooks.sh to set up git pre-commit hook", "checked": false },
+    { "text": "Pre-commit hook runs sync-agents.sh automatically", "checked": false },
+    { "text": "Hook only syncs if AGENTS.md was modified", "checked": false },
+    { "text": "Auto-stage synced files so they're included in commit", "checked": false },
+    { "text": "Typecheck passes (zsh -n sync-agents.sh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

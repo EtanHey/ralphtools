@@ -1,0 +1,15 @@
+{
+  "id": "US-018",
+  "title": "Compact ntfy notifications (2-3 lines)",
+  "description": "Reduce ntfy from 6 lines to 2-3 lines. Combine fields with | separators.",
+  "acceptanceCriteria": [
+    { "text": "Line 1: story | model | cost (e.g. 'TEST-003 | haiku | $0.28')", "checked": false },
+    { "text": "Line 2: project | iteration (e.g. 'ralphtools | 3/50')", "checked": false },
+    { "text": "Line 3 (errors only): error snippet", "checked": false },
+    { "text": "Remove all other newlines", "checked": false },
+    { "text": "Total: 2 lines normal, 3 lines for errors", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}

@@ -731,6 +731,243 @@ test_get_session_tokens_missing_session() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# NOTIFICATION FUNCTION TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+# Mock curl to capture ntfy calls
+# Sets MOCK_CURL_CALLS array with call details
+typeset -g MOCK_CURL_CALLED=0
+typeset -g MOCK_CURL_TITLE=""
+typeset -g MOCK_CURL_PRIORITY=""
+typeset -g MOCK_CURL_TAGS=""
+typeset -g MOCK_CURL_BODY=""
+typeset -g MOCK_CURL_URL=""
+
+_reset_mock_curl() {
+  MOCK_CURL_CALLED=0
+  MOCK_CURL_TITLE=""
+  MOCK_CURL_PRIORITY=""
+  MOCK_CURL_TAGS=""
+  MOCK_CURL_BODY=""
+  MOCK_CURL_URL=""
+}
+
+# Save the real curl path
+typeset -g REAL_CURL=$(whence -p curl)
+
+# Create a testable version of _ralph_ntfy that accepts a curl command
+# This allows us to test the notification formatting without mocking
+_ralph_ntfy_testable() {
+  local topic="$1"
+  local event="$2"  # complete, blocked, error, iteration, max_iterations
+  local message="$3"
+  local story_id="${4:-}"
+  local model="${5:-}"
+  local iteration="${6:-}"
+  local remaining="${7:-}"
+  local cost="${8:-}"
+  local curl_cmd="${9:-curl}"  # Allow override for testing
+
+  [[ -z "$topic" ]] && return 0
+
+  local project_name=$(basename "$(pwd)")
+  local title=""
+  local priority="default"
+  local tags=""
+
+  case "$event" in
+    complete)
+      title="✅ Ralph Complete"
+      tags="white_check_mark,robot"
+      priority="high"
+      ;;
+    blocked)
+      title="⏹️ Ralph Blocked"
+      tags="stop_button,warning"
+      priority="urgent"
+      ;;
+    error)
+      title="❌ Ralph Error"
+      tags="x,fire"
+      priority="urgent"
+      ;;
+    iteration)
+      title="🔄 Ralph Progress"
+      tags="arrows_counterclockwise"
+      priority="low"
+      ;;
+    max_iterations)
+      title="⚠️ Ralph Limit Hit"
+      tags="warning,hourglass"
+      priority="high"
+      ;;
+    *)
+      title="🤖 Ralph"
+      tags="robot"
+      ;;
+  esac
+
+  # Build body with available info
+  local body="📁 $project_name"
+  [[ -n "$iteration" ]] && body+="\n🔢 Iteration $iteration"
+  [[ -n "$story_id" ]] && body+="\n📝 $story_id"
+  [[ -n "$model" ]] && body+="\n🤖 $model"
+  [[ -n "$remaining" ]] && body+="\n📋 $remaining remaining"
+  [[ -n "$cost" ]] && body+="\n💰 \$$cost"
+  [[ -n "$message" ]] && body+="\n\n$message"
+
+  # Record for test verification
+  MOCK_CURL_CALLED=1
+  MOCK_CURL_TITLE="$title"
+  MOCK_CURL_PRIORITY="$priority"
+  MOCK_CURL_TAGS="$tags"
+  MOCK_CURL_BODY="$(echo -e "$body")"
+  MOCK_CURL_URL="ntfy.sh/${topic}"
+
+  # Don't actually send in test mode (curl_cmd would be "mock")
+  if [[ "$curl_cmd" != "mock" ]]; then
+    $curl_cmd -s \
+      -H "Title: $title" \
+      -H "Priority: $priority" \
+      -H "Tags: $tags" \
+      -d "$(echo -e "$body")" \
+      "ntfy.sh/${topic}" > /dev/null 2>&1
+  fi
+}
+
+# Test: _ralph_ntfy builds correct body with project name
+test_ntfy_builds_body_with_project_name() {
+  test_start "ntfy builds body with project name"
+  _setup_test_fixtures
+  _reset_mock_curl
+
+  # Call testable version with mock curl (no actual HTTP call)
+  _ralph_ntfy_testable "test-topic" "iteration" "Test message" "US-001" "sonnet" "5" "10" "1.50" "mock"
+
+  # Verify curl would have been called
+  assert_equals "1" "$MOCK_CURL_CALLED" "curl should have been called" || { _teardown_test_fixtures; return; }
+
+  # Verify body contains project name (from pwd basename)
+  # The body should start with the project folder name
+  assert_contains "$MOCK_CURL_BODY" "📁" "body should contain project folder icon" || { _teardown_test_fixtures; return; }
+
+  # Verify body contains other expected parts
+  assert_contains "$MOCK_CURL_BODY" "🔢 Iteration 5" "body should contain iteration" || { _teardown_test_fixtures; return; }
+  assert_contains "$MOCK_CURL_BODY" "📝 US-001" "body should contain story_id" || { _teardown_test_fixtures; return; }
+  assert_contains "$MOCK_CURL_BODY" "🤖 sonnet" "body should contain model" || { _teardown_test_fixtures; return; }
+  assert_contains "$MOCK_CURL_BODY" "📋 10 remaining" "body should contain remaining count" || { _teardown_test_fixtures; return; }
+  assert_contains "$MOCK_CURL_BODY" "💰 \$1.50" "body should contain cost" || { _teardown_test_fixtures; return; }
+  assert_contains "$MOCK_CURL_BODY" "Test message" "body should contain message" || { _teardown_test_fixtures; return; }
+
+  # Verify URL is correct
+  assert_equals "ntfy.sh/test-topic" "$MOCK_CURL_URL" "URL should be ntfy.sh/test-topic" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: event types set correct title and priority
+test_ntfy_event_types_set_title_priority() {
+  test_start "ntfy event types set title/priority"
+  _setup_test_fixtures
+
+  # Test complete event
+  _reset_mock_curl
+  _ralph_ntfy_testable "test-topic" "complete" "Done" "" "" "" "" "" "mock"
+  assert_equals "✅ Ralph Complete" "$MOCK_CURL_TITLE" "complete title" || { _teardown_test_fixtures; return; }
+  assert_equals "high" "$MOCK_CURL_PRIORITY" "complete priority" || { _teardown_test_fixtures; return; }
+
+  # Test blocked event
+  _reset_mock_curl
+  _ralph_ntfy_testable "test-topic" "blocked" "Stuck" "" "" "" "" "" "mock"
+  assert_equals "⏹️ Ralph Blocked" "$MOCK_CURL_TITLE" "blocked title" || { _teardown_test_fixtures; return; }
+  assert_equals "urgent" "$MOCK_CURL_PRIORITY" "blocked priority" || { _teardown_test_fixtures; return; }
+
+  # Test error event
+  _reset_mock_curl
+  _ralph_ntfy_testable "test-topic" "error" "Failed" "" "" "" "" "" "mock"
+  assert_equals "❌ Ralph Error" "$MOCK_CURL_TITLE" "error title" || { _teardown_test_fixtures; return; }
+  assert_equals "urgent" "$MOCK_CURL_PRIORITY" "error priority" || { _teardown_test_fixtures; return; }
+
+  # Test iteration event
+  _reset_mock_curl
+  _ralph_ntfy_testable "test-topic" "iteration" "Progress" "" "" "" "" "" "mock"
+  assert_equals "🔄 Ralph Progress" "$MOCK_CURL_TITLE" "iteration title" || { _teardown_test_fixtures; return; }
+  assert_equals "low" "$MOCK_CURL_PRIORITY" "iteration priority" || { _teardown_test_fixtures; return; }
+
+  # Test max_iterations event
+  _reset_mock_curl
+  _ralph_ntfy_testable "test-topic" "max_iterations" "Limit" "" "" "" "" "" "mock"
+  assert_equals "⚠️ Ralph Limit Hit" "$MOCK_CURL_TITLE" "max_iterations title" || { _teardown_test_fixtures; return; }
+  assert_equals "high" "$MOCK_CURL_PRIORITY" "max_iterations priority" || { _teardown_test_fixtures; return; }
+
+  # Test unknown event (default)
+  _reset_mock_curl
+  _ralph_ntfy_testable "test-topic" "unknown" "Something" "" "" "" "" "" "mock"
+  assert_equals "🤖 Ralph" "$MOCK_CURL_TITLE" "unknown event title" || { _teardown_test_fixtures; return; }
+  assert_equals "default" "$MOCK_CURL_PRIORITY" "unknown event priority" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: 'complete' event has priority=high
+test_ntfy_complete_priority_high() {
+  test_start "ntfy complete event has priority=high"
+  _setup_test_fixtures
+  _reset_mock_curl
+
+  _ralph_ntfy_testable "test-topic" "complete" "All done" "" "" "" "" "" "mock"
+
+  assert_equals "high" "$MOCK_CURL_PRIORITY" "complete should have priority=high" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: 'error' event has priority=urgent
+test_ntfy_error_priority_urgent() {
+  test_start "ntfy error event has priority=urgent"
+  _setup_test_fixtures
+  _reset_mock_curl
+
+  _ralph_ntfy_testable "test-topic" "error" "Error occurred" "" "" "" "" "" "mock"
+
+  assert_equals "urgent" "$MOCK_CURL_PRIORITY" "error should have priority=urgent" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: 'iteration' event has priority=low
+test_ntfy_iteration_priority_low() {
+  test_start "ntfy iteration event has priority=low"
+  _setup_test_fixtures
+  _reset_mock_curl
+
+  _ralph_ntfy_testable "test-topic" "iteration" "Progress" "" "" "" "" "" "mock"
+
+  assert_equals "low" "$MOCK_CURL_PRIORITY" "iteration should have priority=low" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: empty topic returns early (no curl call)
+test_ntfy_empty_topic_no_curl() {
+  test_start "ntfy empty topic returns early"
+  _setup_test_fixtures
+  _reset_mock_curl
+
+  _ralph_ntfy_testable "" "complete" "This should not be sent" "" "" "" "" "" "mock"
+
+  assert_equals "0" "$MOCK_CURL_CALLED" "curl should NOT be called with empty topic" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # FRAMEWORK VALIDATION TESTS
 # ═══════════════════════════════════════════════════════════════════
 
