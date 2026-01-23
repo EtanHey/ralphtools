@@ -245,7 +245,278 @@ run_all_tests() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
-# EXAMPLE TESTS (for framework validation)
+# TEST SETUP & TEARDOWN
+# ═══════════════════════════════════════════════════════════════════
+
+# Create a temporary directory for test fixtures
+_setup_test_fixtures() {
+  TEST_TMP_DIR=$(mktemp -d)
+  export RALPH_CONFIG_DIR="$TEST_TMP_DIR"
+  export RALPH_CONFIG_FILE="$TEST_TMP_DIR/config.json"
+}
+
+# Cleanup test fixtures
+_teardown_test_fixtures() {
+  [[ -d "$TEST_TMP_DIR" ]] && rm -rf "$TEST_TMP_DIR"
+}
+
+# Reset all RALPH config variables to undefined state
+_reset_ralph_vars() {
+  unset RALPH_MODEL_STRATEGY
+  unset RALPH_DEFAULT_MODEL_CFG
+  unset RALPH_UNKNOWN_TASK_MODEL
+  unset RALPH_MODEL_US
+  unset RALPH_MODEL_V
+  unset RALPH_MODEL_TEST
+  unset RALPH_MODEL_BUG
+  unset RALPH_MODEL_AUDIT
+  unset RALPH_NTFY_TOPIC
+  unset RALPH_MAX_ITERATIONS
+  unset RALPH_SLEEP_SECONDS
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# CONFIG FUNCTION TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: _ralph_load_config with valid config.json
+test_config_load_valid() {
+  test_start "load_config with valid JSON"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Create a valid config.json
+  cat > "$RALPH_CONFIG_FILE" << 'EOF'
+{
+  "modelStrategy": "smart",
+  "defaultModel": "opus",
+  "unknownTaskType": "sonnet",
+  "models": {
+    "US": "sonnet",
+    "V": "haiku",
+    "TEST": "haiku",
+    "BUG": "sonnet",
+    "AUDIT": "opus"
+  },
+  "notifications": {
+    "enabled": true,
+    "ntfyTopic": "test-topic"
+  },
+  "defaults": {
+    "maxIterations": 10,
+    "sleepSeconds": 5
+  }
+}
+EOF
+
+  # Load config
+  _ralph_load_config
+  local load_result=$?
+
+  # Verify return code
+  assert_equals "0" "$load_result" "_ralph_load_config should return 0" || { _teardown_test_fixtures; return; }
+
+  # Verify values were loaded
+  assert_equals "smart" "$RALPH_MODEL_STRATEGY" "modelStrategy should be smart" || { _teardown_test_fixtures; return; }
+  assert_equals "opus" "$RALPH_DEFAULT_MODEL_CFG" "defaultModel should be opus" || { _teardown_test_fixtures; return; }
+  assert_equals "sonnet" "$RALPH_MODEL_US" "models.US should be sonnet" || { _teardown_test_fixtures; return; }
+  assert_equals "haiku" "$RALPH_MODEL_V" "models.V should be haiku" || { _teardown_test_fixtures; return; }
+  assert_equals "test-topic" "$RALPH_NTFY_TOPIC" "ntfyTopic should be test-topic" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_load_config with missing file uses defaults
+test_config_load_missing_file() {
+  test_start "load_config with missing file"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Ensure no config file exists
+  rm -f "$RALPH_CONFIG_FILE"
+
+  # Load config - should return 1 (file not found)
+  _ralph_load_config
+  local load_result=$?
+
+  # Verify return code indicates missing file
+  assert_equals "1" "$load_result" "_ralph_load_config should return 1 for missing file" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_load_config with malformed JSON
+test_config_load_malformed_json() {
+  test_start "load_config with malformed JSON"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Create a malformed config.json
+  echo "{ this is not valid json }" > "$RALPH_CONFIG_FILE"
+
+  # Load config - jq should handle errors gracefully
+  _ralph_load_config
+  local load_result=$?
+
+  # Should still return 0 (file exists) but vars should be null/empty due to jq error
+  assert_equals "0" "$load_result" "_ralph_load_config should return 0 (file exists)" || { _teardown_test_fixtures; return; }
+
+  # jq with // "default" should give us the default when parsing fails
+  # The values should be "null" (jq returns "null" string on parse error)
+  # Actually, jq returns null when it can't parse, which becomes "null" string
+  # This test verifies the error handling doesn't crash
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story returns correct model for US prefix
+test_model_routing_us() {
+  test_start "get_model_for_story US-* → sonnet"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up smart routing
+  RALPH_MODEL_STRATEGY="smart"
+  RALPH_MODEL_US="sonnet"
+
+  local result=$(_ralph_get_model_for_story "US-001")
+  assert_equals "sonnet" "$result" "US-001 should route to sonnet" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story returns correct model for V prefix
+test_model_routing_v() {
+  test_start "get_model_for_story V-* → haiku"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up smart routing
+  RALPH_MODEL_STRATEGY="smart"
+  RALPH_MODEL_V="haiku"
+
+  local result=$(_ralph_get_model_for_story "V-001")
+  assert_equals "haiku" "$result" "V-001 should route to haiku" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story returns correct model for TEST prefix
+test_model_routing_test() {
+  test_start "get_model_for_story TEST-* → haiku"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up smart routing
+  RALPH_MODEL_STRATEGY="smart"
+  RALPH_MODEL_TEST="haiku"
+
+  local result=$(_ralph_get_model_for_story "TEST-002")
+  assert_equals "haiku" "$result" "TEST-002 should route to haiku" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story returns correct model for BUG prefix
+test_model_routing_bug() {
+  test_start "get_model_for_story BUG-* → sonnet"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up smart routing
+  RALPH_MODEL_STRATEGY="smart"
+  RALPH_MODEL_BUG="sonnet"
+
+  local result=$(_ralph_get_model_for_story "BUG-001")
+  assert_equals "sonnet" "$result" "BUG-001 should route to sonnet" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story returns correct model for AUDIT prefix
+test_model_routing_audit() {
+  test_start "get_model_for_story AUDIT-* → opus"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up smart routing
+  RALPH_MODEL_STRATEGY="smart"
+  RALPH_MODEL_AUDIT="opus"
+
+  local result=$(_ralph_get_model_for_story "AUDIT-001")
+  assert_equals "opus" "$result" "AUDIT-001 should route to opus" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story uses unknownTaskType for unknown prefix
+test_model_routing_unknown() {
+  test_start "get_model_for_story UNKNOWN-* → fallback"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up smart routing with unknown fallback
+  RALPH_MODEL_STRATEGY="smart"
+  RALPH_UNKNOWN_TASK_MODEL="sonnet"
+
+  local result=$(_ralph_get_model_for_story "CUSTOM-001")
+  assert_equals "sonnet" "$result" "CUSTOM-001 should fallback to sonnet" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story CLI override wins
+test_model_routing_cli_override() {
+  test_start "get_model_for_story CLI override wins"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up smart routing with specific model
+  RALPH_MODEL_STRATEGY="smart"
+  RALPH_MODEL_US="sonnet"
+
+  # CLI override should win
+  local result=$(_ralph_get_model_for_story "US-001" "opus" "")
+  assert_equals "opus" "$result" "CLI override should win over config" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_get_model_for_story single strategy uses default
+test_model_routing_single_strategy() {
+  test_start "get_model_for_story single strategy"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Set up single model strategy
+  RALPH_MODEL_STRATEGY="single"
+  RALPH_DEFAULT_MODEL_CFG="opus"
+
+  # All prefixes should use the default model
+  local result_us=$(_ralph_get_model_for_story "US-001")
+  local result_v=$(_ralph_get_model_for_story "V-001")
+  local result_test=$(_ralph_get_model_for_story "TEST-001")
+
+  assert_equals "opus" "$result_us" "US should use default in single mode" || { _teardown_test_fixtures; return; }
+  assert_equals "opus" "$result_v" "V should use default in single mode" || { _teardown_test_fixtures; return; }
+  assert_equals "opus" "$result_test" "TEST should use default in single mode" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# FRAMEWORK VALIDATION TESTS
 # ═══════════════════════════════════════════════════════════════════
 
 # Test: assert_equals works correctly

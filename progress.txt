@@ -23,3 +23,17 @@
 - zsh -n syntax check passes
 - Framework includes 5 self-validation tests that all pass
 ---
+
+## Iteration 2 - TEST-002 Config Function Tests
+- Model: opus
+- Added comprehensive unit tests for config loading and model routing
+- test_config_load_valid: Tests loading a valid config.json with all model mappings
+- test_config_load_missing_file: Tests return code 1 when config file missing
+- test_config_load_malformed_json: Tests graceful handling of invalid JSON
+- test_model_routing_us/v/test/bug/audit: Tests each prefix routes to correct model
+- test_model_routing_unknown: Tests unknown prefix uses fallback model
+- test_model_routing_cli_override: Tests CLI flags override config settings
+- test_model_routing_single_strategy: Tests single mode uses default for all
+- All 16 tests pass (11 new config tests + 5 framework validation tests)
+- Typecheck passes (zsh -n)
+---
