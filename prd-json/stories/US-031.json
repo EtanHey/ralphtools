@@ -1,0 +1,26 @@
+{
+  "id": "US-031",
+  "title": "Live criteria sync with file watching (no flash)",
+  "description": "Add real-time criteria progress updates during Ralph iterations. Currently, the iteration header shows stale criteria counts because it reads JSON once before Claude starts working. Implement file watching to detect when Claude updates story JSON files and refresh the display in-place. Use fswatch (macOS) or inotifywait (Linux). CRITICAL: No flashing or full re-renders. Update ONLY the specific characters that changed using ANSI cursor positioning.",
+  "acceptanceCriteria": [
+    { "text": "_ralph_check_fswatch() detects fswatch (macOS) or inotifywait (Linux)", "checked": false },
+    { "text": "_ralph_start_watcher() spawns background process watching prd-json/stories/", "checked": false },
+    { "text": "Watcher writes changed filename to a temp FIFO/pipe", "checked": false },
+    { "text": "_ralph_poll_updates() reads pipe non-blocking during Claude execution", "checked": false },
+    { "text": "On current story JSON change, re-read criteria with _ralph_get_story_criteria_progress", "checked": false },
+    { "text": "NO FLASHING: update only changed characters, never clear/redraw entire box", "checked": false },
+    { "text": "Track line positions: store row number of criteria line when first drawn", "checked": false },
+    { "text": "Use ANSI \\e[{row};{col}H to position cursor at exact criteria location", "checked": false },
+    { "text": "Overwrite progress bar in-place: [███░░░░░░░] 4/11 → [████░░░░░░] 5/11", "checked": false },
+    { "text": "Debounce: max 1 update per 500ms to prevent rapid flicker", "checked": false },
+    { "text": "Also update story progress bar (40/46) when index.json changes", "checked": false },
+    { "text": "_ralph_stop_watcher() kills background process, called in EXIT trap", "checked": false },
+    { "text": "Store watcher PID in RALPH_WATCHER_PID for cleanup", "checked": false },
+    { "text": "If no fswatch available, log once and continue with stale behavior", "checked": false },
+    { "text": "Add --no-live flag to disable file watching", "checked": false },
+    { "text": "Fix ralph-live flashing: apply same no-flash technique", "checked": false },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+  ],
+  "passes": false,
+  "blockedBy": null
+}
