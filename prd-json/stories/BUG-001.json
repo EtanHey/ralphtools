@@ -3,12 +3,14 @@
   "title": "Fix remaining count redundancy and mismatch",
   "description": "Debug variable 'remaining=' leaking to output, and counts don't match (25 vs 24 stories). Fix both issues.",
   "acceptanceCriteria": [
-    { "text": "Remove leaked 'remaining=' debug line from output", "checked": false },
-    { "text": "Only show 📋 Remaining line once per iteration", "checked": false },
-    { "text": "Remaining count should reflect AFTER story completion (not before)", "checked": false },
-    { "text": "Numbers should be consistent (no mismatch)", "checked": false },
-    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": false }
+    { "text": "Remove leaked 'remaining=' debug line from output", "checked": true },
+    { "text": "Only show 📋 Remaining line once per iteration", "checked": true },
+    { "text": "Remaining count should reflect AFTER story completion (not before)", "checked": true },
+    { "text": "Numbers should be consistent (no mismatch)", "checked": true },
+    { "text": "Typecheck passes (zsh -n ralph.zsh)", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-23T02:50:00Z",
+  "completedBy": "haiku",
   "blockedBy": null
 }

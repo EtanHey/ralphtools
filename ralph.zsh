@@ -758,17 +758,21 @@ ralph-costs() {
 # NTFY NOTIFICATIONS
 # ═══════════════════════════════════════════════════════════════════
 
-# Send enhanced ntfy notification with rich context
-# Usage: _ralph_ntfy "topic" "event_type" "message" ["story_id" "model" "iteration" "remaining" "cost"]
+# Send compact ntfy notification with emoji labels
+# Usage: _ralph_ntfy "topic" "event_type" "story_id" "model" "iteration" "remaining_stats" "cost"
+# remaining_stats should be "stories criteria" space-separated (from _ralph_json_remaining_stats)
+# Body format (3 lines):
+#   Line 1: repo name (e.g. 'ralphtools')
+#   Line 2: 🔄iteration story_id model (e.g. '🔄5 TEST-004 haiku')
+#   Line 3: 📚stories ☐criteria 💵cost (e.g. '📚26 ☐129 💵$0.28')
 _ralph_ntfy() {
   local topic="$1"
   local event="$2"  # complete, blocked, error, iteration, max_iterations
-  local message="$3"
-  local story_id="${4:-}"
-  local model="${5:-}"
-  local iteration="${6:-}"
-  local remaining="${7:-}"
-  local cost="${8:-}"
+  local story_id="${3:-}"
+  local model="${4:-}"
+  local iteration="${5:-}"
+  local remaining="${6:-}"
+  local cost="${7:-}"
 
   [[ -z "$topic" ]] && return 0
 
@@ -831,9 +835,6 @@ _ralph_ntfy() {
   fi
   [[ -n "$cost" ]] && line3+=" 💵\$$cost"
   [[ -n "$line3" ]] && body+="\n$line3"
-
-  # Append message if present
-  [[ -n "$message" ]] && body+="\n\n$message"
 
   # Send with ntfy headers for rich notification
   curl -s \
@@ -1339,16 +1340,7 @@ function ralph() {
     local pending=$(jq -r '.stats.pending // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
     local completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
     local blocked=$(jq -r '.stats.blocked // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    local total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    # Count total criteria across all pending stories
-    local total_criteria=0
-    for story_file in "$PRD_JSON_DIR/stories"/*.json; do
-      if [[ -f "$story_file" ]]; then
-        local unchecked=$(jq '[.acceptanceCriteria[] | select(.checked == false)] | length' "$story_file" 2>/dev/null || echo 0)
-        total_criteria=$((total_criteria + unchecked))
-      fi
-    done
-    echo "📋 PRD: $pending stories ($total_criteria criteria) remaining | $completed done | $blocked blocked"
+    echo "📋 PRD: $pending stories pending | $completed completed | $blocked blocked"
   else
     local task_count=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
     echo "📋 PRD: $task_count tasks remaining"
@@ -1573,7 +1565,6 @@ At the START of any iteration that needs browser verification:
 
       # Run CLI with output capture (tee for checking promises)
       # Note: Claude uses -p flag, Kiro uses positional argument (${prompt_flag:+...} expands only if non-empty)
-      echo "  [DEBUG] Running: ${cli_cmd_arr[*]} (output → $RALPH_TMP)"
       "${cli_cmd_arr[@]}" ${prompt_flag:+$prompt_flag} "${ralph_prompt}
 
 ## Dev Server Rules (CRITICAL)
@@ -1684,14 +1675,6 @@ After completing task, check PRD state:
       # Note: zsh uses lowercase 'pipestatus' and 1-indexed arrays
       local exit_code=${pipestatus[1]:-999}
 
-      # Debug: show exit code and output info
-      echo ""
-      echo "  [DEBUG] Exit code: $exit_code"
-      echo "  [DEBUG] Output file: $RALPH_TMP"
-      echo "  [DEBUG] Output size: $(wc -c < "$RALPH_TMP" 2>/dev/null || echo 0) bytes"
-      echo "  [DEBUG] Output lines: $(wc -l < "$RALPH_TMP" 2>/dev/null || echo 0)"
-      [[ -f "$RALPH_TMP" ]] && echo "  [DEBUG] First line: $(head -1 "$RALPH_TMP" 2>/dev/null | cut -c1-80)"
-
       # Check for Ctrl+C (exit code 130 = SIGINT)
       if [[ "$exit_code" -eq 130 ]]; then
         echo ""
@@ -1720,9 +1703,6 @@ After completing task, check PRD state:
       if [[ -z "$exit_code" ]] || [[ "$exit_code" -ne 0 ]] || [[ ! -s "$RALPH_TMP" ]]; then
         has_error=true
       fi
-
-      # Debug: show error detection
-      echo "  [DEBUG] has_error: $has_error, retry_count: $retry_count"
 
       if $has_error; then
         retry_count=$((retry_count + 1))
@@ -1771,7 +1751,7 @@ After completing task, check PRD state:
               error_stats="? ?"
             fi
             local error_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
-            _ralph_ntfy "$ntfy_topic" "error" "Failed after $max_retries retries" "$current_story" "$routed_model" "$i" "$error_stats" "$error_cost"
+            _ralph_ntfy "$ntfy_topic" "error" "$current_story" "$routed_model" "$i" "$error_stats" "$error_cost"
           fi
           break  # Only break after exhausting retries
         fi
@@ -1802,7 +1782,7 @@ After completing task, check PRD state:
       # Send notification if enabled
       if $notify_enabled; then
         local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
-        _ralph_ntfy "$ntfy_topic" "complete" "All tasks done!" "" "" "$i" "0 0" "$total_cost"
+        _ralph_ntfy "$ntfy_topic" "complete" "" "" "$i" "0 0" "$total_cost"
       fi
       rm -f "$RALPH_TMP"
       return 0
@@ -1828,7 +1808,7 @@ After completing task, check PRD state:
           blocked_stats="? ?"
         fi
         local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
-        _ralph_ntfy "$ntfy_topic" "blocked" "User action needed" "$current_story" "" "$i" "$blocked_stats" "$total_cost"
+        _ralph_ntfy "$ntfy_topic" "blocked" "$current_story" "" "$i" "$blocked_stats" "$total_cost"
       fi
       rm -f "$RALPH_TMP"
       return 2  # Different exit code for blocked vs complete
@@ -1857,7 +1837,8 @@ After completing task, check PRD state:
 
     # Per-iteration notification if enabled
     if $notify_enabled; then
-      _ralph_ntfy "$ntfy_topic" "iteration" "" "$current_story" "$routed_model" "$i" "$remaining_stats"
+      local iter_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+      _ralph_ntfy "$ntfy_topic" "iteration" "$current_story" "$routed_model" "$i" "$remaining_stats" "$iter_cost"
     fi
 
     sleep $SLEEP
@@ -1885,7 +1866,7 @@ After completing task, check PRD state:
   # Send notification if enabled
   if $notify_enabled; then
     local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
-    _ralph_ntfy "$ntfy_topic" "max_iterations" "Limit reached" "" "" "$MAX" "$final_remaining_stats" "$total_cost"
+    _ralph_ntfy "$ntfy_topic" "max_iterations" "" "" "$MAX" "$final_remaining_stats" "$total_cost"
   fi
   rm -f "$RALPH_TMP"
   return 1
