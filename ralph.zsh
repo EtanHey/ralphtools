@@ -2,16 +2,19 @@
 # ═══════════════════════════════════════════════════════════════════
 # RALPH - Autonomous Coding Loop (Original Concept)
 # ═══════════════════════════════════════════════════════════════════
-# Usage: ralph [app] [max_iterations] [sleep_seconds] [-QN] [-S]
+# Usage: ralph [app] [max_iterations] [sleep_seconds] [-QN] [-c] [-S]
 # Examples:
 #   ralph 30 5 -QN         # Classic mode: ./prd-json/, current branch
 #   ralph expo 300         # App mode: apps/expo/prd-json/, feat/expo-work branch
 #   ralph public 300 -QN   # App mode with notifications
 #   ralph 100 -S           # Run with Sonnet model (faster, cheaper)
+#   ralph 50 -c            # Run with compact output (less verbose)
 #
 # Options:
 #   app  : Optional app name - uses apps/{app}/prd-json/
 #   -QN  : Enable quiet notifications via ntfy app
+#   -c, --compact : Compact output mode (less vertical whitespace)
+#   -d, --debug   : Debug output mode (more verbose)
 #   (no flag) : No notifications, Opus model (default)
 #
 # Model Flags (can specify two: first=primary, second=verification):
@@ -1435,6 +1438,8 @@ function ralph() {
   local target_branch=""
   local original_branch=""
   local skip_setup=false     # Skip interactive setup, use defaults
+  local compact_mode=false   # Compact output mode (less verbose)
+  local debug_mode=false     # Debug output mode (more verbose)
 
   # Valid app names for app-specific mode (parsed from space-separated config)
   local valid_apps=(${=RALPH_VALID_APPS})
@@ -1457,6 +1462,14 @@ function ralph() {
         ;;
       --skip-setup|-y)
         skip_setup=true
+        shift
+        ;;
+      --compact|-c)
+        compact_mode=true
+        shift
+        ;;
+      --debug|-d)
+        debug_mode=true
         shift
         ;;
       -O|--opus)
@@ -1702,41 +1715,51 @@ function ralph() {
   }
   trap cleanup_ralph EXIT
 
-  echo ""
-  echo "╔═══════════════════════════════════════════════════════════════╗"
-  echo "║  🚀 RALPH v${RALPH_VERSION}                                         ║"
-  echo "╠───────────────────────────────────────────────────────────────╣"
-  echo "║  📂 $(pwd | head -c 55)$(printf '%*s' $((55 - ${#$(pwd)})) '')║"
-  if [[ -n "$app_mode" ]]; then
-    echo "║  📱 App: $app_mode (branch: $target_branch)$(printf '%*s' $((45 - ${#app_mode} - ${#target_branch})) '')║"
-  fi
-  echo "║  🔄 Max iterations: $MAX$(printf '%*s' $((42 - ${#MAX})) '')║"
-  echo "╚═══════════════════════════════════════════════════════════════╝"
-  echo ""
+  if [[ "$compact_mode" == "true" ]]; then
+    # Compact mode: single-line startup
+    local project_name=$(basename "$(pwd)")
+    local pending=$(jq -r '.stats.pending // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null || echo "?")
+    local completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null || echo "?")
+    echo ""
+    echo "🚀 Ralph v${RALPH_VERSION} │ ${project_name} │ ${completed}/${pending}+${completed} stories │ max ${MAX} iters"
+  else
+    # Normal mode: full startup banner
+    echo ""
+    echo "╔═══════════════════════════════════════════════════════════════╗"
+    echo "║  🚀 RALPH v${RALPH_VERSION}                                         ║"
+    echo "╠───────────────────────────────────────────────────────────────╣"
+    echo "║  📂 $(pwd | head -c 55)$(printf '%*s' $((55 - ${#$(pwd)})) '')║"
+    if [[ -n "$app_mode" ]]; then
+      echo "║  📱 App: $app_mode (branch: $target_branch)$(printf '%*s' $((45 - ${#app_mode} - ${#target_branch})) '')║"
+    fi
+    echo "║  🔄 Max iterations: $MAX$(printf '%*s' $((42 - ${#MAX})) '')║"
+    echo "╚═══════════════════════════════════════════════════════════════╝"
+    echo ""
 
-  # Show routing config (smart vs single)
-  if [[ -z "$primary_model" && -z "$verify_model" ]]; then
-    # No CLI override - show config-based routing
-    _ralph_show_routing
+    # Show routing config (smart vs single)
+    if [[ -z "$primary_model" && -z "$verify_model" ]]; then
+      # No CLI override - show config-based routing
+      _ralph_show_routing
+    fi
+    # Count and display based on mode
+    echo "┌─────────────────────────────────────────────────────────────┐"
+    if [[ "$use_json_mode" == "true" ]]; then
+      local pending=$(jq -r '.stats.pending // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local blocked=$(jq -r '.stats.blocked // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      echo "│  📋 Stories: $pending pending │ $completed completed │ $blocked blocked$(printf '%*s' $((27 - ${#pending} - ${#completed} - ${#blocked})) '')│"
+    else
+      local task_count=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
+      echo "│  📋 Tasks remaining: $task_count$(printf '%*s' $((38 - ${#task_count})) '')│"
+    fi
+    if $notify_enabled; then
+      echo "│  🔔 Notifications: ON (topic: ${ntfy_topic})$(printf '%*s' $((28 - ${#ntfy_topic})) '')│"
+    else
+      echo "│  🔕 Notifications: OFF                                      │"
+    fi
+    echo "└─────────────────────────────────────────────────────────────┘"
+    echo ""
   fi
-  # Count and display based on mode
-  echo "┌─────────────────────────────────────────────────────────────┐"
-  if [[ "$use_json_mode" == "true" ]]; then
-    local pending=$(jq -r '.stats.pending // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    local completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    local blocked=$(jq -r '.stats.blocked // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    echo "│  📋 Stories: $pending pending │ $completed completed │ $blocked blocked$(printf '%*s' $((27 - ${#pending} - ${#completed} - ${#blocked})) '')│"
-  else
-    local task_count=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
-    echo "│  📋 Tasks remaining: $task_count$(printf '%*s' $((38 - ${#task_count})) '')│"
-  fi
-  if $notify_enabled; then
-    echo "│  🔔 Notifications: ON (topic: ${ntfy_topic})$(printf '%*s' $((28 - ${#ntfy_topic})) '')│"
-  else
-    echo "│  🔕 Notifications: OFF                                      │"
-  fi
-  echo "└─────────────────────────────────────────────────────────────┘"
-  echo ""
 
   for ((i=1; i<=$MAX; i++)); do
     # Determine current story and model to use
@@ -1754,39 +1777,48 @@ function ralph() {
     # Track iteration start time for cost logging
     local iteration_start_time=$(date +%s)
 
-    echo ""
-    echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo -e "║  🔄 $(_ralph_bold "ITERATION $i") of $MAX                                       ║"
-    echo "╠───────────────────────────────────────────────────────────────╣"
-    echo "║  ⏱️  $(date '+%H:%M:%S')                                        ║"
-    # Show iteration progress bar
-    local iter_progress=$(_ralph_iteration_progress "$i" "$MAX")
-    echo -e "║  📊 Iteration: ${iter_progress}$(printf '%*s' $((36 - ${#i} - ${#MAX})) '')║"
-    if [[ -n "$current_story" ]]; then
+    if [[ "$compact_mode" == "true" ]]; then
+      # Compact mode: single-line iteration header
       local colored_story=$(_ralph_color_story_id "$current_story")
-      echo -e "║  📖 Story: ${colored_story}$(printf '%*s' $((47 - ${#current_story})) '')║"
-      # Show criteria progress for current story (JSON mode only)
-      if [[ "$use_json_mode" == "true" ]]; then
-        local criteria_stats=$(_ralph_get_story_criteria_progress "$current_story" "$PRD_JSON_DIR")
-        local criteria_checked=$(echo "$criteria_stats" | awk '{print $1}')
-        local criteria_total=$(echo "$criteria_stats" | awk '{print $2}')
-        if [[ "$criteria_total" -gt 0 ]]; then
-          local criteria_bar=$(_ralph_criteria_progress "$criteria_checked" "$criteria_total")
-          echo -e "║  ☐ Criteria:  ${criteria_bar}$(printf '%*s' $((35 - ${#criteria_checked} - ${#criteria_total})) '')║"
+      local colored_model=$(_ralph_color_model "$effective_model")
+      echo ""
+      echo -e "── [$i/$MAX] ${colored_story} (${colored_model}) $(date '+%H:%M:%S') ──"
+    else
+      # Normal mode: full iteration header
+      echo ""
+      echo "╔═══════════════════════════════════════════════════════════════╗"
+      echo -e "║  🔄 $(_ralph_bold "ITERATION $i") of $MAX                                       ║"
+      echo "╠───────────────────────────────────────────────────────────────╣"
+      echo "║  ⏱️  $(date '+%H:%M:%S')                                        ║"
+      # Show iteration progress bar
+      local iter_progress=$(_ralph_iteration_progress "$i" "$MAX")
+      echo -e "║  📊 Iteration: ${iter_progress}$(printf '%*s' $((36 - ${#i} - ${#MAX})) '')║"
+      if [[ -n "$current_story" ]]; then
+        local colored_story=$(_ralph_color_story_id "$current_story")
+        echo -e "║  📖 Story: ${colored_story}$(printf '%*s' $((47 - ${#current_story})) '')║"
+        # Show criteria progress for current story (JSON mode only)
+        if [[ "$use_json_mode" == "true" ]]; then
+          local criteria_stats=$(_ralph_get_story_criteria_progress "$current_story" "$PRD_JSON_DIR")
+          local criteria_checked=$(echo "$criteria_stats" | awk '{print $1}')
+          local criteria_total=$(echo "$criteria_stats" | awk '{print $2}')
+          if [[ "$criteria_total" -gt 0 ]]; then
+            local criteria_bar=$(_ralph_criteria_progress "$criteria_checked" "$criteria_total")
+            echo -e "║  ☐ Criteria:  ${criteria_bar}$(printf '%*s' $((35 - ${#criteria_checked} - ${#criteria_total})) '')║"
+          fi
         fi
       fi
+      local colored_model=$(_ralph_color_model "$effective_model")
+      echo -e "║  🧠 Model: ${colored_model}$(printf '%*s' $((47 - ${#effective_model})) '')║"
+      # Show story progress (JSON mode only)
+      if [[ "$use_json_mode" == "true" ]]; then
+        local story_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+        local story_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+        local story_bar=$(_ralph_story_progress "$story_completed" "$story_total")
+        echo -e "║  📚 Stories:  ${story_bar}$(printf '%*s' $((35 - ${#story_completed} - ${#story_total})) '')║"
+      fi
+      echo "╚═══════════════════════════════════════════════════════════════╝"
+      echo ""
     fi
-    local colored_model=$(_ralph_color_model "$effective_model")
-    echo -e "║  🧠 Model: ${colored_model}$(printf '%*s' $((47 - ${#effective_model})) '')║"
-    # Show story progress (JSON mode only)
-    if [[ "$use_json_mode" == "true" ]]; then
-      local story_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-      local story_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-      local story_bar=$(_ralph_story_progress "$story_completed" "$story_total")
-      echo -e "║  📚 Stories:  ${story_bar}$(printf '%*s' $((35 - ${#story_completed} - ${#story_total})) '')║"
-    fi
-    echo "╚═══════════════════════════════════════════════════════════════╝"
-    echo ""
 
     # Retry logic for transient API errors like "No messages returned"
     local max_retries=5
@@ -2266,14 +2298,21 @@ After completing task, check PRD state:
 
     # Check if all tasks complete (search anywhere in output, not just on own line)
     if grep -q "<promise>COMPLETE</promise>" "$RALPH_TMP" 2>/dev/null; then
-      echo ""
-      echo -e "${RALPH_COLOR_GREEN}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ✅ $(_ralph_success "ALL TASKS COMPLETE") after $(_ralph_bold "$i") iterations!                    ${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ⏱️  $(date '+%H:%M:%S')                                        ${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_GREEN}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
+      local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+      if [[ "$compact_mode" == "true" ]]; then
+        # Compact mode: single line with cost
+        echo ""
+        echo -e "✅ $(_ralph_success "COMPLETE") after $i iterations │ $(_ralph_color_cost "$total_cost")"
+      else
+        # Normal mode: full box
+        echo ""
+        echo -e "${RALPH_COLOR_GREEN}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ✅ $(_ralph_success "ALL TASKS COMPLETE") after $(_ralph_bold "$i") iterations!                    ${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}  ⏱️  $(date '+%H:%M:%S')                                        ${RALPH_COLOR_GREEN}║${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_GREEN}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
+      fi
       # Send notification if enabled
       if $notify_enabled; then
-        local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
         _ralph_ntfy "$ntfy_topic" "complete" "" "" "$i" "0 0" "$total_cost"
       fi
       rm -f "$RALPH_TMP"
@@ -2282,15 +2321,23 @@ After completing task, check PRD state:
 
     # Check if all remaining tasks are blocked (search anywhere in output, not just on own line)
     if grep -q "<promise>ALL_BLOCKED</promise>" "$RALPH_TMP" 2>/dev/null; then
-      echo ""
-      echo -e "${RALPH_COLOR_YELLOW}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⏹️  $(_ralph_warning "ALL REMAINING TASKS BLOCKED") after $(_ralph_bold "$i") iterations          ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⏱️  $(date '+%H:%M:%S')                                        ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_YELLOW}╠───────────────────────────────────────────────────────────────╣${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Review PRD.md for stories marked ⏹️ BLOCKED                   ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Address blockers (Figma access, Linear issues, etc.)         ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Then run 'ralph' again to continue                           ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
-      echo -e "${RALPH_COLOR_YELLOW}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
+      local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+      if [[ "$compact_mode" == "true" ]]; then
+        # Compact mode: single line with cost
+        echo ""
+        echo -e "⏹️  $(_ralph_warning "ALL BLOCKED") after $i iterations │ $(_ralph_color_cost "$total_cost")"
+      else
+        # Normal mode: full box
+        echo ""
+        echo -e "${RALPH_COLOR_YELLOW}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⏹️  $(_ralph_warning "ALL REMAINING TASKS BLOCKED") after $(_ralph_bold "$i") iterations          ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⏱️  $(date '+%H:%M:%S')                                        ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_YELLOW}╠───────────────────────────────────────────────────────────────╣${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Review PRD.md for stories marked ⏹️ BLOCKED                   ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Address blockers (Figma access, Linear issues, etc.)         ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  Then run 'ralph' again to continue                           ${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+        echo -e "${RALPH_COLOR_YELLOW}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
+      fi
       # Send notification if enabled
       if $notify_enabled; then
         local blocked_stats
@@ -2299,7 +2346,6 @@ After completing task, check PRD state:
         else
           blocked_stats="? ?"
         fi
-        local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
         _ralph_ntfy "$ntfy_topic" "blocked" "User action needed" "$current_story" "" "$i" "$blocked_stats" "$total_cost"
       fi
       rm -f "$RALPH_TMP"
@@ -2322,17 +2368,23 @@ After completing task, check PRD state:
       remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo "?")
       remaining_stats="? ?"
     fi
-    echo "┌───────────────────────────────────────────────────────────────┐"
-    echo "│  📋 Remaining: $remaining$(printf '%*s' $((46 - ${#remaining})) '')│"
-    # Show story progress bar (JSON mode only)
-    if [[ "$use_json_mode" == "true" ]]; then
-      local end_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-      local end_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-      local end_story_bar=$(_ralph_story_progress "$end_completed" "$end_total")
-      echo -e "│  📚 Stories:  ${end_story_bar}$(printf '%*s' $((35 - ${#end_completed} - ${#end_total})) '')│"
+    if [[ "$compact_mode" == "true" ]]; then
+      # Compact mode: minimal between-iteration display
+      echo "── 📋 ${remaining} remaining │ ⏳ ${SLEEP}s ──"
+    else
+      # Normal mode: full box
+      echo "┌───────────────────────────────────────────────────────────────┐"
+      echo "│  📋 Remaining: $remaining$(printf '%*s' $((46 - ${#remaining})) '')│"
+      # Show story progress bar (JSON mode only)
+      if [[ "$use_json_mode" == "true" ]]; then
+        local end_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+        local end_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+        local end_story_bar=$(_ralph_story_progress "$end_completed" "$end_total")
+        echo -e "│  📚 Stories:  ${end_story_bar}$(printf '%*s' $((35 - ${#end_completed} - ${#end_total})) '')│"
+      fi
+      echo "│  ⏳ Pausing ${SLEEP}s before next iteration...$(printf '%*s' $((35 - ${#SLEEP})) '')│"
+      echo "└───────────────────────────────────────────────────────────────┘"
     fi
-    echo "│  ⏳ Pausing ${SLEEP}s before next iteration...$(printf '%*s' $((35 - ${#SLEEP})) '')│"
-    echo "└───────────────────────────────────────────────────────────────┘"
 
     # Per-iteration notification if enabled
     if $notify_enabled; then
@@ -2357,21 +2409,28 @@ After completing task, check PRD state:
     final_remaining=$(grep -c '\- \[ \]' "$PRD_PATH" 2>/dev/null || echo '?')
     final_remaining_stats="? ?"
   fi
-  echo ""
-  echo -e "${RALPH_COLOR_YELLOW}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
-  echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⚠️  $(_ralph_warning "REACHED MAX ITERATIONS") ($(_ralph_bold "$MAX"))$(printf '%*s' $((37 - ${#MAX})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
-  echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  📋 Remaining: $final_remaining$(printf '%*s' $((47 - ${#final_remaining})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
-  # Show story progress bar (JSON mode only)
-  if [[ "$use_json_mode" == "true" ]]; then
-    local final_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    local final_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
-    local final_story_bar=$(_ralph_story_progress "$final_completed" "$final_total")
-    echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  📚 Stories:  ${final_story_bar}$(printf '%*s' $((34 - ${#final_completed} - ${#final_total})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+  local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
+  if [[ "$compact_mode" == "true" ]]; then
+    # Compact mode: single line with cost
+    echo ""
+    echo -e "⚠️  $(_ralph_warning "MAX ITERATIONS") ($MAX) │ ${final_remaining} remaining │ $(_ralph_color_cost "$total_cost")"
+  else
+    # Normal mode: full box
+    echo ""
+    echo -e "${RALPH_COLOR_YELLOW}╔═══════════════════════════════════════════════════════════════╗${RALPH_COLOR_RESET}"
+    echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  ⚠️  $(_ralph_warning "REACHED MAX ITERATIONS") ($(_ralph_bold "$MAX"))$(printf '%*s' $((37 - ${#MAX})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+    echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  📋 Remaining: $final_remaining$(printf '%*s' $((47 - ${#final_remaining})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+    # Show story progress bar (JSON mode only)
+    if [[ "$use_json_mode" == "true" ]]; then
+      local final_completed=$(jq -r '.stats.completed // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local final_total=$(jq -r '.stats.total // 0' "$PRD_JSON_DIR/index.json" 2>/dev/null)
+      local final_story_bar=$(_ralph_story_progress "$final_completed" "$final_total")
+      echo -e "${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}  📚 Stories:  ${final_story_bar}$(printf '%*s' $((34 - ${#final_completed} - ${#final_total})) '')${RALPH_COLOR_YELLOW}║${RALPH_COLOR_RESET}"
+    fi
+    echo -e "${RALPH_COLOR_YELLOW}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
   fi
-  echo -e "${RALPH_COLOR_YELLOW}╚═══════════════════════════════════════════════════════════════╝${RALPH_COLOR_RESET}"
   # Send notification if enabled
   if $notify_enabled; then
-    local total_cost=$(jq -r '.totals.cost // 0' "$RALPH_COSTS_FILE" 2>/dev/null | xargs printf "%.2f")
     _ralph_ntfy "$ntfy_topic" "max_iterations" "" "" "$MAX" "$final_remaining_stats" "$total_cost"
   fi
   rm -f "$RALPH_TMP"
@@ -2433,6 +2492,8 @@ function ralph-help() {
   echo ""
   echo "${GRAY}Flags:${NC}"
   echo "  ${BOLD}-QN${NC}                   Enable ntfy notifications"
+  echo "  ${BOLD}--compact, -c${NC}         Compact output mode (less verbose)"
+  echo "  ${BOLD}--debug, -d${NC}           Debug output mode (more verbose)"
   echo ""
   echo "${GREEN}Model Flags (first=main, second=verify):${NC}"
   echo "  ${BOLD}-O${NC}                    Opus (Claude, default)"

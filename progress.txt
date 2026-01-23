@@ -506,3 +506,19 @@
 - Updated stats: completed=27, pending=5, blocked=5
 ---
 
+## Iteration 30 - US-016 Compact output mode for Ralph
+- Model: opus
+- Implemented compact output mode for denser terminal output:
+  1. Added --compact (-c) and --debug (-d) flags to ralph command
+  2. Compact startup: single line "🚀 Ralph v1.3.0 │ project │ X/Y stories │ max N iters"
+  3. Compact iteration header: single line "── [1/10] US-016 (opus) 14:15:00 ──"
+  4. Compact between-iterations: "── 📋 N remaining │ ⏳ Xs ──"
+  5. Compact completion/blocked/max-iterations: cost on same line
+  6. No DEBUG lines in codebase (already cleaned up previously)
+  7. Normal mode remains unchanged (backward compatible)
+  8. Updated help text and header comments to document new flags
+- All 6 acceptance criteria completed
+- Typecheck passes (zsh -n ralph.zsh)
+- Updated stats: completed=28, pending=6, blocked=5
+---
+
