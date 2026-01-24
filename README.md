@@ -54,6 +54,45 @@ ralph 20                      # Execute 20 iterations
 | `ralph-start` | Create worktree for isolated Ralph session |
 | `ralph-cleanup` | Merge changes and remove worktree |
 
+### ralph-start Flags
+
+| Flag | Description |
+|------|-------------|
+| `--install` | Run package manager install in worktree |
+| `--dev` | Start dev server in background after setup |
+| `--symlink-deps` | Symlink node_modules from main repo (faster than install) |
+| `--1password` | Use 1Password injection via `.env.template` |
+| `--no-env` | Skip copying `.env` and `.env.local` files |
+
+Package manager is auto-detected from lock files (bun.lockb → bun, pnpm-lock.yaml → pnpm, yarn.lock → yarn, else npm).
+
+### .worktree-sync.json
+
+Create a `.worktree-sync.json` in your repo root to configure custom worktree sync rules:
+
+```json
+{
+  "sync": {
+    "files": [
+      "secrets.json",
+      "config/local.yaml"
+    ],
+    "symlinks": [
+      ".cache",
+      "data"
+    ],
+    "commands": [
+      "cp .env.example .env",
+      "make setup"
+    ]
+  }
+}
+```
+
+- **files**: Additional files/directories to copy to worktree
+- **symlinks**: Files/directories to symlink instead of copy
+- **commands**: Post-setup commands to run in the worktree
+
 ### Flags
 
 | Flag | Description |
@@ -182,36 +221,64 @@ alias claude-with-keys='op run --env-file=~/.config/ralph/skills/.env.template -
 
 ## Modular Context System
 
-Ralph uses a modular context system to load relevant instructions for each iteration. Context files from `~/.claude/contexts/` are automatically concatenated and passed to Claude via `--append-system-prompt`.
+Ralph builds a **layered context** for each iteration, giving Claude the right instructions for your specific project.
 
-### How It Works
+> 📖 **Full documentation:** [docs/claude-md-layering.md](docs/claude-md-layering.md)
 
-1. **Base context** (`base.md`) is always loaded first - contains core Ralph rules
-2. **Workflow context** (`workflow/ralph.md`) is loaded - Ralph-specific instructions
-3. **Tech contexts** are auto-detected based on project files:
-   - `tech/nextjs.md` - if `next.config.{js,mjs,ts}` exists
-   - `tech/convex.md` - if `convex.json` or `convex/` exists
-   - `tech/supabase.md` - if `supabase/` exists or package.json references supabase
-   - `tech/react-native.md` - if Expo or React Native detected
-4. **Additional contexts** can be specified in config.json
+### Context Flow
 
-### Context Directory Structure
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    CONTEXT BUILDING FLOW                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   1. BASE (always)         ~/.claude/contexts/base.md           │
+│        │                   └─ Core rules, safety, patterns      │
+│        ▼                                                        │
+│   2. WORKFLOW              ~/.claude/contexts/workflow/ralph.md │
+│        │                   └─ Ralph-specific: commits, PRD      │
+│        ▼                                                        │
+│   3. TECH (auto-detect)    ~/.claude/contexts/tech/*.md         │
+│        │                   └─ Next.js, Convex, Supabase...      │
+│        ▼                                                        │
+│   4. ADDITIONAL (config)   Custom contexts from config.json     │
+│        │                                                        │
+│        ▼                                                        │
+│   ╔═════════════════════════════════════════════════════════╗   │
+│   ║  CONCATENATED → --append-system-prompt → Claude CLI     ║   │
+│   ╚═════════════════════════════════════════════════════════╝   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Auto-Detection Magic
+
+Ralph scans your project and loads relevant tech contexts:
+
+| Detected File/Pattern | Context Loaded |
+|----------------------|----------------|
+| `next.config.{js,mjs,ts}` | `tech/nextjs.md` |
+| `convex.json` or `convex/` | `tech/convex.md` |
+| `supabase/` or supabase in package.json | `tech/supabase.md` |
+| Expo or React Native markers | `tech/react-native.md` |
+
+### Directory Structure
 
 ```
 ~/.claude/contexts/
-├── base.md                 # Core rules (always loaded)
+├── base.md                 # 🔒 Core rules (ALWAYS loaded)
 ├── workflow/
-│   └── ralph.md           # Ralph-specific instructions
+│   ├── ralph.md           # 🤖 Ralph autonomous mode
+│   └── interactive.md     # 💬 Human-in-loop mode
 └── tech/
-    ├── nextjs.md          # Next.js patterns
-    ├── convex.md          # Convex patterns
-    ├── supabase.md        # Supabase patterns
-    └── react-native.md    # React Native patterns
+    ├── nextjs.md          # ⚡ Next.js patterns
+    ├── convex.md          # 🔄 Convex patterns
+    ├── supabase.md        # 🗄️ Supabase patterns
+    └── react-native.md    # 📱 React Native patterns
 ```
 
 ### Configuration
 
-Override or extend context loading in `~/.config/ralphtools/config.json`:
+Extend context loading in `~/.config/ralphtools/config.json`:
 
 ```json
 {
