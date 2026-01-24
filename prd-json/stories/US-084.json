@@ -9,39 +9,39 @@
   "acceptanceCriteria": [
     {
       "text": "Detect partial progress: story has checked criteria but passes=false",
-      "checked": false
+      "checked": true
     },
     {
       "text": "When partial progress detected, add catchup context to prompt:",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Run: git diff HEAD~1 --name-only (files changed last iteration)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Run: git log -1 --oneline (what was committed)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Include: 'Previous iteration made progress. Review changes before continuing.'",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add to Claude prompt: list of checked vs unchecked criteria",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Consider: --no-catchup flag to skip this behavior",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Partially complete a story, restart Ralph, verify catchup context shown",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Fresh story (0 checked) should NOT trigger catchup",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit changes with message: feat/fix: [STORY-ID] description",

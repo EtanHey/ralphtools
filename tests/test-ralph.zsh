@@ -1658,6 +1658,132 @@ test_error_patterns_include_nodejs_rejections() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# US-084: AUTO-CATCHUP CONTEXT TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: _ralph_build_catchup_context returns empty for fresh story (no checked criteria)
+test_catchup_returns_empty_for_fresh_story() {
+  test_start "catchup returns empty for fresh story"
+  _setup_test_fixtures
+
+  # Create PRD structure with fresh story (0 checked criteria)
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-001.json" << 'EOF'
+{
+  "id": "US-001",
+  "title": "Test story",
+  "passes": false,
+  "acceptanceCriteria": [
+    { "text": "First criterion", "checked": false },
+    { "text": "Second criterion", "checked": false },
+    { "text": "Third criterion", "checked": false }
+  ]
+}
+EOF
+
+  # Call catchup function
+  local result=$(_ralph_build_catchup_context "$TEST_TMP_DIR/prd-json" "US-001")
+
+  # Should return empty string for fresh story
+  assert_equals "" "$result" "catchup should return empty for fresh story" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_build_catchup_context returns context for partial progress
+test_catchup_returns_context_for_partial_progress() {
+  test_start "catchup returns context for partial progress"
+  _setup_test_fixtures
+
+  # Create PRD structure with partial progress (some checked criteria)
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-002.json" << 'EOF'
+{
+  "id": "US-002",
+  "title": "Partial story",
+  "passes": false,
+  "acceptanceCriteria": [
+    { "text": "First criterion", "checked": true },
+    { "text": "Second criterion", "checked": true },
+    { "text": "Third criterion", "checked": false },
+    { "text": "Fourth criterion", "checked": false }
+  ]
+}
+EOF
+
+  # Need to be in a git repo for git commands to work
+  cd "$TEST_TMP_DIR"
+  git init -q 2>/dev/null
+  git config user.email "test@test.com" 2>/dev/null
+  git config user.name "Test" 2>/dev/null
+  touch file.txt
+  git add file.txt
+  git commit -m "Initial commit" -q 2>/dev/null
+
+  # Call catchup function
+  local result=$(_ralph_build_catchup_context "$TEST_TMP_DIR/prd-json" "US-002")
+
+  # Should return non-empty context
+  if [[ -z "$result" ]]; then
+    cd -
+    test_fail "catchup should return non-empty context for partial progress"
+    _teardown_test_fixtures
+    return
+  fi
+
+  # Should contain partial progress header
+  assert_contains "$result" "PARTIAL PROGRESS DETECTED" "should contain partial progress header" || { cd -; _teardown_test_fixtures; return; }
+
+  # Should contain criteria count
+  assert_contains "$result" "2/4 criteria already checked" "should contain 2/4 criteria count" || { cd -; _teardown_test_fixtures; return; }
+
+  # Should contain completed criteria
+  assert_contains "$result" "First criterion" "should list completed criteria" || { cd -; _teardown_test_fixtures; return; }
+  assert_contains "$result" "Second criterion" "should list completed criteria" || { cd -; _teardown_test_fixtures; return; }
+
+  # Should contain remaining criteria
+  assert_contains "$result" "Third criterion" "should list remaining criteria" || { cd -; _teardown_test_fixtures; return; }
+  assert_contains "$result" "Fourth criterion" "should list remaining criteria" || { cd -; _teardown_test_fixtures; return; }
+
+  # Should contain instructions
+  assert_contains "$result" "DO NOT redo" "should contain instructions not to redo" || { cd -; _teardown_test_fixtures; return; }
+
+  cd -
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: _ralph_build_catchup_context returns empty for completed story
+test_catchup_returns_empty_for_completed_story() {
+  test_start "catchup returns empty for completed story"
+  _setup_test_fixtures
+
+  # Create PRD structure with completed story (passes=true)
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-003.json" << 'EOF'
+{
+  "id": "US-003",
+  "title": "Completed story",
+  "passes": true,
+  "acceptanceCriteria": [
+    { "text": "First criterion", "checked": true },
+    { "text": "Second criterion", "checked": true }
+  ]
+}
+EOF
+
+  # Call catchup function
+  local result=$(_ralph_build_catchup_context "$TEST_TMP_DIR/prd-json" "US-003")
+
+  # Should return empty string for completed story (passes=true)
+  assert_equals "" "$result" "catchup should return empty for completed story" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════
 
