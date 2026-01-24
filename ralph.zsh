@@ -2702,27 +2702,27 @@ _ralph_build_context_file() {
     rm -f "$output_file"
   fi
 
-  # Start with empty file
-  > "$output_file"
+  # Build context in memory first, then write once (avoids orphaned cat processes)
+  local context_content=""
 
   # Always load base.md first (core Ralph rules)
   if [[ -f "$contexts_dir/base.md" ]]; then
-    cat "$contexts_dir/base.md" >> "$output_file"
-    echo -e "\n---\n" >> "$output_file"
+    context_content+="$(<"$contexts_dir/base.md")"
+    context_content+=$'\n---\n'
   fi
 
   # Load workflow/ralph.md (Ralph-specific instructions)
   if [[ -f "$contexts_dir/workflow/ralph.md" ]]; then
-    cat "$contexts_dir/workflow/ralph.md" >> "$output_file"
-    echo -e "\n---\n" >> "$output_file"
+    context_content+="$(<"$contexts_dir/workflow/ralph.md")"
+    context_content+=$'\n---\n'
   fi
 
   # Detect and load tech-specific contexts
   local tech_stack=$(_ralph_detect_tech_stack)
   for tech in $tech_stack; do
     if [[ -f "$contexts_dir/tech/${tech}.md" ]]; then
-      cat "$contexts_dir/tech/${tech}.md" >> "$output_file"
-      echo -e "\n---\n" >> "$output_file"
+      context_content+="$(<"$contexts_dir/tech/${tech}.md")"
+      context_content+=$'\n---\n'
     fi
   done
 
@@ -2731,11 +2731,14 @@ _ralph_build_context_file() {
     for ctx in $RALPH_ADDITIONAL_CONTEXTS; do
       local ctx_file="$contexts_dir/$ctx"
       if [[ -f "$ctx_file" ]]; then
-        cat "$ctx_file" >> "$output_file"
-        echo -e "\n---\n" >> "$output_file"
+        context_content+="$(<"$ctx_file")"
+        context_content+=$'\n---\n'
       fi
     done
   fi
+
+  # Write all content at once (single operation, no subprocess)
+  print -r -- "$context_content" > "$output_file"
 
   echo "$output_file"
 }
