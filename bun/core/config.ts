@@ -69,7 +69,7 @@ export interface RalphConfig {
 
 // Default config values
 export const DEFAULT_CONFIG: Partial<RalphConfig> = {
-  runtime: "bash",
+  runtime: "bun",
   modelStrategy: "smart",
   defaultModel: "opus",
   unknownTaskType: "sonnet",

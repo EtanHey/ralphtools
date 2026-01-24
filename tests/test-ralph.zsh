@@ -262,6 +262,7 @@ _teardown_test_fixtures() {
 
 # Reset all RALPH config variables to undefined state
 _reset_ralph_vars() {
+  unset RALPH_RUNTIME
   unset RALPH_MODEL_STRATEGY
   unset RALPH_DEFAULT_MODEL_CFG
   unset RALPH_UNKNOWN_TASK_MODEL
@@ -2223,9 +2224,9 @@ EOF
   test_pass
 }
 
-# Test: _ralph_load_config defaults runtime to 'bash' when not specified
-test_config_runtime_defaults_to_bash() {
-  test_start "load_config defaults runtime to 'bash'"
+# Test: _ralph_load_config defaults runtime to 'bun' when not specified
+test_config_runtime_defaults_to_bun() {
+  test_start "load_config defaults runtime to 'bun'"
   _setup_test_fixtures
   _reset_ralph_vars
   unset RALPH_RUNTIME
@@ -2241,8 +2242,8 @@ EOF
   # Load config
   _ralph_load_config
 
-  # Verify runtime defaults to bash
-  assert_equals "bash" "$RALPH_RUNTIME" "runtime should default to 'bash'" || { _teardown_test_fixtures; return; }
+  # Verify runtime defaults to bun (changed in US-107)
+  assert_equals "bun" "$RALPH_RUNTIME" "runtime should default to 'bun'" || { _teardown_test_fixtures; return; }
 
   _teardown_test_fixtures
   test_pass
@@ -2653,6 +2654,112 @@ test_error_detection_debug_logging() {
     return
   fi
 
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# US-107 TESTS: Ink UI as default runtime
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: Fresh install uses Ink UI (bun) by default
+test_us107_fresh_install_defaults_to_bun() {
+  test_start "fresh install uses Ink UI by default (US-107)"
+
+  local ralph_file="${SCRIPT_DIR}/../ralph.zsh"
+  if [[ ! -f "$ralph_file" ]]; then
+    ralph_file="$HOME/.config/ralph/ralph.zsh"
+  fi
+
+  # Check that the config template in ralph.zsh uses runtime: bun
+  # This verifies the skip-setup default config has runtime: bun
+  if ! grep -q '"runtime": "bun"' "$ralph_file" 2>/dev/null; then
+    test_fail "default config template should have runtime: bun"
+    return
+  fi
+
+  # Check that jq fallback uses "bun" as default
+  if ! grep -q '\.runtime // "bun"' "$ralph_file" 2>/dev/null; then
+    test_fail "jq fallback should default runtime to bun"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: ralph-config can switch back to bash
+test_us107_config_supports_bash_runtime() {
+  test_start "config supports bash runtime switch (US-107)"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Create a config.json with runtime: bash
+  cat > "$RALPH_CONFIG_FILE" << 'EOF'
+{
+  "runtime": "bash",
+  "modelStrategy": "smart",
+  "defaultModel": "sonnet"
+}
+EOF
+
+  # Load config
+  _ralph_load_config
+
+  # Check that runtime is "bash"
+  if [[ "$RALPH_RUNTIME" != "bash" ]]; then
+    test_fail "RALPH_RUNTIME should be 'bash', got '$RALPH_RUNTIME'"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Existing configs with runtime=bash still work
+test_us107_existing_bash_config_works() {
+  test_start "existing bash config works (US-107)"
+  _setup_test_fixtures
+  _reset_ralph_vars
+
+  # Create a config.json mimicking an existing user config
+  cat > "$RALPH_CONFIG_FILE" << 'EOF'
+{
+  "runtime": "bash",
+  "modelStrategy": "single",
+  "defaultModel": "opus",
+  "notifications": {
+    "enabled": false
+  },
+  "defaults": {
+    "maxIterations": 50,
+    "sleepSeconds": 3
+  }
+}
+EOF
+
+  # Load config
+  _ralph_load_config
+
+  # Verify all values are loaded correctly (runtime=bash is preserved)
+  if [[ "$RALPH_RUNTIME" != "bash" ]]; then
+    test_fail "RALPH_RUNTIME should be 'bash' from existing config, got '$RALPH_RUNTIME'"
+    _teardown_test_fixtures
+    return
+  fi
+
+  if [[ "$RALPH_MODEL_STRATEGY" != "single" ]]; then
+    test_fail "RALPH_MODEL_STRATEGY should be 'single', got '$RALPH_MODEL_STRATEGY'"
+    _teardown_test_fixtures
+    return
+  fi
+
+  if [[ "$RALPH_DEFAULT_MODEL_CFG" != "opus" ]]; then
+    test_fail "RALPH_DEFAULT_MODEL_CFG should be 'opus', got '$RALPH_DEFAULT_MODEL_CFG'"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
   test_pass
 }
 

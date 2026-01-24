@@ -16,8 +16,9 @@
 #   -c, --compact : Compact output mode (less vertical whitespace)
 #   -d, --debug   : Debug output mode (more verbose)
 #   --no-live    : Disable live progress bar updates (fswatch)
-#   --ui-ink     : Use React Ink UI dashboard (requires bun)
-#   (no flag) : No notifications, Opus model (default)
+#   --ui-ink     : Use React Ink UI dashboard (default, requires bun)
+#   --ui-bash    : Force traditional zsh-based UI (fallback)
+#   (no flag) : No notifications, Opus model, Ink UI (default)
 #
 # Model Flags:
 #   -O   : Opus (Claude, default)
@@ -1288,7 +1289,7 @@ ralph-config() {
   # Ensure config directory exists
   mkdir -p "$RALPH_CONFIG_DIR"
 
-  local runtime="bash"
+  local runtime="bun"
   local max_iterations="100"
   local model_strategy=""
   local default_model=""
@@ -1306,10 +1307,12 @@ ralph-config() {
     # ═══════════════════════════════════════════════════════════
 
     echo "🏃 Runtime Preference"
-    echo "   bash = Traditional zsh-based UI"
-    echo "   bun  = Modern React Ink UI (requires bun)"
+    echo "   bun  = Modern React Ink UI (recommended, requires bun)"
+    echo "   bash = Traditional zsh-based UI (fallback)"
     echo ""
-    runtime=$(gum choose "bash" "bun")
+    runtime=$(gum choose "bun (Recommended)" "bash")
+    # Extract just the runtime name (remove "(Recommended)" suffix)
+    runtime="${runtime%% *}"
     echo "   Selected: $runtime"
     echo ""
 
@@ -1403,13 +1406,13 @@ ralph-config() {
     echo ""
 
     echo "🏃 Runtime Preference"
-    echo "   1) bash = Traditional zsh-based UI"
-    echo "   2) bun  = Modern React Ink UI (requires bun)"
+    echo "   1) bun  = Modern React Ink UI (recommended, requires bun)"
+    echo "   2) bash = Traditional zsh-based UI (fallback)"
     echo -n "   Choose [1/2]: "
     read runtime_choice
     case "$runtime_choice" in
-      2|bun) runtime="bun" ;;
-      *)     runtime="bash" ;;
+      2|bash) runtime="bash" ;;
+      *)      runtime="bun" ;;
     esac
     echo "   Selected: $runtime"
     echo ""
@@ -1616,7 +1619,7 @@ _ralph_first_run_check() {
     mkdir -p "$RALPH_CONFIG_DIR"
     cat > "$RALPH_CONFIG_FILE" << 'EOF'
 {
-  "runtime": "bash",
+  "runtime": "bun",
   "modelStrategy": "smart",
   "defaultModel": "sonnet",
   "unknownTaskType": "sonnet",
@@ -1664,7 +1667,7 @@ EOF
       mkdir -p "$RALPH_CONFIG_DIR"
       cat > "$RALPH_CONFIG_FILE" << 'EOF'
 {
-  "runtime": "bash",
+  "runtime": "bun",
   "modelStrategy": "smart",
   "defaultModel": "sonnet",
   "unknownTaskType": "sonnet",
@@ -1716,7 +1719,7 @@ EOF
         mkdir -p "$RALPH_CONFIG_DIR"
         cat > "$RALPH_CONFIG_FILE" << 'EOF'
 {
-  "runtime": "bash",
+  "runtime": "bun",
   "modelStrategy": "smart",
   "defaultModel": "sonnet",
   "unknownTaskType": "sonnet",
@@ -1760,8 +1763,8 @@ EOF
 _ralph_load_config() {
   if [[ -f "$RALPH_CONFIG_FILE" ]]; then
     # Export config values as environment variables for easy access
-    # Runtime: bash or bun (default: bash)
-    RALPH_RUNTIME=$(jq -r '.runtime // "bash"' "$RALPH_CONFIG_FILE" 2>/dev/null)
+    # Runtime: bash or bun (default: bun)
+    RALPH_RUNTIME=$(jq -r '.runtime // "bun"' "$RALPH_CONFIG_FILE" 2>/dev/null)
 
     RALPH_MODEL_STRATEGY=$(jq -r '.modelStrategy // "single"' "$RALPH_CONFIG_FILE" 2>/dev/null)
     RALPH_DEFAULT_MODEL_CFG=$(jq -r '.defaultModel // "opus"' "$RALPH_CONFIG_FILE" 2>/dev/null)
@@ -3373,6 +3376,7 @@ function ralph() {
   local debug_mode=false     # Debug output mode (more verbose)
   local live_updates=true    # Live progress bar updates via file watching
   local use_ink_ui=false     # Use React Ink UI for dashboard display
+  local force_bash_ui=false  # Force bash UI (override config.runtime)
 
   # Interactive control variables (gum-enabled features)
   local ralph_start_time=$(date +%s)  # Track when ralph started
@@ -3418,6 +3422,11 @@ function ralph() {
         ;;
       --ui-ink)
         use_ink_ui=true
+        shift
+        ;;
+      --ui-bash)
+        use_ink_ui=false
+        force_bash_ui=true
         shift
         ;;
       -O|--opus)
@@ -3499,8 +3508,8 @@ function ralph() {
     _ralph_first_run_check
   fi
 
-  # Set UI mode from config.runtime (unless --ui-ink was passed explicitly)
-  if [[ "$use_ink_ui" != "true" && "$RALPH_RUNTIME" == "bun" ]]; then
+  # Set UI mode from config.runtime (unless --ui-ink or --ui-bash was passed explicitly)
+  if [[ "$force_bash_ui" != "true" && "$use_ink_ui" != "true" && "$RALPH_RUNTIME" == "bun" ]]; then
     use_ink_ui=true
   fi
 
@@ -4955,7 +4964,8 @@ function ralph-help() {
   echo "  ${BOLD}-QN${NC}                   Enable ntfy notifications"
   echo "  ${BOLD}--compact, -c${NC}         Compact output mode (less verbose)"
   echo "  ${BOLD}--debug, -d${NC}           Debug output mode (more verbose)"
-  echo "  ${BOLD}--ui-ink${NC}              Use React Ink UI dashboard (requires bun)"
+  echo "  ${BOLD}--ui-ink${NC}              Use React Ink UI dashboard (default, requires bun)"
+  echo "  ${BOLD}--ui-bash${NC}             Force traditional zsh-based UI (fallback)"
   echo ""
   echo "${GREEN}Model Flags:${NC}"
   echo "  ${BOLD}-O${NC}                    Opus (Claude, default)"

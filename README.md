@@ -100,6 +100,21 @@ Create a `.worktree-sync.json` in your repo root to configure custom worktree sy
 | Flag | Description |
 |------|-------------|
 | `-QN` | Enable [ntfy](https://ntfy.sh) notifications |
+| `--ui-bash` | Force traditional zsh-based UI (fallback) |
+
+### Terminal UI
+
+Ralph uses the **React Ink UI** by default, providing a modern terminal dashboard with live-updating progress. If you prefer the classic zsh-based output, you can switch back:
+
+```bash
+# Use bash UI for this session
+ralph 20 --ui-bash
+
+# Or change the default via config
+ralph-config  # Select "bash" for runtime
+```
+
+The Ink UI requires **Bun** to be installed. If Bun is not available, Ralph automatically falls back to the bash UI.
 
 ### Model Flags
 
@@ -404,7 +419,7 @@ Detailed docs for AI agents in [`docs/`](docs/):
 
 ### v1.5.0 (In Progress)
 - **golem-powers skills**: Unified skill namespace with executable pattern (SKILL.md + scripts/)
-- **React Ink UI**: Modern terminal dashboard (`--ui-ink` flag, US-085/US-093)
+- **React Ink UI**: Modern terminal dashboard, now the default (US-085/US-093/US-107)
 - **Modular context system**: Layered CLAUDE.md with `@context:` directives (MP-002)
 - **Kiro model variants**: kiro-haiku, kiro-sonnet, kiro-opus routing
 - **prd-manager skill**: Atomic PRD operations (add-to-index, add-criterion, etc.)
