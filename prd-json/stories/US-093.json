@@ -9,83 +9,83 @@
   "acceptanceCriteria": [
     {
       "text": "REFERENCE: Read ralph.zsh _ralph_color_story_id, _ralph_color_model, _ralph_color_cost functions",
-      "checked": false
+      "checked": true
     },
     {
       "text": "REFERENCE: Read ralph.zsh _ralph_progress_bar, _ralph_progress_color functions",
-      "checked": false
+      "checked": true
     },
     {
       "text": "REFERENCE: Read ralph.zsh _ralph_show_iteration_status for full box layout",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create ui/ directory with React Ink + Bun setup",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/Box.tsx - Unicode box drawing (╔═╗║╚═╝)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/ProgressBar.tsx - colored bars with percentage colors (green→yellow→red)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/StoryId.tsx - colored by type (US=blue, BUG=red, V=purple, AUDIT=magenta, MP=cyan)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/ModelBadge.tsx - colored by model (opus=yellow, sonnet=cyan, haiku=green)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/CostDisplay.tsx - colored by amount (low=green, med=yellow, high=red)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/IterationBox.tsx - full iteration status with all progress bars",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/ModelRouting.tsx - shows all type→model mappings",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/StartupBanner.tsx - Ralph version, path, stats, criteria count",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create components/LiveOutput.tsx - streaming Claude output",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Implement file watching (fs.watch) for live criteria updates",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Implement debounced updates (500ms) to prevent flicker",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Implement ANSI cursor positioning for in-place updates (no scroll)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Support compact mode (single line) vs full mode (box)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add unit tests for each component",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Visual parity with original ralph.zsh output",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: feat: [STORY-ID] description",

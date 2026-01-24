@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "types": ["bun", "node"],
+    "outDir": "dist",
+    "declaration": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*", "tests/**/*"]
+}

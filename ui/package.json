@@ -1,0 +1,23 @@
+{
+  "name": "@ralphtools/ui",
+  "version": "1.0.0",
+  "description": "React Ink terminal UI components for Ralph",
+  "type": "module",
+  "main": "src/index.tsx",
+  "scripts": {
+    "start": "bun src/index.tsx",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ink": "^5.2.0",
+    "ink-spinner": "^5.0.0",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}
