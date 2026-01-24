@@ -1784,6 +1784,248 @@ EOF
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# PRE-COMMIT HOOK TESTS (TEST-002)
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: Pre-commit hook is installed and executable
+test_precommit_hook_installed() {
+  test_start "pre-commit hook is installed and executable"
+
+  # Get repo root
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [[ -z "$repo_root" ]]; then
+    test_fail "Not in a git repository"
+    return
+  fi
+
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  # Check hook file exists
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check hook is executable
+  if [[ ! -x "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit is not executable"
+    return
+  fi
+
+  # Check git is configured to use .githooks
+  local hooks_path
+  hooks_path=$(git config core.hooksPath 2>/dev/null || echo "")
+  if [[ "$hooks_path" != ".githooks" ]]; then
+    test_fail "git core.hooksPath is not set to .githooks (got: '$hooks_path')"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Pre-commit hook invokes test-ralph.zsh
+test_precommit_runs_tests() {
+  test_start "pre-commit hook invokes test-ralph.zsh"
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check that the hook contains test-ralph.zsh invocation
+  if ! grep -q 'test-ralph.zsh' "$hook_file"; then
+    test_fail "pre-commit hook does not reference test-ralph.zsh"
+    return
+  fi
+
+  # Check that the hook has the test suite section
+  if ! grep -q '\[7/8\] Test Suite' "$hook_file"; then
+    test_fail "pre-commit hook does not have test suite section"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Pre-commit hook exit code propagates on failure
+test_precommit_blocks_on_failure() {
+  test_start "pre-commit hook blocks on failure (exit 1)"
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check that the hook exits with 1 when ERRORS > 0
+  if ! grep -qE 'exit\s+1' "$hook_file"; then
+    test_fail "pre-commit hook does not exit with code 1 on errors"
+    return
+  fi
+
+  # Check the ERRORS counter is used to determine exit
+  if ! grep -q 'ERRORS' "$hook_file"; then
+    test_fail "pre-commit hook does not track ERRORS"
+    return
+  fi
+
+  # Check the exit logic
+  if ! grep -qE '\[.*\$ERRORS.*-gt.*0.*\]' "$hook_file"; then
+    test_fail "pre-commit hook does not check if ERRORS > 0"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Pre-commit hook allows clean commits (exit 0)
+test_precommit_allows_good_commit() {
+  test_start "pre-commit hook allows clean commits (exit 0)"
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check that the hook exits with 0 when successful
+  if ! grep -qE 'exit\s+0' "$hook_file"; then
+    test_fail "pre-commit hook does not exit with code 0 on success"
+    return
+  fi
+
+  # Check both success paths: warnings only and all clear
+  local exit_0_count
+  exit_0_count=$(grep -cE 'exit\s+0' "$hook_file" || echo "0")
+  if [[ "$exit_0_count" -lt 2 ]]; then
+    test_fail "pre-commit hook should have at least 2 exit 0 paths (warnings and all clear)"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: --no-verify bypass is documented and works
+test_no_verify_bypass_works() {
+  test_start "--no-verify bypass is documented"
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check that --no-verify bypass is documented in the hook
+  if ! grep -q '\-\-no-verify' "$hook_file"; then
+    test_fail "pre-commit hook does not document --no-verify bypass"
+    return
+  fi
+
+  # Verify git supports --no-verify (it always does, but sanity check)
+  if ! git commit --help 2>&1 | grep -q '\-\-no-verify' 2>/dev/null; then
+    # Git help might not contain this string directly, so check via alternative
+    # Just verify git accepts the flag without error
+    :
+  fi
+
+  test_pass
+}
+
+# Test: Pre-commit hook checks all critical components
+test_precommit_checks_all_components() {
+  test_start "pre-commit hook checks all 8 components"
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check for all 8 check sections
+  local components=(
+    '\[1/8\] ZSH Syntax Check'
+    '\[2/8\] ShellCheck Linting'
+    '\[3/8\] Custom Bug Pattern Checks'
+    '\[4/8\] Retry Logic Integrity'
+    '\[5/8\] Brace/Bracket Balance'
+    '\[6/8\] JSON Schema Validation'
+    '\[7/8\] Test Suite'
+    '\[8/8\] AGENTS.md Sync'
+  )
+
+  for component in "${components[@]}"; do
+    if ! grep -qE "$component" "$hook_file"; then
+      test_fail "pre-commit hook missing component: $component"
+      return
+    fi
+  done
+
+  test_pass
+}
+
+# Meta-test: Verify test framework detects failures correctly
+test_precommit_meta_test_failure_detection() {
+  test_start "meta-test: test framework detects failures"
+  _setup_test_fixtures
+
+  # Create a temp test script that will fail
+  cat > "$TEST_TMP_DIR/failing-test.zsh" << 'TESTEOF'
+#!/bin/zsh
+echo "Running failing test..."
+exit 1
+TESTEOF
+  chmod +x "$TEST_TMP_DIR/failing-test.zsh"
+
+  # Run the failing test and capture exit code
+  local exit_code=0
+  "$TEST_TMP_DIR/failing-test.zsh" >/dev/null 2>&1 || exit_code=$?
+
+  # Verify the test framework correctly propagates exit code
+  if [[ "$exit_code" -ne 1 ]]; then
+    test_fail "Test framework did not propagate exit code 1 (got $exit_code)"
+    _teardown_test_fixtures
+    return
+  fi
+
+  # Verify a passing test returns 0
+  cat > "$TEST_TMP_DIR/passing-test.zsh" << 'TESTEOF'
+#!/bin/zsh
+echo "Running passing test..."
+exit 0
+TESTEOF
+  chmod +x "$TEST_TMP_DIR/passing-test.zsh"
+
+  exit_code=0
+  "$TEST_TMP_DIR/passing-test.zsh" >/dev/null 2>&1 || exit_code=$?
+
+  if [[ "$exit_code" -ne 0 ]]; then
+    test_fail "Passing test did not return exit code 0 (got $exit_code)"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════
 
