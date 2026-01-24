@@ -8,6 +8,20 @@ Fast verification for Ralph V-* stories. Runs BEFORE Claude to catch obvious iss
 - Catch bugs before full verification
 - Fast feedback loop (seconds, not minutes)
 
+## Quick Start
+
+For quick verification, use the review script:
+
+```bash
+./scripts/review.sh
+```
+
+Or for minimal output (Ralph integration):
+
+```bash
+cr review --prompt-only --type committed
+```
+
 ## Steps
 
 ### Step 1: Run quick verification
@@ -62,3 +76,11 @@ Example:
 [MEDIUM] src/utils.ts:12 - Unused import
 [LOW] src/index.ts:3 - Consider using const
 ```
+
+## Related Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `./scripts/review.sh` | Full review with Markdown output |
+| `./scripts/security.sh` | Security-focused scan |
+| `./scripts/pr-ready.sh` | Comprehensive PR check |

@@ -2,6 +2,16 @@
 
 Scan for hardcoded secrets, API keys, and sensitive data.
 
+## Quick Start
+
+Run the secrets script directly:
+
+```bash
+./scripts/secrets.sh
+```
+
+This outputs a Markdown report with secret detection results and remediation steps.
+
 ## When to Use
 
 - Before any commit
@@ -11,8 +21,14 @@ Scan for hardcoded secrets, API keys, and sensitive data.
 
 ## Steps
 
-### Step 1: Run review and filter for secrets
+### Step 1: Run secrets scan
 
+**Using the script (recommended):**
+```bash
+./scripts/secrets.sh
+```
+
+**Manual alternative:**
 ```bash
 cr review --prompt-only | grep -iE "secret|api.?key|token|password|credential|private.?key|auth|bearer|jwt"
 ```
@@ -80,5 +96,5 @@ op run --env-file=.env.template -- npm run dev
 
 Add to pre-commit hook to catch before commit:
 ```bash
-cr review --prompt-only | grep -qiE "secret|api.?key|token|password" && echo "BLOCKED: Potential secret detected" && exit 1
+./scripts/secrets.sh | grep -q "🚨" && echo "BLOCKED: Potential secret detected" && exit 1
 ```

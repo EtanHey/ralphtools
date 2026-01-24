@@ -2,6 +2,16 @@
 
 Check code for accessibility issues (a11y).
 
+## Quick Start
+
+Run the accessibility script directly:
+
+```bash
+./scripts/accessibility.sh
+```
+
+This outputs a Markdown report with a11y findings and checklist.
+
 ## When to Use
 
 - UI component changes
@@ -11,15 +21,16 @@ Check code for accessibility issues (a11y).
 
 ## Steps
 
-### Step 1: Run review and filter for a11y
+### Step 1: Run a11y audit
 
+**Using the script (recommended):**
 ```bash
-cr review --prompt-only | grep -iE "accessibility|a11y|aria|alt|label|focus|keyboard|screen.?reader|contrast|role"
+./scripts/accessibility.sh
 ```
 
-Or full review:
+**Manual alternative:**
 ```bash
-cr review --plain
+cr review --prompt-only | grep -iE "accessibility|a11y|aria|alt|label|focus|keyboard|screen.?reader|contrast|role"
 ```
 
 ### Step 2: Accessibility checklist
@@ -62,3 +73,10 @@ For Hebrew/Arabic UIs:
 - Check `dir="rtl"` propagation
 - Verify flex direction reversal
 - Ensure text alignment is correct
+
+## Related Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `./scripts/review.sh` | Full code review |
+| `./scripts/pr-ready.sh` | Comprehensive PR check |

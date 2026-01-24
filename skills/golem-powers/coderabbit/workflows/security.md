@@ -2,6 +2,16 @@
 
 Security-focused code review.
 
+## Quick Start
+
+Run the security script directly:
+
+```bash
+./scripts/security.sh
+```
+
+This outputs a Markdown report with security findings and checklist.
+
 ## When to Use
 
 - Before deploying to production
@@ -12,23 +22,19 @@ Security-focused code review.
 
 ### Step 1: Run security-focused review
 
+**Using the script (recommended):**
 ```bash
-cr review --plain --config ~/.claude/commands/coderabbit/configs/security.yaml
+./scripts/security.sh
 ```
 
-Or without config:
+**Manual alternative:**
 ```bash
-cr review --plain
-```
-
-Then grep for security issues:
-```bash
-cr review --prompt-only | grep -i "security\|injection\|xss\|csrf\|auth\|password\|token\|secret"
+cr review --plain | grep -iE 'security|inject|xss|csrf|auth|secret|password|token|credential|vulnerab'
 ```
 
 ### Step 2: Security checklist
 
-Check CodeRabbit output for:
+Check the output for:
 
 | Category | Look For |
 |----------|----------|
@@ -55,3 +61,10 @@ Check CodeRabbit output for:
 [MEDIUM] Missing rate limiting on auth endpoint
 [LOW] Debug logging includes user email
 ```
+
+## Related Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `./scripts/secrets.sh` | Dedicated secret detection |
+| `./scripts/pr-ready.sh` | Full comprehensive check |

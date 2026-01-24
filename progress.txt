@@ -304,3 +304,28 @@ Changes:
 - MCP servers may have API keys managed server-side (not visible in user config)
 - golem-powers skills can inherit from parent symlink, no separate symlink needed
 - URL encoding in bash can use python3 -c "import urllib.parse; print(urllib.parse.quote(...))"
+
+## Iteration 17
+Story: US-077 - Refactor coderabbit skill to golem-powers executable pattern
+Status: COMPLETED (opus)
+Changes:
+- Moved skills/coderabbit/ to skills/golem-powers/coderabbit/
+- Updated SKILL.md frontmatter with execute: scripts/review.sh
+- Created 5 executable scripts:
+  - review.sh: runs cr review --plain with Markdown output
+  - security.sh: filters for security issues (injection, xss, csrf, auth, secrets)
+  - secrets.sh: scans for hardcoded secrets and API keys
+  - accessibility.sh: a11y audit filtering
+  - pr-ready.sh: comprehensive PR check against main branch
+- All scripts output proper Markdown with headers and tables
+- Updated all workflow .md files (review, security, secrets, accessibility, pr-ready, verify) to reference scripts
+- Removed old symlink ~/.claude/commands/coderabbit
+- Verified ~/.claude/commands/golem-powers/coderabbit works via parent symlink
+- Fixed SKILL.md: cr --base main → cr review --base main (CodeRabbit found this)
+- All scripts pass shellcheck
+
+### Learnings
+- CodeRabbit CLI finds issues in documentation (good for catching incomplete examples)
+- golem-powers executable skills inherit symlinks from parent, no separate link needed
+- Scripts should output Markdown for consistent formatting across Claude Code
+- Workflow files should show both script usage (recommended) and manual commands (alternative)

@@ -1,3 +1,9 @@
+---
+name: coderabbit
+description: CodeRabbit - AI Code Review
+execute: scripts/review.sh
+---
+
 # CodeRabbit - AI Code Review
 
 Fast AI code reviews via CodeRabbit CLI. Free for open source.
@@ -20,7 +26,7 @@ basename $(git rev-parse --show-toplevel 2>/dev/null)
 cr review --plain           # Human-readable review
 cr review --prompt-only     # For AI agents (minimal tokens)
 cr review --type uncommitted # Only unstaged changes
-cr --base main              # Compare against main branch
+cr review --base main       # Compare against main branch
 ```
 
 ## Workflows
