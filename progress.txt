@@ -378,3 +378,24 @@ Changes:
 - update/ skill mentioned in criteria doesn't exist - was already deprecated
 - All existing skills already had proper YAML frontmatter from previous iterations
 - Single golem-powers symlink + subdirectories is cleaner than multiple individual symlinks
+
+## Iteration 20
+Story: US-079 - golem-powers:create-pr - Adapt create-pr skill from Union
+Status: COMPLETED (opus)
+Changes:
+- Created scripts/create-pr.sh with full argument parsing (--title, --body, --base)
+- Pushes current branch with -u flag: git push -u origin HEAD
+- Creates PR using gh pr create with proper Markdown output
+- Edge case: Protected branch detection (main/master/dev) with helpful message
+- Edge case: Uncommitted changes detection with git status output
+- Edge case: Existing PR detection using gh pr view
+- Auto-generates title from branch name (feature/add-login -> Add login)
+- Auto-generates body with commit log if not provided
+- chmod +x applied, shellcheck passes
+- Verified symlink via parent golem-powers symlink works
+- Tested edge cases: protected branch warning, uncommitted changes warning
+
+### Learnings
+- gh pr view returns JSON with url, title, state fields when PR exists
+- git rev-parse --abbrev-ref HEAD gets current branch name
+- Branch name to title: sed to strip prefix, tr to convert dashes/underscores to spaces
