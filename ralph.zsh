@@ -2695,8 +2695,11 @@ _ralph_ntfy() {
 # Context directory for modular context files
 RALPH_CONTEXTS_DIR="${RALPH_CONTEXTS_DIR:-$HOME/.claude/contexts}"
 
-# React Ink UI path for dashboard display
-RALPH_UI_PATH="${RALPH_UI_PATH:-$HOME/.config/ralphtools/ralph-ui/src/index.tsx}"
+# Script directory (for finding ralph-ui and other assets)
+RALPH_SCRIPT_DIR="${RALPH_SCRIPT_DIR:-${0:a:h}}"
+
+# React Ink UI path for dashboard display (relative to script dir)
+RALPH_UI_PATH="${RALPH_UI_PATH:-${RALPH_SCRIPT_DIR}/ralph-ui/src/index.tsx}"
 
 # Detect project technology stack for loading appropriate tech contexts
 # Returns: space-separated list of tech contexts (e.g., "nextjs supabase")
