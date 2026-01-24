@@ -1,0 +1,32 @@
+{
+  "id": "US-109",
+  "title": "Smart wizard detection and tips",
+  "description": "Enhance ralph-config wizard to auto-detect environment and show helpful tips.\n\nAuto-detect:\n- Is bun installed? → suggest Ink UI\n- Is gum installed? → note enhanced bash UI available\n- Is this a monorepo? → detect apps from package.json workspaces\n- Existing .zshrc RALPH_* vars → migrate them\n- Tech stack from package.json (next, convex, supabase, etc.)\n\nTips:\n- Show 'Run ralph-config anytime to change settings'\n- If detection might be wrong, show how to override",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "=== AUTO-DETECTION ===", "checked": false},
+    {"text": "Detect if bun is installed (command -v bun)", "checked": false},
+    {"text": "Detect if gum is installed (command -v gum)", "checked": false},
+    {"text": "Detect monorepo from package.json workspaces field", "checked": false},
+    {"text": "Detect tech stack from package.json dependencies", "checked": false},
+    {"text": "Check for existing RALPH_* vars in .zshrc", "checked": false},
+    {"text": "=== SMART DEFAULTS ===", "checked": false},
+    {"text": "If bun installed: default runtime=bun, else runtime=bash", "checked": false},
+    {"text": "If monorepo: ask which app to configure, or all", "checked": false},
+    {"text": "Show what was detected before asking to confirm", "checked": false},
+    {"text": "=== TIPS ===", "checked": false},
+    {"text": "After setup: 'Run ralph-config anytime to change settings'", "checked": false},
+    {"text": "If detection used: 'We detected X. Wrong? Run ralph-config --reset'", "checked": false},
+    {"text": "Show tip about --skip-setup flag for scripts", "checked": false},
+    {"text": "=== TESTING ===", "checked": false},
+    {"text": "Test: Detects bun when installed", "checked": false},
+    {"text": "Test: Detects monorepo structure", "checked": false},
+    {"text": "Test: Shows correct tips after setup", "checked": false},
+    {"text": "Commit: feat: US-109 smart wizard detection and tips", "checked": false}
+  ],
+  "dependencies": ["MP-003"],
+  "passes": false
+}
