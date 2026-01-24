@@ -49,17 +49,29 @@
 # Output streams in REAL-TIME so you can watch Claude work.
 # ═══════════════════════════════════════════════════════════════════
 
-RALPH_VERSION="1.4.0"
+# Read version from centralized VERSION file
+RALPH_VERSION_FILE="${0:A:h}/VERSION"
+if [[ -f "$RALPH_VERSION_FILE" ]]; then
+  RALPH_VERSION=$(head -1 "$RALPH_VERSION_FILE")
+else
+  RALPH_VERSION="0.0.0"  # Fallback if VERSION file missing
+fi
 
 # ═══════════════════════════════════════════════════════════════════
-# CHANGELOG (associative array with version -> changes mapping)
+# CHANGELOG (loaded from VERSION file)
+# Format: VERSION|feature1|feature2|...
 # ═══════════════════════════════════════════════════════════════════
 declare -A RALPH_CHANGELOG
-RALPH_CHANGELOG[1.4.0]="Live criteria sync with file watching (fswatch/inotifywait)|No-flash progress updates using ANSI cursor positioning|--no-live flag to disable live updates|Debounced updates (500ms) for smooth display"
-RALPH_CHANGELOG[1.3.0]="Per-iteration cost tracking (actual tokens from JSONL)|Enhanced ntfy notifications with titles & priorities|Session IDs passed to Claude for precise tracking|ralph-costs shows ✓ actual vs ~ estimated data"
-RALPH_CHANGELOG[1.2.0]="Smart model routing (US→Sonnet, V→Haiku, etc.)|Config-based model assignment via config.json|Cost tracking infrastructure"
-RALPH_CHANGELOG[1.1.0]="JSON mode with automatic unblocking|Brave browser manager integration|Smart file access with shell fallbacks"
-RALPH_CHANGELOG[1.0.0]="Initial Ralph release|Autonomous loop for executing user stories|Git-based workflow and commit tracking"
+if [[ -f "$RALPH_VERSION_FILE" ]]; then
+  while IFS= read -r line; do
+    # Skip empty lines and comments
+    [[ -z "$line" || "$line" == \#* ]] && continue
+    # Parse VERSION|features format
+    local ver="${line%%|*}"
+    local features="${line#*|}"
+    [[ "$ver" != "$line" ]] && RALPH_CHANGELOG[$ver]="$features"
+  done < "$RALPH_VERSION_FILE"
+fi
 
 # ═══════════════════════════════════════════════════════════════════
 # WHAT'S NEW (shown once per version upgrade)
@@ -7946,6 +7958,7 @@ function ralph-setup() {
         "🔐 Configure 1Password Environments" \
         "🔑 Migrate secrets to 1Password" \
         "🐰 Configure CodeRabbit" \
+        "📓 Configure Obsidian MCP" \
         "📜 Migrate CLAUDE.md contexts" \
         "📋 View current configuration" \
         "🚪 Exit setup")
@@ -7959,11 +7972,12 @@ function ralph-setup() {
       echo "  4) 🔐 Configure 1Password Environments"
       echo "  5) 🔑 Migrate secrets to 1Password"
       echo "  6) 🐰 Configure CodeRabbit"
-      echo "  7) 📜 Migrate CLAUDE.md contexts"
-      echo "  8) 📋 View current configuration"
-      echo "  9) 🚪 Exit setup"
+      echo "  7) 📓 Configure Obsidian MCP"
+      echo "  8) 📜 Migrate CLAUDE.md contexts"
+      echo "  9) 📋 View current configuration"
+      echo " 10) 🚪 Exit setup"
       echo ""
-      echo -n "Choose [1-9]: "
+      echo -n "Choose [1-10]: "
       read menu_choice
       case "$menu_choice" in
         1) choice="📂 Add new project" ;;
@@ -7972,7 +7986,8 @@ function ralph-setup() {
         4) choice="🔐 Configure 1Password Environments" ;;
         5) choice="🔑 Migrate secrets to 1Password" ;;
         6) choice="🐰 Configure CodeRabbit" ;;
-        7) choice="📜 Migrate CLAUDE.md contexts" ;;
+        7) choice="📓 Configure Obsidian MCP" ;;
+        8) choice="📜 Migrate CLAUDE.md contexts" ;;
         8) choice="📋 View current configuration" ;;
         9|*) choice="🚪 Exit setup" ;;
       esac
