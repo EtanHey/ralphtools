@@ -7,15 +7,41 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Run ralph-config and complete wizard with runtime=bun", "checked": false},
-    {"text": "Verify config.json contains runtime: bun", "checked": false},
-    {"text": "Run ralph and verify it attempts to use bun UI (or falls back gracefully)", "checked": false},
-    {"text": "Run ralph-config again, change to runtime=bash", "checked": false},
-    {"text": "Verify ralph uses bash UI after config change", "checked": false},
-    {"text": "Test maxIterations config is respected", "checked": false},
-    {"text": "Delete config.json, verify ralph prompts for setup", "checked": false},
-    {"text": "All verification checks pass", "checked": false}
+    {
+      "text": "Run ralph-config and complete wizard with runtime=bun",
+      "checked": true
+    },
+    {
+      "text": "Verify config.json contains runtime: bun",
+      "checked": true
+    },
+    {
+      "text": "Run ralph and verify it attempts to use bun UI (or falls back gracefully)",
+      "checked": true
+    },
+    {
+      "text": "Run ralph-config again, change to runtime=bash",
+      "checked": true
+    },
+    {
+      "text": "Verify ralph uses bash UI after config change",
+      "checked": true
+    },
+    {
+      "text": "Test maxIterations config is respected",
+      "checked": true
+    },
+    {
+      "text": "Delete config.json, verify ralph prompts for setup",
+      "checked": true
+    },
+    {
+      "text": "All verification checks pass",
+      "checked": true
+    }
   ],
-  "dependencies": ["MP-003"],
-  "passes": false
+  "dependencies": [
+    "MP-003"
+  ],
+  "passes": true
 }
