@@ -857,3 +857,22 @@ Moved US-101 to blocked array, set nextStory to TEST-003.
 
 ### Learnings
 - Multiple 1Password stories should all be blocked in sequence rather than attempted
+
+## Iteration 42
+Story: TEST-003 - Comprehensive update.json merge tests
+Status: COMPLETED (opus)
+Changes:
+- Added 15 comprehensive tests for _ralph_apply_update_queue() function
+- newStories tests: file creation, pending/storyOrder array updates, duplicates, multi-story
+- updateStories tests: merging, field preservation, non-existent story handling
+- Error handling tests: malformed JSON, empty updates, missing index.json
+- Cleanup tests: file deletion on success
+- Warning tests: ignored fields detection
+- Integration tests: RALPH_UPDATES_APPLIED var, nextStory setting
+- Test count increased from 83 to 98 (all passing)
+- Note: Stats recalculation tests pass because stats are derived on-the-fly per US-106
+
+### Learnings
+- Stats are derived on-the-fly from arrays (US-106), not stored in index.json
+- Test section headers (=== SECTION ===) are organizational markers and count as checked
+- CodeRabbit review --prompt-only returns "Review completed" with no issues when PASS
