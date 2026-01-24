@@ -22,7 +22,7 @@ NC='\033[0m'
 
 echo ""
 echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo "${CYAN}  🔍 Personal Info Check (Claude Haiku)${NC}"
+echo "${CYAN}  🔐 Secrets Scan (Claude Haiku)${NC}"
 echo "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
@@ -57,28 +57,35 @@ echo "Checking $FILE_COUNT files..."
 echo ""
 
 # Run Claude Haiku with the file contents directly
-RESULT=$(echo "$CONTENT" | claude --print --model haiku -p "You are checking code files for personal information before public release.
+RESULT=$(echo "$CONTENT" | claude --print --model haiku -p "You are a security scanner checking code for SENSITIVE DATA that could compromise security.
 
-I will provide file contents. Check for ANY personal/private information:
-- Personal names, usernames (real names or nicknames that identify a person)
-- Email addresses (any @domain patterns that look real, not placeholders)
-- Personal notification topics (like 'username-projectname' patterns)
-- Hardcoded paths with usernames (/Users/realname/, /home/person/)
-- Personal project references that identify the owner
-- API keys, tokens, secrets (even if they look fake)
+FLAG these security risks:
+- API keys, tokens, secrets (real ones like 'sk_live_...', 'ghp_...', bearer tokens)
+- Passwords (actual passwords, not placeholders)
+- SSN, credit card numbers, bank account numbers
+- Private SSH keys, PEM file contents
+- Database connection strings with real credentials
+- Real file paths that expose system structure (like /Users/realname/.ssh/, /home/user/.config/secrets/)
+- Internal network IPs, server hostnames that reveal infrastructure
 
-IGNORE (these are OK for public release):
-- Placeholders like 'YOUR_USERNAME', '{project}', '{app}'
-- Generic defaults like 'ralph-notifications'
-- Example patterns meant for documentation
-- GitHub clone URLs (git clone https://github.com/...) - these are public repo URLs
-- Public attributions and credits (original concept authors, contributors)
-- Example API keys in documentation (like 'sk-1234...' shown as examples)
-- File paths in code comments showing example structure
+DO NOT FLAG (these are SAFE):
+- Author names, usernames, GitHub usernames (attribution is normal)
+- Notification topic names (etans-projectClaude is just an identifier)
+- Project paths in COMMENTS or DOCUMENTATION showing examples
+- Paths inside the repo itself (./scripts/, ./tests/)
+- Example/placeholder values (YOUR_KEY_HERE, sk-1234...)
+- Public clone URLs (github.com/...)
+- Credits sections, personal branding
 
-OUTPUT FORMAT - be concise:
-If personal info found:
-FOUND: [filename]: [brief description]
+KEY DISTINCTION for paths:
+- FLAG: Real paths to sensitive dirs like ~/.ssh, ~/.aws, ~/.config/secrets
+- OK: Project paths in docs showing structure, /Users/name/Desktop/Gits/reponame is fine (just shows where repo lives)
+
+The goal is SECURITY - preventing actual exploitation, not anonymity.
+
+OUTPUT FORMAT - be very concise:
+If security risks found:
+FOUND: [filename]: [brief description of risk]
 RESULT: FAIL
 
 If clean:

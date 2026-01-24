@@ -123,32 +123,34 @@ fi
 echo ""
 
 # ═══════════════════════════════════════════════════════════════
-# 4. PERSONAL INFO CHECK (uses Claude Code for smart detection)
+# 4. SECRETS SCAN (uses Claude Code for smart detection)
 # ═══════════════════════════════════════════════════════════════
-echo "${YELLOW}[4/5] Personal Info Check (Claude Code)${NC}"
+echo "${YELLOW}[4/5] Secrets Scan (Claude Code)${NC}"
 
 # Run the Claude-powered check script
 if [[ -x "scripts/check-personal-info.sh" ]]; then
   if ! scripts/check-personal-info.sh; then
-    echo "  ${RED}✗${NC} Personal info detected by Claude Code"
+    echo "  ${RED}✗${NC} Secrets detected by Claude Code"
     ERRORS=$((ERRORS + 1))
   fi
 else
   # Fallback to simple regex if script not available
-  PERSONAL_PATTERNS="etans-|etanheyman|etan@|heyman@"
+  # Only check for real secrets patterns, not personal names
+  SECRETS_PATTERNS="sk_live_|sk_test_|ghp_|gho_|github_pat_|-----BEGIN.*PRIVATE KEY|password\s*=\s*['\"][^'\"]{8,}"
   LEAKED=""
   for file in *.zsh *.md *.sh *.json scripts/*.sh tests/*.sh skills/*.md configs/*.json; do
     [[ -f "$file" ]] || continue
     [[ "$file" == "ralph-config.local"* ]] && continue
-    if grep -qE "$PERSONAL_PATTERNS" "$file" 2>/dev/null; then
+    [[ "$file" == "*.example" ]] && continue
+    if grep -qE "$SECRETS_PATTERNS" "$file" 2>/dev/null; then
       LEAKED="$LEAKED $file"
     fi
   done
   if [[ -n "$LEAKED" ]]; then
-    echo "  ${RED}✗${NC} Personal info found in:$LEAKED"
+    echo "  ${RED}✗${NC} Potential secrets found in:$LEAKED"
     ERRORS=$((ERRORS + 1))
   else
-    echo "  ${GREEN}✓${NC} No personal info (regex fallback)"
+    echo "  ${GREEN}✓${NC} No secrets detected (regex fallback)"
   fi
 fi
 echo ""
