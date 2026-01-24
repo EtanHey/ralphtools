@@ -1002,3 +1002,30 @@ Changes:
 - TDD workflow: write failing tests, then implement to make them pass
 - ShellCheck SC2088 is for tilde in quotes - okay in display labels
 - Wizard should validate all three layers of the system
+
+## Iteration 50
+Story: US-097 - Migration wizard for modular context setup
+Status: COMPLETED (opus)
+Changes:
+- Added 'Migrate CLAUDE.md contexts' menu item to ralph-setup wizard
+- Created _ralph_setup_context_migration() function with full workflow:
+  - Checks for ~/.claude/contexts/ directory
+  - Copies context templates from ralphtools/contexts/ if missing
+  - Lists available contexts (base, tech/*, workflow/*)
+  - Runs scripts/context-migrate.zsh to analyze CLAUDE.md
+  - Shows estimated savings and asks about migration
+  - Applies migration or shows manual steps
+- Added --skip-context-migration flag to ralph-setup
+- Created contexts/ directory in ralphtools with all templates:
+  - base.md, README.md
+  - tech/: nextjs.md, supabase.md, convex.md, react-native.md
+  - workflow/: interactive.md, ralph.md, rtl.md, testing.md, design-system.md
+- Added empty glob check per CodeRabbit review
+- Added 5 unit tests for context migration
+- All 122 ZSH + 17 skills + 83 Bun tests pass
+- CodeRabbit: Fixed supabase.md type helpers and empty glob check
+
+### Learnings
+- ${0:a:h} in ZSH functions returns the directory + function name, not the script path
+- Use global SCRIPT_DIR variable set at script load time for consistent paths in tests
+- Context templates should use project-standard patterns (npm run typegen, Tables<> helpers)
