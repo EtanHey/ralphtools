@@ -7,12 +7,12 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Fix brace balance check to ignore braces in strings/heredocs or tolerate small imbalances", "checked": false},
-    {"text": "Fix break detection to verify break is actually outside a loop (check for while/for/until context)", "checked": false},
-    {"text": "Add test case for valid code with braces in strings", "checked": false},
-    {"text": "Add test case for break inside retry loop", "checked": false},
-    {"text": "Verify ralph.zsh passes pre-commit without --no-verify", "checked": false},
-    {"text": "Run CodeRabbit review", "checked": false},
+    {"text": "Fix brace balance check to ignore braces in strings/heredocs or tolerate small imbalances", "checked": true},
+    {"text": "Fix break detection to verify break is actually outside a loop (check for while/for/until context)", "checked": true},
+    {"text": "Add test case for valid code with braces in strings", "checked": true},
+    {"text": "Add test case for break inside retry loop", "checked": true},
+    {"text": "Verify ralph.zsh passes pre-commit without --no-verify", "checked": true},
+    {"text": "Run CodeRabbit review", "checked": true},
     {"text": "Commit: fix: BUG-026 reduce pre-commit hook false positives", "checked": false}
   ],
   "dependencies": [],

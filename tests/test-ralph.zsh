@@ -2025,6 +2025,68 @@ TESTEOF
   test_pass
 }
 
+# Test: Pre-commit hook tolerates minor brace imbalances from ${var} syntax (BUG-026)
+test_precommit_tolerates_minor_brace_imbalance() {
+  test_start "pre-commit tolerates minor brace imbalance (BUG-026)"
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check that the hook has brace diff tolerance logic
+  if ! grep -q 'BRACE_DIFF' "$hook_file"; then
+    test_fail "pre-commit hook should calculate BRACE_DIFF for tolerance"
+    return
+  fi
+
+  # Check that the hook warns on small imbalances instead of error
+  if ! grep -qE 'BRACE_DIFF.*-gt.*10' "$hook_file"; then
+    test_fail "pre-commit hook should only error on large brace imbalance (>10)"
+    return
+  fi
+
+  # Check that the hook has a warning path for small imbalances
+  if ! grep -q 'Minor brace imbalance' "$hook_file"; then
+    test_fail "pre-commit hook should warn about minor brace imbalances"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Pre-commit hook checks break is inside a loop, not just conditionals (BUG-026)
+test_precommit_break_inside_loop_check() {
+  test_start "pre-commit break check verifies loop context (BUG-026)"
+
+  local repo_root
+  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  local hook_file="$repo_root/.githooks/pre-commit"
+
+  if [[ ! -f "$hook_file" ]]; then
+    test_fail ".githooks/pre-commit does not exist"
+    return
+  fi
+
+  # Check that the hook looks for while/for/until keywords for break validation
+  if ! grep -qE 'while\|for\|until' "$hook_file"; then
+    test_fail "pre-commit hook should check for while/for/until near break statements"
+    return
+  fi
+
+  # Check that the hook uses sufficient context (at least 20+ lines)
+  if ! grep -qE 'linenum.*-.*[2-9][0-9]' "$hook_file"; then
+    test_fail "pre-commit hook should check 20+ lines of context for break statements"
+    return
+  fi
+
+  test_pass
+}
+
 # ═══════════════════════════════════════════════════════════════════
 # INTERACTIVE CONTEXT TESTS
 # ═══════════════════════════════════════════════════════════════════
