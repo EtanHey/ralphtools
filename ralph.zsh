@@ -4168,9 +4168,12 @@ function ralph() {
         _ralph_build_context_file "$RALPH_CONTEXT_FILE" >/dev/null
         if [[ -f "$RALPH_CONTEXT_FILE" ]]; then
           # Read context file and add to CLI as --append-system-prompt
-          # Use $(<file) syntax to avoid subshell that inherits xtrace (BUG-025)
+          # Use $(<file) syntax and noxtrace to prevent content leaking to terminal (BUG-025)
           local context_content
-          context_content=$(<"$RALPH_CONTEXT_FILE")
+          {
+            setopt localoptions noxtrace
+            context_content=$(<"$RALPH_CONTEXT_FILE")
+          }
           cli_cmd_arr+=(--append-system-prompt "$context_content")
         fi
       fi
