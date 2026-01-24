@@ -329,3 +329,26 @@ Changes:
 - golem-powers executable skills inherit symlinks from parent, no separate link needed
 - Scripts should output Markdown for consistent formatting across Claude Code
 - Workflow files should show both script usage (recommended) and manual commands (alternative)
+
+## Iteration 18
+Story: MP-002 - Ralph loads modular contexts via --append-system-prompt
+Status: COMPLETED (opus)
+Changes:
+- Researched Claude CLI: uses --append-system-prompt <prompt> (string, not file)
+- Created _ralph_build_context_file() function to concatenate context files
+- Created _ralph_detect_tech_stack() for auto-detecting Next.js, Convex, Supabase, React Native
+- Always loads base.md, workflow/ralph.md, then tech-specific contexts
+- Generates merged context to /tmp/ralph-context-$$.md
+- Added --append-system-prompt with file contents to cli_cmd_arr (Claude only)
+- Added _ralph_cleanup_context_file() for cleanup after each iteration
+- Removed ${brave_skill} and ${ralph_agent_instructions} variable injections (obsolete)
+- Moved RALPH GIT RULES override to ~/.claude/contexts/workflow/ralph.md
+- Added contexts section to _ralph_load_config() with directory and additional array support
+- Documented modular context system in README.md
+- All 46 tests pass
+
+### Learnings
+- Claude CLI uses --append-system-prompt <prompt> not --append-system-prompt-file
+- Context file contents can be passed as the prompt argument value
+- Tech detection uses package.json, config files, and directory presence
+- Context cleanup must happen per-iteration since file is generated in loop
