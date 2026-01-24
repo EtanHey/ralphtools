@@ -16,6 +16,7 @@
 #   -c, --compact : Compact output mode (less vertical whitespace)
 #   -d, --debug   : Debug output mode (more verbose)
 #   --no-live    : Disable live progress bar updates (fswatch)
+#   --ui-ink     : Use React Ink UI dashboard (requires bun)
 #   (no flag) : No notifications, Opus model (default)
 #
 # Model Flags:
@@ -1007,6 +1008,47 @@ _ralph_format_elapsed() {
     printf "%ds" $secs
   fi
 }
+
+# ═══════════════════════════════════════════════════════════════════
+# REACT INK UI INTEGRATION
+# ═══════════════════════════════════════════════════════════════════
+
+# Usage: _ralph_show_ink_ui $mode $prd_path $iteration $model $start_time
+# Modes: startup, iteration, live
+_ralph_show_ink_ui() {
+  local mode="$1"
+  local prd_path="$2"
+  local iteration="${3:-1}"
+  local model="${4:-sonnet}"
+  local start_time="${5:-$(date +%s)}"
+
+  # Check if bun is available
+  if ! command -v bun &>/dev/null; then
+    echo -e "${RALPH_COLOR_YELLOW}[WARN] bun not found, falling back to shell UI${RALPH_COLOR_RESET}"
+    return 1
+  fi
+
+  # Check if UI file exists
+  if [[ ! -f "$RALPH_UI_PATH" ]]; then
+    echo -e "${RALPH_COLOR_YELLOW}[WARN] React Ink UI not found at $RALPH_UI_PATH, falling back to shell UI${RALPH_COLOR_RESET}"
+    return 1
+  fi
+
+  # Convert start_time to milliseconds for JavaScript
+  local start_time_ms=$((start_time * 1000))
+
+  # Run the React Ink UI
+  bun "$RALPH_UI_PATH" \
+    --mode="$mode" \
+    --prd-path="$prd_path" \
+    --iteration="$iteration" \
+    --model="$model" \
+    --start-time="$start_time_ms"
+
+  return $?
+}
+
+# ═══════════════════════════════════════════════════════════════════
 
 # Show compact between-iterations status (4-5 lines max)
 # Usage: _ralph_show_iteration_status $json_dir $start_time $i $MAX $current_story $model $compact
@@ -2653,6 +2695,9 @@ _ralph_ntfy() {
 # Context directory for modular context files
 RALPH_CONTEXTS_DIR="${RALPH_CONTEXTS_DIR:-$HOME/.claude/contexts}"
 
+# React Ink UI path for dashboard display
+RALPH_UI_PATH="${RALPH_UI_PATH:-$HOME/.config/ralphtools/ralph-ui/src/index.tsx}"
+
 # Detect project technology stack for loading appropriate tech contexts
 # Returns: space-separated list of tech contexts (e.g., "nextjs supabase")
 _ralph_detect_tech_stack() {
@@ -3194,6 +3239,7 @@ function ralph() {
   local compact_mode=false   # Compact output mode (less verbose)
   local debug_mode=false     # Debug output mode (more verbose)
   local live_updates=true    # Live progress bar updates via file watching
+  local use_ink_ui=false     # Use React Ink UI for dashboard display
 
   # Interactive control variables (gum-enabled features)
   local ralph_start_time=$(date +%s)  # Track when ralph started
@@ -3235,6 +3281,10 @@ function ralph() {
         ;;
       --no-live)
         live_updates=false
+        shift
+        ;;
+      --ui-ink)
+        use_ink_ui=true
         shift
         ;;
       -O|--opus)
@@ -4645,6 +4695,7 @@ function ralph-help() {
   echo "  ${BOLD}-QN${NC}                   Enable ntfy notifications"
   echo "  ${BOLD}--compact, -c${NC}         Compact output mode (less verbose)"
   echo "  ${BOLD}--debug, -d${NC}           Debug output mode (more verbose)"
+  echo "  ${BOLD}--ui-ink${NC}              Use React Ink UI dashboard (requires bun)"
   echo ""
   echo "${GREEN}Model Flags:${NC}"
   echo "  ${BOLD}-O${NC}                    Opus (Claude, default)"

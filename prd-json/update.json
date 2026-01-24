@@ -1,0 +1,107 @@
+{
+  "newStories": [
+    {
+      "id": "US-102",
+      "title": "Refactor context architecture: extract interactive rules from base.md",
+      "type": "feature",
+      "priority": "high",
+      "storyPoints": 3,
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Create ~/.claude/contexts/workflow/interactive.md", "checked": false},
+        {"text": "Move git safety rules from base.md to interactive.md", "checked": false},
+        {"text": "Move CLAUDE_COUNTER system from base.md to interactive.md", "checked": false},
+        {"text": "Update base.md to only contain truly universal rules", "checked": false},
+        {"text": "Remove OVERRIDE comment from ralph.md (no longer needed)", "checked": false},
+        {"text": "Update README.md in contexts with new architecture", "checked": false},
+        {"text": "Commit changes", "checked": false}
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "US-103",
+      "title": "Update nextjs.md for Next.js 15+ async params pattern",
+      "type": "feature",
+      "priority": "medium",
+      "storyPoints": 2,
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Update Provider Setup example to use Promise<{locale}> pattern", "checked": false},
+        {"text": "Update any other params examples to async pattern", "checked": false},
+        {"text": "Add note about Next.js 15+ requirement", "checked": false},
+        {"text": "Commit changes", "checked": false}
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "BUG-021",
+      "title": "Pre-commit hook missing Bun tests (83 tests not enforced)",
+      "type": "bug",
+      "priority": "high",
+      "storyPoints": 2,
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Add Bun test section to .githooks/pre-commit", "checked": false},
+        {"text": "Only run if bun/ directory exists", "checked": false},
+        {"text": "Run: cd bun && bun test", "checked": false},
+        {"text": "Fail commit if Bun tests fail", "checked": false},
+        {"text": "Test: verify commit blocked when test fails", "checked": false},
+        {"text": "Commit changes", "checked": false}
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "US-104",
+      "title": "Clean up skill references in context files",
+      "type": "feature",
+      "priority": "medium",
+      "storyPoints": 2,
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Update ralph.md to just reference /prd-manager skill", "checked": false},
+        {"text": "Update convex.md to reference /convex skill for dev server", "checked": false},
+        {"text": "Keep simple one-liner CLI commands", "checked": false},
+        {"text": "Add note about checking package.json for project commands", "checked": false},
+        {"text": "Commit changes", "checked": false}
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "BUG-022",
+      "title": "Wire --ui-ink flag to actually use React Ink UI",
+      "type": "bug",
+      "priority": "high",
+      "storyPoints": 3,
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Find where _ralph_show_iteration_status is called in main loop", "checked": false},
+        {"text": "Add conditional: if use_ink_ui, call _ralph_show_ink_ui instead", "checked": false},
+        {"text": "Pass correct parameters (mode, prd_path, iteration, model, start_time)", "checked": false},
+        {"text": "Handle fallback gracefully if Ink UI fails", "checked": false},
+        {"text": "Test: ralph 5 --ui-ink shows Ink dashboard instead of shell UI", "checked": false},
+        {"text": "Test: ralph 5 (no flag) shows shell UI as before", "checked": false},
+        {"text": "Commit changes", "checked": false}
+      ],
+      "dependencies": ["US-085"]
+    },
+    {
+      "id": "US-105",
+      "title": "Enhanced Ink UI: alive indicator, CodeRabbit status, error detection",
+      "type": "feature",
+      "priority": "medium",
+      "storyPoints": 5,
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Add heartbeat/alive indicator showing Ralph is responsive", "checked": false},
+        {"text": "Add CodeRabbit status component (shows when CR is running)", "checked": false},
+        {"text": "Detect 'cr review' subprocess and show in UI", "checked": false},
+        {"text": "Add error state detection (No messages returned, API errors)", "checked": false},
+        {"text": "Add hanging detection (no output for >60s shows warning)", "checked": false},
+        {"text": "Add retry countdown display when in retry cooldown", "checked": false},
+        {"text": "Add tests for new components", "checked": false},
+        {"text": "Commit changes", "checked": false}
+      ],
+      "dependencies": ["BUG-022"]
+    }
+  ]
+}

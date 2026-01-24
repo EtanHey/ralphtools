@@ -43,5 +43,6 @@
   "storyType": "TEST",
   "priority": "medium",
   "createdAt": "2026-01-24T01:30:00.000Z",
-  "passes": false
+  "passes": false,
+  "status": "pending"
 }
