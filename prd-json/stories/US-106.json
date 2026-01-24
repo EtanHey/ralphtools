@@ -32,8 +32,8 @@
     {"text": "Test: Status file updates on state changes", "checked": true},
     {"text": "Test: Status file cleaned up on exit", "checked": true},
     {"text": "Run CodeRabbit review", "checked": true},
-    {"text": "Commit: feat: US-106 UI foundation - derived stats and status file protocol", "checked": false}
+    {"text": "Commit: feat: US-106 UI foundation - derived stats and status file protocol", "checked": true}
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true
 }

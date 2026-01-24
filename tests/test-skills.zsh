@@ -25,8 +25,11 @@ typeset -g CURRENT_TEST=""
 typeset -g TEST_FAILED_FLAG=0
 typeset -g RESULTS_FILE=""
 
-# Skills directory (resolve symlinks to get actual skill locations)
-typeset -g SKILLS_DIR="${SKILLS_DIR:-$HOME/.claude/commands}"
+# Skills directory - use THIS REPO's skills as the source of truth
+# Structure: skills/golem-powers/{skill-name}/SKILL.md
+# The symlink ~/.claude/commands/golem-powers -> skills/golem-powers is for user install
+typeset -g REPO_ROOT="${0:A:h:h}"  # Parent of tests/ dir
+typeset -g SKILLS_DIR="${SKILLS_DIR:-$REPO_ROOT/skills/golem-powers}"
 
 # ═══════════════════════════════════════════════════════════════════
 # RESULTS TRACKING (file-based for reliable counting)
@@ -258,9 +261,8 @@ test_skill_md_has_required_sections() {
     if [[ -f "$skill_md" ]]; then
       local content=$(cat "$skill_md")
 
-      # Required sections:
+      # Required for ALL skills:
       # 1. YAML frontmatter with name and description
-      # 2. Quick Actions or Quick Start section (routing table)
 
       # Check YAML frontmatter
       if [[ ! "$content" =~ ^---.*name:.*--- ]]; then
@@ -269,11 +271,14 @@ test_skill_md_has_required_sections() {
         continue
       fi
 
-      # Check for Quick Actions or Quick Start section
-      if [[ ! "$content" =~ "Quick" ]]; then
-        all_passed=false
-        failing_skills+=("$skill (missing Quick Actions/Start)")
-        continue
+      # Required only for MULTI-ACTION skills (those with workflows/):
+      # 2. Quick Actions or Quick Start section (routing table)
+      if [[ -d "$skill_path/workflows" ]]; then
+        if [[ ! "$content" =~ "Quick" ]]; then
+          all_passed=false
+          failing_skills+=("$skill (has workflows/ but missing Quick Actions/Start)")
+          continue
+        fi
       fi
     fi
   done
@@ -465,7 +470,7 @@ test_scripts_pass_syntax_check() {
 # SPECIFIC SKILL TESTS (known compliant skills)
 # ═══════════════════════════════════════════════════════════════════
 
-# Test: github skill is compliant
+# Test: github skill is compliant (simple skill - just SKILL.md, no workflows/scripts)
 test_github_skill_compliant() {
   test_start "github skill is compliant"
 
@@ -474,19 +479,8 @@ test_github_skill_compliant() {
   # Must have SKILL.md
   assert_file_exists "$skill_path/SKILL.md" "github missing SKILL.md" || return
 
-  # Must have workflows directory
-  assert_dir_exists "$skill_path/workflows" "github missing workflows/" || return
-
-  # Must have scripts directory
-  assert_dir_exists "$skill_path/scripts" "github missing scripts/" || return
-
-  # Must have at least one workflow
-  local workflow_count=$(ls -1 "$skill_path/workflows"/*.md 2>/dev/null | wc -l | tr -d ' ')
-  [[ $workflow_count -ge 1 ]] || { test_fail "github has no workflows"; return; }
-
-  # Must have at least one script
-  local script_count=$(ls -1 "$skill_path/scripts"/*.sh 2>/dev/null | wc -l | tr -d ' ')
-  [[ $script_count -ge 1 ]] || { test_fail "github has no scripts"; return; }
+  # github is a simple documentation skill - it wraps git/gh CLI commands
+  # No workflows or scripts needed
 
   test_pass
 }

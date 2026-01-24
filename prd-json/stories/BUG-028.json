@@ -1,0 +1,29 @@
+{
+  "id": "BUG-028",
+  "title": "No messages returned errors bypass retry logic",
+  "description": "Node.js unhandled promise rejections from Claude CLI print to terminal but don't get captured in $RALPH_TMP, so retry logic never triggers. Need better stderr capture and debugging logs to diagnose.\n\nSymptom: Error prints to screen, Ralph exits immediately without retry.\nExpected: Ralph catches error, shows 'Retry 1/3', waits cooldown, retries.\n\nRelated: BUG-019 was marked complete but line 18 (script/unbuffer capture) was never implemented.",
+  "type": "bug",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "=== DEBUGGING ===", "checked": false},
+    {"text": "Add debug log showing what's in $RALPH_TMP after Claude exits", "checked": false},
+    {"text": "Add debug log showing exit code from pipestatus", "checked": false},
+    {"text": "Add debug log showing has_error and is_no_messages_error values", "checked": false},
+    {"text": "Log first 5 and last 10 lines of $RALPH_TMP for diagnosis", "checked": false},
+    {"text": "=== ROOT CAUSE ===", "checked": false},
+    {"text": "Determine if error goes to stderr vs stdout", "checked": false},
+    {"text": "Determine if 2>&1 is capturing properly", "checked": false},
+    {"text": "Check if tee is losing output somehow", "checked": false},
+    {"text": "=== FIX ===", "checked": false},
+    {"text": "Implement proper stderr capture (script -q, unbuffer, or separate pipe)", "checked": false},
+    {"text": "Ensure retry logic triggers on 'No messages returned'", "checked": false},
+    {"text": "=== VERIFICATION ===", "checked": false},
+    {"text": "Test: Manually trigger error, verify retry message appears", "checked": false},
+    {"text": "Test: Verify $RALPH_TMP contains error text after failure", "checked": false},
+    {"text": "Commit: fix: BUG-028 capture No messages returned errors for retry", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}

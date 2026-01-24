@@ -306,7 +306,7 @@ if [[ -n "$SKILLS_TEST_SCRIPT" && -x "$SKILLS_TEST_SCRIPT" ]]; then
 
   if [[ $SKILLS_TEST_EXIT_CODE -ne 0 ]]; then
     echo ""
-    echo "  ${RED}✗ Skills tests failed${NC}"
+    echo "  ${RED}✗${NC} Skills tests failed"
     ERRORS=$((ERRORS + 1))
   else
     echo "  ${GREEN}✓${NC} Skills tests passed"
