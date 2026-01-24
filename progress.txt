@@ -477,3 +477,27 @@ Changes:
 - Instruction-only skills don't need execute: frontmatter - they just guide Claude
 - Context recovery is useful for long sessions (48+ hours) or context overflow
 - Two patterns: full branch recovery vs quick uncommitted-only refresh
+
+## Iteration 25
+Story: US-084 - Ralph auto-catchup on partial story progress
+Status: COMPLETED (opus)
+Changes:
+- Added _ralph_build_catchup_context() function to detect partial progress
+- Partial progress = story has checked criteria but passes=false
+- When detected, adds catchup context to prompt including:
+  - git diff HEAD~1 --name-only (files changed last iteration)
+  - git log -1 --oneline (last commit info)
+  - List of checked criteria (DO NOT redo)
+  - List of unchecked criteria (focus on these)
+  - Instructions to continue from where previous iteration left off
+- Added --no-catchup flag to disable catchup behavior
+- Added catchup_enabled variable (default true) and flag parsing
+- Integrated catchup context injection into JSON mode prompt
+- Added 3 unit tests: fresh story returns empty, partial progress returns context, completed story returns empty
+- Updated ralph-help with --no-catchup flag documentation
+- All 49 tests pass
+
+### Learnings
+- Partial progress detection uses checked_criteria > 0 AND passes=false
+- Context should show both what's done (avoid redoing) and what's remaining
+- The --no-catchup flag is useful for debugging or fresh-start scenarios

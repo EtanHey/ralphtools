@@ -45,9 +45,11 @@
     },
     {
       "text": "Commit changes with message: feat/fix: [STORY-ID] description",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-24T14:23:00Z",
+  "completedBy": "opus"
 }
