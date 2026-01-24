@@ -61,12 +61,14 @@ Every story ends with a commit criterion. Match type to story:
 | MP-XXX (infrastructure) | `refactor:` or `chore:` | `refactor: MP-001 restructure auth module` |
 | AUDIT-XXX (audit/review) | `docs:` or `chore:` | `docs: AUDIT-001 update README` |
 
-**Criterion format:**
+**Last two criteria (always):**
 ```
+"Run CodeRabbit review - must pass (or create BUG if unfixable)"
 "Commit: {type}: {STORY-ID} {description}"
 ```
 
 **Examples:**
+- `"Run CodeRabbit review - must pass (or create BUG if unfixable)"`
 - `"Commit: feat: US-034 add user profile page"`
 - `"Commit: fix: BUG-012 handle null response from API"`
 - `"Commit: test: V-034 verify profile page renders correctly"`
@@ -133,7 +135,9 @@ Use `prd-json/update.json` instead. Ralph auto-merges it on next run.
   "acceptanceCriteria": [
     {"text": "[Specific criterion]", "checked": false},
     {"text": "Typecheck passes", "checked": false},
-    {"text": "Verify in browser", "checked": false}
+    {"text": "Verify in browser", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: feat: US-001 [description]", "checked": false}
   ],
   "passes": false,
   "blockedBy": null
@@ -193,5 +197,6 @@ To add/modify stories, use `update.json`:
 - [ ] Every story has "Typecheck passes"
 - [ ] UI stories have "Verify in browser"
 - [ ] Verification stories (V-XXX) for each US-XXX
+- [ ] Every story ends with CodeRabbit + Commit criteria
 - [ ] RTL rules included (if applicable) - read rtl-rules.json
 - [ ] Modal rules followed (if applicable) - read modal-rules.json

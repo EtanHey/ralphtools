@@ -25,6 +25,26 @@
       "checked": false
     },
     {
+      "text": "=== COMMIT HISTORY AUDIT ===",
+      "checked": true
+    },
+    {
+      "text": "Run: git log --oneline | head -100 to see recent features",
+      "checked": false
+    },
+    {
+      "text": "Identify sync-related commits (contexts, configs, skills, MCPs)",
+      "checked": false
+    },
+    {
+      "text": "Cross-check: does worktree sync handle each new file type?",
+      "checked": false
+    },
+    {
+      "text": "Document gaps in docs.local/worktree-gaps-from-history.md",
+      "checked": false
+    },
+    {
       "text": "=== EXPLORATION ===",
       "checked": true
     },
@@ -82,6 +102,10 @@
     },
     {
       "text": "Update US-086 criteria to handle all layers",
+      "checked": false
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
       "checked": false
     },
     {

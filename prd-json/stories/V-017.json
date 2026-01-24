@@ -25,6 +25,26 @@
       "checked": false
     },
     {
+      "text": "=== COMMIT HISTORY AUDIT ===",
+      "checked": true
+    },
+    {
+      "text": "Run: git log --oneline | head -100 to see recent features",
+      "checked": false
+    },
+    {
+      "text": "Identify setup-related commits (skills, contexts, configs, MCPs)",
+      "checked": false
+    },
+    {
+      "text": "Cross-check: does wizard test for each setup item?",
+      "checked": false
+    },
+    {
+      "text": "Document gaps in docs.local/wizard-gaps-from-history.md",
+      "checked": false
+    },
+    {
       "text": "=== EXPLORATION ===",
       "checked": true
     },
@@ -82,6 +102,10 @@
     },
     {
       "text": "Update ralph-install skill with missing setup steps",
+      "checked": false
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
       "checked": false
     },
     {
