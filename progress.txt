@@ -501,3 +501,29 @@ Changes:
 - Partial progress detection uses checked_criteria > 0 AND passes=false
 - Context should show both what's done (avoid redoing) and what's remaining
 - The --no-catchup flag is useful for debugging or fresh-start scenarios
+
+## Iteration 26
+Story: US-085 - Ralph React Ink UI - Modern terminal dashboard
+Status: COMPLETED (opus)
+Changes:
+- Created ralph-ui/ directory with Bun + React Ink setup
+- Created package.json with ink, ink-spinner, react dependencies
+- Created 6 components: Dashboard, PRDStatus, StoryBox, IterationHeader, NotificationStatus, ProgressBar
+- Created 2 hooks: useFileWatch (prd-json file watching), usePRDStats (stats calculation)
+- Created src/index.tsx entry point with CLI argument parsing
+- Added _ralph_show_ink_ui() helper function to ralph.zsh
+- Added --ui-ink flag to enable React Ink UI dashboard
+- TypeScript strict mode enabled, all 49 tests pass
+
+UI Features:
+- Live-updating criteria counts via fs.watch on prd-json/
+- Responsive layout using useStdout() to track terminal width
+- Proper text wrapping with flexWrap="wrap" for notifications
+- Conditional keyboard handling based on isRawModeSupported
+- Support for startup, iteration, and live modes
+
+### Learnings
+- React Ink v5 requires isRawModeSupported check before using useInput hook
+- fs.watch with recursive:true works on macOS for directory watching
+- Ink components use flexbox model similar to React Native
+- Debouncing file watch events (100ms) prevents rapid re-renders
