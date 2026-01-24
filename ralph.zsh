@@ -3200,6 +3200,31 @@ ralph-costs() {
 # NTFY NOTIFICATIONS
 # ═══════════════════════════════════════════════════════════════════
 
+# Truncate text at word boundary with ellipsis
+# Usage: _ralph_truncate_word_boundary "text" max_length
+# Returns truncated text with ... if longer than max_length
+_ralph_truncate_word_boundary() {
+  setopt localoptions noxtrace
+  local text="$1"
+  local max_len="${2:-40}"
+
+  # If text fits, return as-is
+  [[ ${#text} -le $max_len ]] && echo "$text" && return
+
+  # Find last space within max_len (leaving room for ...)
+  local truncate_at=$((max_len - 3))
+  local last_space=$(echo "${text:0:$truncate_at}" | grep -o ' [^ ]*$' | head -1)
+
+  if [[ -n "$last_space" ]]; then
+    # Truncate at last word boundary
+    local space_pos=$((truncate_at - ${#last_space} + 1))
+    echo "${text:0:$space_pos}..."
+  else
+    # No space found, hard truncate at max_len - 3
+    echo "${text:0:$truncate_at}..."
+  fi
+}
+
 # Send compact ntfy notification with emoji labels
 # Usage: _ralph_ntfy "topic" "event_type" "story_id" "model" "iteration" "remaining_stats" "cost"
 # remaining_stats should be "stories criteria" space-separated (from _ralph_json_remaining_stats)
@@ -3257,13 +3282,17 @@ _ralph_ntfy() {
   esac
 
   # Build compact 3-line body with emoji labels
-  # Line 1: repo name
-  local body="$project_name"
+  # Line 1: repo name (truncate long names at word boundary, max 40 chars)
+  local body=$(_ralph_truncate_word_boundary "$project_name" 40)
 
-  # Line 2: 🔄 iteration + story + model
+  # Line 2: 🔄 iteration + story + model (truncate story_id if very long)
   local line2=""
   [[ -n "$iteration" ]] && line2="🔄$iteration"
-  [[ -n "$story_id" ]] && line2+=" $story_id"
+  if [[ -n "$story_id" ]]; then
+    # Truncate story_id at word boundary if > 25 chars
+    local truncated_story=$(_ralph_truncate_word_boundary "$story_id" 25)
+    line2+=" $truncated_story"
+  fi
   [[ -n "$model" ]] && line2+=" $model"
   [[ -n "$line2" ]] && body+="\n$line2"
 
@@ -3280,10 +3309,12 @@ _ralph_ntfy() {
   [[ -n "$line3" ]] && body+="\n$line3"
 
   # Send with ntfy headers for rich notification
+  # Use Markdown format for better rendering in web/desktop apps
   curl -s \
     -H "Title: $title" \
     -H "Priority: $priority" \
     -H "Tags: $tags" \
+    -H "Markdown: true" \
     -d "$(echo -e "$body")" \
     "ntfy.sh/${topic}" > /dev/null 2>&1
 }
@@ -3659,14 +3690,34 @@ _ralph_apply_update_queue() {
   local update_stories_count=0
 
   # 1. Process newStories - create story files and add to pending
+  # Supports two formats:
+  #   - String IDs: ["MP-004", "US-005"] - story files must already exist
+  #   - Full objects: [{id: "MP-004", title: "...", ...}] - creates story files
   local new_stories=$(jq -c '.newStories // [] | .[]' "$update_file" 2>/dev/null)
   if [[ -n "$new_stories" ]]; then
     echo "$new_stories" | while IFS= read -r story; do
-      local story_id=$(echo "$story" | jq -r '.id')
-      local story_file="$stories_dir/${story_id}.json"
+      local story_id
+      local story_file
 
-      # Create the story file (normalize string criteria to object format)
-      echo "$story" | _ralph_normalize_criteria > "$story_file"
+      # Check if it's a string (just ID) or object (full story)
+      if [[ "$story" =~ ^\" ]]; then
+        # String format: "MP-004" - strip quotes
+        story_id=$(echo "$story" | jq -r '.')
+        story_file="$stories_dir/${story_id}.json"
+
+        # Story file must already exist for string format
+        if [[ ! -f "$story_file" ]]; then
+          echo "${RALPH_COLOR_YELLOW}  ⚠ Skipping $story_id: story file not found${RALPH_COLOR_RESET}"
+          continue
+        fi
+      else
+        # Object format: {id: "MP-004", ...} - extract ID and create file
+        story_id=$(echo "$story" | jq -r '.id')
+        story_file="$stories_dir/${story_id}.json"
+
+        # Create the story file (normalize string criteria to object format)
+        echo "$story" | _ralph_normalize_criteria > "$story_file"
+      fi
 
       # Add to pending array and storyOrder in index.json
       jq --arg id "$story_id" '
@@ -4205,6 +4256,13 @@ function ralph() {
     # Stop polling loop if running
     _ralph_stop_polling_loop
 
+    # Stop Ink UI if running
+    if [[ -n "$RALPH_INK_UI_PID" ]]; then
+      _ralph_untrack_pid "$RALPH_INK_UI_PID"
+      kill "$RALPH_INK_UI_PID" 2>/dev/null
+      RALPH_INK_UI_PID=""
+    fi
+
     # Untrack all PIDs from this session (prevents orphan false positives)
     _ralph_untrack_session
 
@@ -4238,13 +4296,21 @@ function ralph() {
     RALPH_LIVE_ENABLED=false
   fi
 
-  # Use React Ink UI for startup if enabled
+  # Start React Ink UI in LIVE mode with PTY wrapper
+  # Uses 'script' to give background process a pseudo-terminal
   if [[ "$use_ink_ui" == "true" ]]; then
-    if _ralph_show_ink_ui "startup" "$PRD_JSON_DIR" "1" "${primary_model:-sonnet}" "$(date +%s)" "$ntfy_topic"; then
-      # Ink UI succeeded, skip shell-based startup banner
-      :
+    if command -v bun &>/dev/null && [[ -f "$RALPH_UI_PATH" ]]; then
+      local start_time_ms=$(($(date +%s) * 1000))
+      local ink_cmd="bun $RALPH_UI_PATH --mode=live --prd-path=$PRD_JSON_DIR --iteration=1 --model=${primary_model:-sonnet} --start-time=$start_time_ms"
+      [[ -n "$ntfy_topic" ]] && ink_cmd="$ink_cmd --ntfy-topic=$ntfy_topic"
+
+      # Use 'script' to provide PTY for background process
+      script -q /dev/null $ink_cmd &
+      RALPH_INK_UI_PID=$!
+      disown $RALPH_INK_UI_PID 2>/dev/null
+      _ralph_track_pid "$RALPH_INK_UI_PID" "ink-ui"
+      sleep 0.5
     else
-      # Ink UI failed, fall through to shell UI
       use_ink_ui=false
     fi
   fi
@@ -4306,11 +4372,19 @@ function ralph() {
       local status_width=$(_ralph_display_width "$status_str")
       local status_padding=$((BOX_INNER_WIDTH - status_width))
       echo "│  ${status_str}$(printf '%*s' $status_padding '')│"
-      # Show total criteria across all stories
+      # Show total criteria across all stories with progress bar (BUG-017)
       local criteria_stats=$(_ralph_get_total_criteria "$PRD_JSON_DIR")
       local criteria_checked=$(echo "$criteria_stats" | cut -d' ' -f1)
       local criteria_total=$(echo "$criteria_stats" | cut -d' ' -f2)
-      local criteria_str="📝 Criteria: $criteria_checked/$criteria_total checked"
+      # Build a wider progress bar (15 chars) for startup display
+      local percent=0
+      [[ "$criteria_total" -gt 0 ]] && percent=$((criteria_checked * 100 / criteria_total))
+      local bar_filled=$((percent * 15 / 100))
+      local bar_empty=$((15 - bar_filled))
+      local criteria_bar=""
+      for ((j=0; j<bar_filled; j++)); do criteria_bar+="█"; done
+      for ((j=0; j<bar_empty; j++)); do criteria_bar+="░"; done
+      local criteria_str="📝 Criteria: [${criteria_bar}] $criteria_checked/$criteria_total"
       local criteria_width=$(_ralph_display_width "$criteria_str")
       local criteria_padding=$((BOX_INNER_WIDTH - criteria_width))
       echo "│  ${criteria_str}$(printf '%*s' $criteria_padding '')│"
@@ -4322,18 +4396,23 @@ function ralph() {
       echo "│  ${task_str}$(printf '%*s' $task_padding '')│"
     fi
     if $notify_enabled; then
-      # BUG-011: Truncate long topic names to fit box width
-      # "🔔 Notifications: ON (topic: " = 29 display chars, ")" = 1 char
-      # Max topic length = BOX_INNER_WIDTH - 30 = 31 chars (with 28+3 for ellipsis)
-      local max_topic_len=31
+      # BUG-017: Split notification into two lines for better readability
+      # Line 1: Notification status
+      local notify_str="🔔 Notifications: ON"
+      local notify_width=$(_ralph_display_width "$notify_str")
+      local notify_padding=$((BOX_INNER_WIDTH - notify_width))
+      echo "│  ${notify_str}$(printf '%*s' $notify_padding '')│"
+      # Line 2: Topic (with indent)
+      # "   Topic: " = 10 display chars, max topic length = 61 - 10 = 51 chars
+      local max_topic_len=51
       local display_topic="$ntfy_topic"
       if [[ ${#ntfy_topic} -gt $max_topic_len ]]; then
         display_topic="${ntfy_topic:0:$((max_topic_len - 3))}..."
       fi
-      local notify_str="🔔 Notifications: ON (topic: ${display_topic})"
-      local notify_width=$(_ralph_display_width "$notify_str")
-      local notify_padding=$((BOX_INNER_WIDTH - notify_width))
-      echo "│  ${notify_str}$(printf '%*s' $notify_padding '')│"
+      local topic_str="   Topic: $display_topic"
+      local topic_width=$(_ralph_display_width "$topic_str")
+      local topic_padding=$((BOX_INNER_WIDTH - topic_width))
+      echo "│  ${topic_str}$(printf '%*s' $topic_padding '')│"
     else
       local notify_off_str="🔕 Notifications: OFF"
       local notify_off_width=$(_ralph_display_width "$notify_off_str")
@@ -4632,11 +4711,13 @@ function ralph() {
           iteration_session_id=""  # Gemini doesn't use session IDs
           ;;
         haiku|sonnet)
-          cli_cmd_arr=(claude --chrome --dangerously-skip-permissions --model "$active_model" --session-id "$iteration_session_id")
+          # Note: --chrome removed - it causes output to bypass pipe (BUG-029)
+          # Browser automation is added via --mcp-config when project needs it
+          cli_cmd_arr=(claude --dangerously-skip-permissions --model "$active_model" --session-id "$iteration_session_id")
           ;;
         *)
           # Default: Claude Opus
-          cli_cmd_arr=(claude --chrome --dangerously-skip-permissions --session-id "$iteration_session_id")
+          cli_cmd_arr=(claude --dangerously-skip-permissions --session-id "$iteration_session_id")
           ;;
       esac
 

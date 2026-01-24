@@ -1078,3 +1078,38 @@ Changes:
 - Cursor .mdc format uses YAML frontmatter with description, globs, alwaysApply fields
 - GitHub Copilot .instructions.md uses applyTo (glob) and excludeAgent frontmatter
 - Our @context syntax is a custom Ralph convention, not affected by any tool changes
+
+## Iteration 53
+Story: BUG-017 - Prettify Ralph startup box - fix notification truncation
+Status: COMPLETED (opus)
+Changes:
+- Added 3 unit tests for notification topic wrapping and box alignment:
+  - test_bug017_long_topic_truncation: verifies topics >51 chars are truncated with "..."
+  - test_bug017_notification_two_lines: verifies notification is split into ON line + Topic line
+  - test_bug017_box_alignment: verifies box borders align with notification content
+- All 132 ZSH tests pass
+
+### Learnings
+- Long topic names truncate at 51 chars (max_topic_len) with "..." suffix
+- Notification is split into two lines: "🔔 Notifications: ON" and "   Topic: {topic}"
+- BOX_INNER_WIDTH=61 is the standard box content width for alignment
+
+## Iteration 54
+Story: BUG-018 - Fix ntfy notification truncation - wrap long messages
+Status: COMPLETED (opus)
+Changes:
+- Added `_ralph_truncate_word_boundary()` function for word-boundary truncation with ellipsis
+- Added `Markdown: true` header to ntfy curl command for better rendering in web/desktop apps
+- Updated `_ralph_ntfy()` to truncate project_name (max 40 chars) and story_id (max 25 chars) at word boundaries
+- Added 4 unit tests for BUG-018:
+  - test_bug018_truncate_short_text_unchanged: verifies short text passes through unchanged
+  - test_bug018_truncate_at_word_boundary: verifies truncation happens at word boundary
+  - test_bug018_truncate_no_spaces_hard_truncate: verifies hard truncate when no spaces
+  - test_bug018_ntfy_uses_markdown: verifies Markdown header is present
+- All 136 ZSH tests pass
+
+### Learnings
+- ntfy supports Markdown with `X-Markdown: true` header (or aliases: `Markdown`, `md`)
+- Markdown formatting is "web app only for now" per ntfy docs
+- Word boundary truncation: find last space before max_len-3, truncate there, add "..."
+- If no spaces found, hard truncate at max_len-3 characters

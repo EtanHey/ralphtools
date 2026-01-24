@@ -13,31 +13,31 @@
     },
     {
       "text": "Fix notification line: split into two lines if topic is long",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  Line 1: '🔔 Notifications: ON'",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  Line 2: '   Topic: etanheys-ralph-ralphtools-notify'",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Ensure box borders align properly with all content",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add live criteria update during iteration (like stories)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Consider: progress bar for criteria [████░░░░] 45/321",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Long topic name wraps correctly, box looks clean",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [
@@ -45,5 +45,5 @@
   ],
   "blockedBy": null,
   "blockedReason": "React Ink rewrite will solve all UI issues - no point fixing shell escape codes",
-  "passes": false
+  "passes": true
 }

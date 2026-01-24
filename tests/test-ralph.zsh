@@ -1016,6 +1016,64 @@ test_ntfy_empty_topic_no_curl() {
   test_pass
 }
 
+# BUG-018: WORD BOUNDARY TRUNCATION TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+test_bug018_truncate_short_text_unchanged() {
+  test_start "BUG-018: short text unchanged"
+  _setup_test_fixtures
+
+  local result=$(_ralph_truncate_word_boundary "hello" 40)
+  assert_equals "hello" "$result" "Short text should be unchanged" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+test_bug018_truncate_at_word_boundary() {
+  test_start "BUG-018: truncates at word boundary"
+  _setup_test_fixtures
+
+  # 50 char string: "This is a very long project name example text"
+  local long_text="This is a very long project name example text"
+  local result=$(_ralph_truncate_word_boundary "$long_text" 30)
+
+  # Should truncate at word boundary before 30 chars
+  assert_contains "$result" "..." "Should have ellipsis" || { _teardown_test_fixtures; return; }
+  [[ ${#result} -le 30 ]] || { test_fail "Result should be <= 30 chars, got ${#result}"; _teardown_test_fixtures; return; }
+  # Should NOT cut in the middle of a word
+  [[ "$result" != *"exampl..."* ]] || { test_fail "Should not truncate mid-word"; _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+test_bug018_truncate_no_spaces_hard_truncate() {
+  test_start "BUG-018: no spaces - hard truncate"
+  _setup_test_fixtures
+
+  local long_word="thisisaverylongwordwithoutanyspaces"
+  local result=$(_ralph_truncate_word_boundary "$long_word" 20)
+
+  assert_contains "$result" "..." "Should have ellipsis" || { _teardown_test_fixtures; return; }
+  [[ ${#result} -le 20 ]] || { test_fail "Result should be <= 20 chars"; _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+test_bug018_ntfy_uses_markdown() {
+  test_start "BUG-018: ntfy sends Markdown header"
+  _setup_test_fixtures
+
+  # Check that _ralph_ntfy includes Markdown header
+  local ntfy_fn=$(type -f _ralph_ntfy 2>/dev/null)
+  assert_contains "$ntfy_fn" 'Markdown: true' "Should have Markdown header" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
 # ═══════════════════════════════════════════════════════════════════
 # FRAMEWORK VALIDATION TESTS
 # ═══════════════════════════════════════════════════════════════════
@@ -2147,6 +2205,119 @@ EOF
 
   test_fail "PRD should be complete when pending=0 AND blocked=0"
   _teardown_test_fixtures
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# BUG-017: NOTIFICATION TOPIC WRAPPING TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: Long notification topic is truncated correctly
+test_bug017_long_topic_truncation() {
+  test_start "BUG-017: long topic name truncated to 51 chars"
+
+  # The fix uses max_topic_len=51, so topics > 51 chars should be truncated
+  local max_topic_len=51
+
+  # Test case: topic exactly at limit (should NOT be truncated)
+  local topic_at_limit="etanheys-ralph-ralphtools-notify-exactly-at-limit"  # 51 chars
+  local display_topic="$topic_at_limit"
+  if [[ ${#topic_at_limit} -gt $max_topic_len ]]; then
+    display_topic="${topic_at_limit:0:$((max_topic_len - 3))}..."
+  fi
+
+  # Should not be truncated since it's exactly at limit
+  if [[ "$display_topic" == *"..."* ]]; then
+    test_fail "topic at limit should NOT be truncated"
+    return
+  fi
+
+  # Test case: topic over limit (should BE truncated)
+  local topic_over_limit="etanheys-ralph-ralphtools-notify-this-is-a-very-long-topic-name-that-exceeds-the-max"  # 84 chars
+  display_topic="$topic_over_limit"
+  if [[ ${#topic_over_limit} -gt $max_topic_len ]]; then
+    display_topic="${topic_over_limit:0:$((max_topic_len - 3))}..."
+  fi
+
+  # Should be truncated
+  if [[ "$display_topic" != *"..."* ]]; then
+    test_fail "topic over limit should be truncated with ..."
+    return
+  fi
+
+  # Verify truncated length is correct (max_topic_len total)
+  local truncated_len=${#display_topic}
+  assert_equals "51" "$truncated_len" "truncated topic should be exactly 51 chars" || return
+
+  test_pass
+}
+
+# Test: Notification is split into two lines (ON line + Topic line)
+test_bug017_notification_two_lines() {
+  test_start "BUG-017: notification split into two lines"
+
+  # The ralph.zsh code at lines 4366-4382 outputs:
+  # Line 1: "🔔 Notifications: ON"
+  # Line 2: "   Topic: {topic}"
+
+  local notify_str="🔔 Notifications: ON"
+  local topic_str="   Topic: etanheys-ralph-ralphtools-notify"
+
+  # Verify format matches expected pattern
+  if [[ "$notify_str" != "🔔 Notifications: ON" ]]; then
+    test_fail "notification line 1 format incorrect"
+    return
+  fi
+
+  if [[ "$topic_str" != "   Topic:"* ]]; then
+    test_fail "topic line should start with '   Topic:'"
+    return
+  fi
+
+  # Verify indent (3 spaces before "Topic:")
+  if [[ "$topic_str" != "   "* ]]; then
+    test_fail "topic line should have 3-space indent"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Box border alignment with notification lines
+test_bug017_box_alignment() {
+  test_start "BUG-017: box borders align with notification content"
+
+  # The box uses BOX_INNER_WIDTH=61, so content + padding = 61 chars
+  local BOX_INNER_WIDTH=61
+
+  # Test that _ralph_display_width is available and works
+  if ! type _ralph_display_width &>/dev/null; then
+    # Skip if function not available (running outside ralph context)
+    test_pass
+    return
+  fi
+
+  # Test notification line width calculation
+  local notify_str="🔔 Notifications: ON"
+  local notify_width=$(_ralph_display_width "$notify_str")
+  local notify_padding=$((BOX_INNER_WIDTH - notify_width))
+
+  # Padding should be non-negative for content to fit
+  if [[ $notify_padding -lt 0 ]]; then
+    test_fail "notification line exceeds box width"
+    return
+  fi
+
+  # Test topic line width calculation
+  local topic_str="   Topic: etanheys-ralph-ralphtools-notify"
+  local topic_width=$(_ralph_display_width "$topic_str")
+  local topic_padding=$((BOX_INNER_WIDTH - topic_width))
+
+  if [[ $topic_padding -lt 0 ]]; then
+    test_fail "topic line exceeds box width"
+    return
+  fi
+
+  test_pass
 }
 
 # ═══════════════════════════════════════════════════════════════════

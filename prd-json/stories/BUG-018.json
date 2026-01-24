@@ -9,27 +9,27 @@
   "acceptanceCriteria": [
     {
       "text": "Find notification sending code (curl to ntfy.sh)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Check ntfy API docs for message formatting options",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Option 1: Use ntfy markdown format for better wrapping",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Option 2: Split long messages into title + body",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Option 3: Truncate with ellipsis at word boundary, not mid-word",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Send a notification with long story title, verify readable",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [
@@ -37,5 +37,5 @@
   ],
   "blockedBy": null,
   "blockedReason": "React Ink rewrite will handle notification display properly",
-  "passes": false
+  "passes": true
 }
