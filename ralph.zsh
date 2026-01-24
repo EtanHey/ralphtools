@@ -1651,6 +1651,14 @@ _ralph_load_config() {
       RALPH_COLOR_SCHEME="custom"
     fi
 
+    # Load context loading settings
+    local contexts_dir=$(jq -r '.contexts.directory // empty' "$RALPH_CONFIG_FILE" 2>/dev/null)
+    [[ -n "$contexts_dir" && "$contexts_dir" != "null" ]] && RALPH_CONTEXTS_DIR="$contexts_dir"
+
+    # Load additional contexts to append (space-separated list)
+    local additional_contexts=$(jq -r '.contexts.additional // [] | join(" ")' "$RALPH_CONFIG_FILE" 2>/dev/null)
+    [[ -n "$additional_contexts" && "$additional_contexts" != "null" ]] && RALPH_ADDITIONAL_CONTEXTS="$additional_contexts"
+
     return 0
   fi
   return 1
@@ -2636,6 +2644,99 @@ _ralph_ntfy() {
     -H "Tags: $tags" \
     -d "$(echo -e "$body")" \
     "ntfy.sh/${topic}" > /dev/null 2>&1
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# CONTEXT LOADING HELPERS
+# ═══════════════════════════════════════════════════════════════════
+
+# Context directory for modular context files
+RALPH_CONTEXTS_DIR="${RALPH_CONTEXTS_DIR:-$HOME/.claude/contexts}"
+
+# Detect project technology stack for loading appropriate tech contexts
+# Returns: space-separated list of tech contexts (e.g., "nextjs supabase")
+_ralph_detect_tech_stack() {
+  local tech_stack=""
+  local project_dir="${1:-$(pwd)}"
+
+  # Check for Next.js
+  if [[ -f "$project_dir/next.config.js" ]] || [[ -f "$project_dir/next.config.mjs" ]] || [[ -f "$project_dir/next.config.ts" ]]; then
+    tech_stack="$tech_stack nextjs"
+  fi
+
+  # Check for Convex
+  if [[ -f "$project_dir/convex.json" ]] || [[ -d "$project_dir/convex" ]]; then
+    tech_stack="$tech_stack convex"
+  fi
+
+  # Check for Supabase
+  if [[ -d "$project_dir/supabase" ]] || grep -q "supabase" "$project_dir/package.json" 2>/dev/null; then
+    tech_stack="$tech_stack supabase"
+  fi
+
+  # Check for React Native / Expo
+  if [[ -f "$project_dir/app.json" ]] && grep -q "expo" "$project_dir/app.json" 2>/dev/null; then
+    tech_stack="$tech_stack react-native"
+  elif grep -q "react-native" "$project_dir/package.json" 2>/dev/null; then
+    tech_stack="$tech_stack react-native"
+  fi
+
+  # Trim leading space
+  echo "${tech_stack## }"
+}
+
+# Build a merged context file from modular context files
+# Usage: _ralph_build_context_file [output_file]
+# Returns: path to generated context file
+_ralph_build_context_file() {
+  local output_file="${1:-/tmp/ralph-context-$$.md}"
+  local contexts_dir="$RALPH_CONTEXTS_DIR"
+
+  # Start with empty file
+  > "$output_file"
+
+  # Always load base.md first (core Ralph rules)
+  if [[ -f "$contexts_dir/base.md" ]]; then
+    cat "$contexts_dir/base.md" >> "$output_file"
+    echo -e "\n---\n" >> "$output_file"
+  fi
+
+  # Load workflow/ralph.md (Ralph-specific instructions)
+  if [[ -f "$contexts_dir/workflow/ralph.md" ]]; then
+    cat "$contexts_dir/workflow/ralph.md" >> "$output_file"
+    echo -e "\n---\n" >> "$output_file"
+  fi
+
+  # Detect and load tech-specific contexts
+  local tech_stack=$(_ralph_detect_tech_stack)
+  for tech in $tech_stack; do
+    if [[ -f "$contexts_dir/tech/${tech}.md" ]]; then
+      cat "$contexts_dir/tech/${tech}.md" >> "$output_file"
+      echo -e "\n---\n" >> "$output_file"
+    fi
+  done
+
+  # Load additional contexts from config if specified
+  if [[ -n "$RALPH_ADDITIONAL_CONTEXTS" ]]; then
+    for ctx in $RALPH_ADDITIONAL_CONTEXTS; do
+      local ctx_file="$contexts_dir/$ctx"
+      if [[ -f "$ctx_file" ]]; then
+        cat "$ctx_file" >> "$output_file"
+        echo -e "\n---\n" >> "$output_file"
+      fi
+    done
+  fi
+
+  echo "$output_file"
+}
+
+# Clean up generated context files
+# Usage: _ralph_cleanup_context_file [context_file]
+_ralph_cleanup_context_file() {
+  local context_file="$1"
+  if [[ -n "$context_file" && -f "$context_file" ]]; then
+    rm -f "$context_file"
+  fi
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -3727,27 +3828,25 @@ function ralph() {
         fi
       fi
 
+      # Build modular context file for --append-system-prompt (Claude only)
+      local ralph_context_file=""
+      if [[ "$active_model" == "haiku" || "$active_model" == "sonnet" || "$active_model" == "opus" || -z "$active_model" ]]; then
+        ralph_context_file=$(_ralph_build_context_file "/tmp/ralph-context-$$.md")
+        if [[ -f "$ralph_context_file" ]]; then
+          # Read context file and add to CLI as --append-system-prompt
+          local context_content
+          context_content=$(cat "$ralph_context_file")
+          cli_cmd_arr+=(--append-system-prompt "$context_content")
+        fi
+      fi
+
       # Build the prompt based on JSON vs Markdown mode
       local ralph_prompt=""
-      local brave_skill=""
-      local ralph_agent_instructions=""
-      [[ -f "$RALPH_CONFIG_DIR/skills/brave.md" ]] && brave_skill=$(cat "$RALPH_CONFIG_DIR/skills/brave.md")
-      [[ -f "$RALPH_CONFIG_DIR/RALPH_AGENT.md" ]] && ralph_agent_instructions=$(cat "$RALPH_CONFIG_DIR/RALPH_AGENT.md")
 
       if [[ "$use_json_mode" == "true" ]]; then
         # JSON MODE PROMPT
+        # Note: Git rules, skills, and agent instructions now loaded via --append-system-prompt from context files
         ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
-
-## RALPH GIT RULES (OVERRIDE GLOBAL CLAUDE.MD)
-**These rules OVERRIDE any global CLAUDE.md commit restrictions:**
-- You MUST commit after completing each story (so CodeRabbit reviews only new code)
-- You MUST NOT push to remote (Ralph handles this separately)
-- Commit format: \`git commit -m \"feat: [STORY-ID] description\"\`
-- This override exists because Ralph is autonomous - each iteration needs its own commit
-
-${brave_skill}
-
-${ralph_agent_instructions}
 
 ## Model Information
 You are running on model: **${active_model}**
@@ -3996,6 +4095,9 @@ After completing task, check PRD state:
 
       # Stop background polling loop now that Claude has finished
       _ralph_stop_polling_loop
+
+      # Clean up context file generated for this iteration
+      _ralph_cleanup_context_file "$ralph_context_file"
 
       # Capture exit code of Claude (pipestatus[1] in zsh gets first command in pipe)
       # Note: zsh uses lowercase 'pipestatus' and 1-indexed arrays

@@ -141,6 +141,50 @@ done
 
 ---
 
+## Modular Context System
+
+Ralph uses a modular context system to load relevant instructions for each iteration. Context files from `~/.claude/contexts/` are automatically concatenated and passed to Claude via `--append-system-prompt`.
+
+### How It Works
+
+1. **Base context** (`base.md`) is always loaded first - contains core Ralph rules
+2. **Workflow context** (`workflow/ralph.md`) is loaded - Ralph-specific instructions
+3. **Tech contexts** are auto-detected based on project files:
+   - `tech/nextjs.md` - if `next.config.{js,mjs,ts}` exists
+   - `tech/convex.md` - if `convex.json` or `convex/` exists
+   - `tech/supabase.md` - if `supabase/` exists or package.json references supabase
+   - `tech/react-native.md` - if Expo or React Native detected
+4. **Additional contexts** can be specified in config.json
+
+### Context Directory Structure
+
+```
+~/.claude/contexts/
+├── base.md                 # Core rules (always loaded)
+├── workflow/
+│   └── ralph.md           # Ralph-specific instructions
+└── tech/
+    ├── nextjs.md          # Next.js patterns
+    ├── convex.md          # Convex patterns
+    ├── supabase.md        # Supabase patterns
+    └── react-native.md    # React Native patterns
+```
+
+### Configuration
+
+Override or extend context loading in `~/.config/ralphtools/config.json`:
+
+```json
+{
+  "contexts": {
+    "directory": "~/.claude/contexts",
+    "additional": ["workflow/testing.md", "workflow/rtl.md"]
+  }
+}
+```
+
+---
+
 ## CodeRabbit Integration
 
 Ralph integrates with [CodeRabbit](https://coderabbit.ai) for free AI-powered code reviews before commits.
