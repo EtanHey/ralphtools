@@ -2692,6 +2692,16 @@ _ralph_build_context_file() {
   local output_file="${1:-/tmp/ralph-context-$$.md}"
   local contexts_dir="$RALPH_CONTEXTS_DIR"
 
+  # Kill any stale processes holding the file from previous crashed runs
+  if [[ -f "$output_file" ]]; then
+    local stale_pids=$(lsof -t "$output_file" 2>/dev/null)
+    if [[ -n "$stale_pids" ]]; then
+      kill $stale_pids 2>/dev/null
+      sleep 0.1  # Brief wait for process cleanup
+    fi
+    rm -f "$output_file"
+  fi
+
   # Start with empty file
   > "$output_file"
 
@@ -2734,8 +2744,15 @@ _ralph_build_context_file() {
 # Usage: _ralph_cleanup_context_file [context_file]
 _ralph_cleanup_context_file() {
   local context_file="$1"
-  if [[ -n "$context_file" && -f "$context_file" ]]; then
-    rm -f "$context_file"
+  if [[ -n "$context_file" ]]; then
+    # Kill any stale processes holding the file (from interrupted runs)
+    if [[ -f "$context_file" ]]; then
+      local stale_pids=$(lsof -t "$context_file" 2>/dev/null)
+      if [[ -n "$stale_pids" ]]; then
+        kill $stale_pids 2>/dev/null
+      fi
+      rm -f "$context_file"
+    fi
   fi
 }
 
@@ -3401,6 +3418,9 @@ function ralph() {
     echo "---" >> progress.txt
   fi
 
+  # Global variable for context file cleanup (accessible from trap)
+  RALPH_CONTEXT_FILE="/tmp/ralph-context-$$.md"
+
   # Cleanup on exit (and switch back to original branch in app mode)
   cleanup_ralph() {
     # Stop file watcher if running
@@ -3410,6 +3430,15 @@ function ralph() {
     # Clean up temp 1Password environment files
     [[ -n "$ralph_env_1password_file" ]] && rm -f "$ralph_env_1password_file"
     [[ -n "$ralph_mcp_config_file" ]] && rm -f "$ralph_mcp_config_file"
+    # Clean up context file and kill any processes holding it
+    if [[ -n "$RALPH_CONTEXT_FILE" && -f "$RALPH_CONTEXT_FILE" ]]; then
+      # Kill any stale processes holding the file open
+      local stale_pids=$(lsof -t "$RALPH_CONTEXT_FILE" 2>/dev/null)
+      if [[ -n "$stale_pids" ]]; then
+        kill $stale_pids 2>/dev/null
+      fi
+      rm -f "$RALPH_CONTEXT_FILE"
+    fi
     if [[ -n "$app_mode" && -n "$original_branch" ]]; then
       echo ""
       echo "🔙 Returning to original branch: $original_branch"
@@ -3829,13 +3858,13 @@ function ralph() {
       fi
 
       # Build modular context file for --append-system-prompt (Claude only)
-      local ralph_context_file=""
+      # Uses global RALPH_CONTEXT_FILE so cleanup trap can access it
       if [[ "$active_model" == "haiku" || "$active_model" == "sonnet" || "$active_model" == "opus" || -z "$active_model" ]]; then
-        ralph_context_file=$(_ralph_build_context_file "/tmp/ralph-context-$$.md")
-        if [[ -f "$ralph_context_file" ]]; then
+        _ralph_build_context_file "$RALPH_CONTEXT_FILE" >/dev/null
+        if [[ -f "$RALPH_CONTEXT_FILE" ]]; then
           # Read context file and add to CLI as --append-system-prompt
           local context_content
-          context_content=$(cat "$ralph_context_file")
+          context_content=$(cat "$RALPH_CONTEXT_FILE")
           cli_cmd_arr+=(--append-system-prompt "$context_content")
         fi
       fi
@@ -4097,7 +4126,7 @@ After completing task, check PRD state:
       _ralph_stop_polling_loop
 
       # Clean up context file generated for this iteration
-      _ralph_cleanup_context_file "$ralph_context_file"
+      _ralph_cleanup_context_file "$RALPH_CONTEXT_FILE"
 
       # Capture exit code of Claude (pipestatus[1] in zsh gets first command in pipe)
       # Note: zsh uses lowercase 'pipestatus' and 1-indexed arrays
