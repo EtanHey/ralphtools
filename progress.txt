@@ -441,3 +441,22 @@ Changes:
 - op:// reference format: `op://vault/item/section/field` (not /password at end)
 - Linear skill already uses op read for 1Password - only context7 needed migration
 - op inject outputs resolved values to stdout, op run --env-file injects for single command
+
+## Iteration 23
+Story: US-082 - Enhance ralph-install wizard for golem-powers skills setup
+Status: COMPLETED (opus)
+Changes:
+- Updated check-deps.md and check-deps.sh: added Bun and CodeRabbit CLI checks
+- Updated install-deps.md and install-deps.sh: added Bun (brew oven-sh/bun/bun) and cr (curl script) installation
+- Updated setup-tokens.md: added CONTEXT7_API_KEY and LINEAR_API_KEY guidance for claude-golem 1Password item
+- Rewrote setup-symlinks.md: golem-powers namespace with old symlink cleanup instructions
+- Updated validate.md and validate.sh: added bun, cr, op read, golem-powers symlink checks
+- Updated SKILL.md: reflected golem-powers namespace and new workflow steps
+- Refactored all scripts to be bash 3.2 compatible (macOS default - no associative arrays)
+- All 46 tests pass
+
+### Learnings
+- macOS ships with bash 3.2 which doesn't support associative arrays (declare -A)
+- Use case statements and functions instead of associative arrays for compatibility
+- $((...)) arithmetic is bash 3.2 compatible, but ((var++)) may not work in all modes
+- Space-separated strings with for-loops work as array alternatives in older bash

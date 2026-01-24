@@ -93,12 +93,12 @@
     },
     {
       "text": "Commit changes with message: feat/fix: [STORY-ID] description",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [
     "US-078",
     "US-081"
   ],
-  "passes": false
+  "passes": true
 }
