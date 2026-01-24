@@ -7726,9 +7726,28 @@ function _ralph_setup_mcps() {
         echo "${GREEN}  ✓ Browser-tools MCP enabled${NC}"
         ;;
 
-      context7)
+      context7|Context7)
         # Context7 MCP doesn't require credentials
         echo "${GREEN}  ✓ Context7 MCP enabled${NC}"
+        ;;
+
+      tempmail)
+        # Tempmail MCP - check for API key
+        if [[ -z "$TEMPMAIL_API_KEY" ]]; then
+          if $has_1password; then
+            export TEMPMAIL_API_KEY=$(op read "op://development/tempmail/credential" 2>/dev/null)
+          fi
+        fi
+        if [[ -n "$TEMPMAIL_API_KEY" ]]; then
+          echo "${GREEN}  ✓ Tempmail MCP configured${NC}"
+        else
+          echo "${RED}  ✗ Tempmail: Set TEMPMAIL_API_KEY or add to 1Password${NC}"
+        fi
+        ;;
+
+      figma-local|figma-remote)
+        # Figma MCPs use HTTP transport, no credentials needed here
+        echo "${GREEN}  ✓ ${mcp} MCP enabled${NC}"
         ;;
 
       *)
@@ -7775,6 +7794,20 @@ function ralph-setup() {
   local RED='\033[0;31m'
   local NC='\033[0m'
   local BOLD='\033[1m'
+
+  # Parse flags
+  local skip_context_migration=false
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --skip-context-migration)
+        skip_context_migration=true
+        shift
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
 
   # Check if 1Password CLI is available and environments are configured
   local has_1password=false
@@ -7824,6 +7857,7 @@ function ralph-setup() {
         "🔐 Configure 1Password Environments" \
         "🔑 Migrate secrets to 1Password" \
         "🐰 Configure CodeRabbit" \
+        "📜 Migrate CLAUDE.md contexts" \
         "📋 View current configuration" \
         "🚪 Exit setup")
     else
@@ -7836,10 +7870,11 @@ function ralph-setup() {
       echo "  4) 🔐 Configure 1Password Environments"
       echo "  5) 🔑 Migrate secrets to 1Password"
       echo "  6) 🐰 Configure CodeRabbit"
-      echo "  7) 📋 View current configuration"
-      echo "  8) 🚪 Exit setup"
+      echo "  7) 📜 Migrate CLAUDE.md contexts"
+      echo "  8) 📋 View current configuration"
+      echo "  9) 🚪 Exit setup"
       echo ""
-      echo -n "Choose [1-8]: "
+      echo -n "Choose [1-9]: "
       read menu_choice
       case "$menu_choice" in
         1) choice="📂 Add new project" ;;
@@ -7848,8 +7883,9 @@ function ralph-setup() {
         4) choice="🔐 Configure 1Password Environments" ;;
         5) choice="🔑 Migrate secrets to 1Password" ;;
         6) choice="🐰 Configure CodeRabbit" ;;
-        7) choice="📋 View current configuration" ;;
-        8|*) choice="🚪 Exit setup" ;;
+        7) choice="📜 Migrate CLAUDE.md contexts" ;;
+        8) choice="📋 View current configuration" ;;
+        9|*) choice="🚪 Exit setup" ;;
       esac
     fi
 
@@ -7898,6 +7934,13 @@ function ralph-setup() {
         ;;
       *"Configure CodeRabbit"*)
         _ralph_setup_configure_coderabbit
+        ;;
+      *"Migrate CLAUDE.md contexts"*)
+        if $skip_context_migration; then
+          echo "${YELLOW}Skipping context migration (--skip-context-migration flag)${NC}"
+        else
+          _ralph_setup_context_migration
+        fi
         ;;
       *"Exit"*)
         echo ""
@@ -8803,6 +8846,246 @@ function _ralph_setup_configure_coderabbit() {
   echo ""
 }
 
+# Helper: Context migration wizard
+function _ralph_setup_context_migration() {
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local CYAN='\033[0;36m'
+  local RED='\033[0;31m'
+  local NC='\033[0m'
+  local BOLD='\033[1m'
+
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  📜 CLAUDE.md Context Migration                             │"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  echo ""
+
+  # Check if contexts directory exists at ~/.claude/contexts/
+  local contexts_source="${RALPH_SCRIPT_DIR}/contexts"
+  local contexts_target="$HOME/.claude/contexts"
+
+  # First, ensure the contexts directory exists
+  if [[ ! -d "$contexts_target" ]]; then
+    echo "${YELLOW}⚠️  Contexts directory not found${NC}"
+    echo "   Location: $contexts_target"
+    echo ""
+
+    # Check if we have context templates to copy
+    if [[ -d "$contexts_source" ]]; then
+      echo "Found context templates at: ${CYAN}$contexts_source${NC}"
+      echo ""
+
+      local should_create=false
+      if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+        if gum confirm "Create contexts directory and copy templates?"; then
+          should_create=true
+        fi
+      else
+        echo -n "Create contexts directory and copy templates? [Y/n]: "
+        read create_choice
+        if [[ "$create_choice" != [Nn]* ]]; then
+          should_create=true
+        fi
+      fi
+
+      if $should_create; then
+        # Check if source has files before copying
+        local has_files=false
+        if [[ -f "$contexts_source/base.md" ]] || [[ -d "$contexts_source/tech" ]] || [[ -d "$contexts_source/workflow" ]]; then
+          has_files=true
+        fi
+
+        if $has_files; then
+          mkdir -p "$contexts_target/tech" "$contexts_target/workflow"
+          cp -r "$contexts_source/"* "$contexts_target/" 2>/dev/null || true
+          echo "${GREEN}✓ Contexts directory created${NC}"
+          echo ""
+        else
+          echo "${YELLOW}⚠️  No context templates found in source directory${NC}"
+          echo ""
+        fi
+      else
+        echo "${YELLOW}Skipping context setup${NC}"
+        return 0
+      fi
+    else
+      echo "No context templates found in ralphtools."
+      echo "Run this from the ralphtools directory or ensure contexts/ exists."
+      echo ""
+      return 1
+    fi
+  else
+    echo "${GREEN}✓ Contexts directory exists${NC}: $contexts_target"
+    echo ""
+  fi
+
+  # List available contexts
+  echo "${BOLD}Available Contexts:${NC}"
+  echo "──────────────────────────────────────────────────────────────"
+  if [[ -f "$contexts_target/base.md" ]]; then
+    echo "  ${GREEN}✓${NC} base.md"
+  else
+    echo "  ${RED}✗${NC} base.md (missing)"
+  fi
+
+  for subdir in tech workflow; do
+    if [[ -d "$contexts_target/$subdir" ]]; then
+      for ctx_file in "$contexts_target/$subdir"/*.md; do
+        [[ -f "$ctx_file" ]] && echo "  ${GREEN}✓${NC} $subdir/$(basename "$ctx_file" .md)"
+      done
+    fi
+  done
+  echo ""
+
+  # Check if source templates are newer and offer to update
+  if [[ -d "$contexts_source" ]]; then
+    local updates_available=false
+    for src_file in "$contexts_source/"*.md "$contexts_source/tech/"*.md "$contexts_source/workflow/"*.md; do
+      [[ ! -f "$src_file" ]] && continue
+      local rel_path="${src_file#$contexts_source/}"
+      local target_file="$contexts_target/$rel_path"
+      if [[ ! -f "$target_file" ]]; then
+        updates_available=true
+        break
+      fi
+    done
+
+    if $updates_available; then
+      echo "${YELLOW}Some context templates are missing. Copy from ralphtools?${NC}"
+      local should_copy=false
+      if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+        gum confirm "Copy missing context templates?" && should_copy=true
+      else
+        echo -n "Copy missing context templates? [y/N]: "
+        read copy_choice
+        [[ "$copy_choice" == [Yy]* ]] && should_copy=true
+      fi
+
+      if $should_copy; then
+        cp -rn "$contexts_source/"* "$contexts_target/" 2>/dev/null
+        echo "${GREEN}✓ Context templates updated${NC}"
+        echo ""
+      fi
+    fi
+  fi
+
+  # Now offer to migrate a project's CLAUDE.md
+  echo "${BOLD}Migrate a Project's CLAUDE.md:${NC}"
+  echo "──────────────────────────────────────────────────────────────"
+  echo ""
+  echo "The migration script analyzes your CLAUDE.md and suggests"
+  echo "which content can be moved to shared contexts."
+  echo ""
+
+  # Get project path
+  local project_path=""
+  local detected_path="$(pwd)"
+
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    local path_choice=$(gum choose \
+      "Analyze current directory ($detected_path)" \
+      "Enter a different path" \
+      "Skip migration")
+
+    case "$path_choice" in
+      *"current directory"*)
+        project_path="$detected_path"
+        ;;
+      *"different path"*)
+        project_path=$(gum input --placeholder "Path to project with CLAUDE.md")
+        ;;
+      *)
+        echo "${YELLOW}Skipping migration analysis${NC}"
+        return 0
+        ;;
+    esac
+  else
+    echo "Options:"
+    echo "  1) Analyze current directory ($detected_path)"
+    echo "  2) Enter a different path"
+    echo "  3) Skip migration"
+    echo ""
+    echo -n "Choose [1-3]: "
+    read path_choice
+    case "$path_choice" in
+      1)
+        project_path="$detected_path"
+        ;;
+      2)
+        echo -n "Path to project: "
+        read project_path
+        ;;
+      *)
+        echo "${YELLOW}Skipping migration analysis${NC}"
+        return 0
+        ;;
+    esac
+  fi
+
+  # Expand ~ in path
+  project_path="${project_path/#\~/$HOME}"
+
+  # Check for CLAUDE.md
+  if [[ ! -f "$project_path/CLAUDE.md" ]]; then
+    echo "${RED}Error: No CLAUDE.md found at $project_path${NC}"
+    return 1
+  fi
+
+  # Check for migration script
+  local migrate_script="${RALPH_SCRIPT_DIR}/scripts/context-migrate.zsh"
+  if [[ ! -f "$migrate_script" ]]; then
+    echo "${RED}Error: Migration script not found at $migrate_script${NC}"
+    return 1
+  fi
+
+  # Run the analysis
+  echo ""
+  echo "${CYAN}Running analysis...${NC}"
+  echo ""
+  "$migrate_script" "$project_path"
+
+  # Ask if user wants to apply
+  echo ""
+  local should_apply=false
+  if [[ $RALPH_HAS_GUM -eq 0 ]]; then
+    if gum confirm "Apply migration now?"; then
+      should_apply=true
+    fi
+  else
+    echo -n "Apply migration now? [y/N]: "
+    read apply_choice
+    [[ "$apply_choice" == [Yy]* ]] && should_apply=true
+  fi
+
+  if $should_apply; then
+    echo ""
+    "$migrate_script" "$project_path" --apply
+    echo ""
+    echo "${GREEN}✓ Migration applied!${NC}"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Open $project_path/CLAUDE.md"
+    echo "  2. Review the backup file for any project-specific rules"
+    echo "  3. Add unique rules to the 'Project-Specific' section"
+  else
+    echo ""
+    echo "${YELLOW}Migration not applied${NC}"
+    echo ""
+    echo "You can run the migration later with:"
+    echo "  ${CYAN}$migrate_script $project_path --apply${NC}"
+    echo ""
+    echo "Or manually:"
+    echo "  1. Add context references at the top of CLAUDE.md:"
+    echo "     @context: base"
+    echo "     @context: tech/nextjs  (if applicable)"
+    echo "     @context: workflow/rtl (if applicable)"
+    echo "  2. Remove sections that duplicate shared contexts"
+    echo "  3. Keep only project-specific rules"
+  fi
+  echo ""
+}
+
 # Helper: View current configuration
 function _ralph_setup_view_config() {
   local GREEN='\033[0;32m'
@@ -8903,6 +9186,75 @@ function _ralph_setup_view_config() {
   fi
 }
 
+# ═══════════════════════════════════════════════════════════════════
+# repoGolem - Create project launcher functions dynamically
+# ═══════════════════════════════════════════════════════════════════
+# Usage: repoGolem <name> <path> [mcp1 mcp2 ...]
+# Creates: {name}Claude, open{Name}, run{Name}
+#
+# Example:
+#   repoGolem domica ~/Desktop/Gits/domica Context7 tempmail linear
+#   → Creates: domicaClaude, openDomica, runDomica
+# ═══════════════════════════════════════════════════════════════════
+function repoGolem() {
+  local name="$1"
+  local path="$2"
+  shift 2
+  local mcps=("$@")
+
+  # Validate inputs
+  if [[ -z "$name" || -z "$path" ]]; then
+    echo "Usage: repoGolem <name> <path> [mcp1 mcp2 ...]" >&2
+    return 1
+  fi
+
+  # Expand ~ in path
+  path="${path/#\~/$HOME}"
+
+  # Capitalize first letter: domica -> Domica
+  local capitalized_name="${(C)name[1]}${name[2,-1]}"
+  # Lowercase: Domica -> domica
+  local lowercase_name="${(L)name}"
+
+  # Convert mcps array to JSON for _ralph_setup_mcps (no jq dependency)
+  local mcps_json="[]"
+  if [[ ${#mcps[@]} -gt 0 ]]; then
+    local quoted_mcps=()
+    for mcp in "${mcps[@]}"; do
+      quoted_mcps+=("\"$mcp\"")
+    done
+    mcps_json="[${(j:,:)quoted_mcps}]"
+  fi
+
+  # Create run{Name} function
+  eval "function run${capitalized_name}() {
+    cd \"$path\" || return 1
+    if [[ -f \"package.json\" ]]; then
+      if [[ -f \"bun.lockb\" ]] || command -v bun &>/dev/null && grep -q '\"bun\"' package.json 2>/dev/null; then
+        bun run dev
+      else
+        npm run dev
+      fi
+    else
+      echo \"No package.json found in $path\"
+      return 1
+    fi
+  }"
+
+  # Create open{Name} function
+  eval "function open${capitalized_name}() {
+    cd \"$path\" || return 1
+    echo \"Changed to: \$(pwd)\"
+  }"
+
+  # Create {name}Claude function
+  eval "function ${lowercase_name}Claude() {
+    cd \"$path\" || return 1
+    _ralph_setup_mcps '$mcps_json'
+    claude \"\$@\"
+  }"
+}
+
 # Generate launchers from registry (new registry-based function)
 function _ralph_generate_launchers_from_registry() {
   local launchers_file="$HOME/.config/ralphtools/launchers.zsh"
@@ -8933,48 +9285,11 @@ HEADER
     return 0
   fi
 
-  # Generate functions for each project
-  jq -r '.projects | to_entries[] | "\(.key)|\(.value.path)|\(.value.mcps | @json)"' "$RALPH_REGISTRY_FILE" 2>/dev/null | while IFS='|' read -r name path mcps_json; do
-    # Capitalize first letter for function names: myProject -> MyProject
-    local capitalized_name="${(C)name[1]}${name[2,-1]}"
-    # Lowercase name for {name}Claude: MyProject -> myproject
-    local lowercase_name="${(L)name}"
-
+  # Generate repoGolem calls for each project
+  jq -r '.projects | to_entries[] | "\(.key)|\(.value.path)|\(.value.mcps | join(" "))"' "$RALPH_REGISTRY_FILE" 2>/dev/null | while IFS='|' read -r name path mcps; do
     # Expand ~ in path
     path="${path/#\~/$HOME}"
-
-    /bin/cat >> "$launchers_file" << EOF
-# Project: $name
-# Path: $path
-# MCPs: $mcps_json
-
-function run${capitalized_name}() {
-  cd "$path" || return 1
-  if [[ -f "package.json" ]]; then
-    if [[ -f "bun.lockb" ]] || command -v bun &>/dev/null && grep -q '"bun"' package.json 2>/dev/null; then
-      bun run dev
-    else
-      npm run dev
-    fi
-  else
-    echo "No package.json found in $path"
-    return 1
-  fi
-}
-
-function open${capitalized_name}() {
-  cd "$path" || return 1
-  echo "Changed to: \$(pwd)"
-}
-
-function ${lowercase_name}Claude() {
-  cd "$path" || return 1
-  # Set up project-specific MCPs
-  _ralph_setup_mcps '$mcps_json'
-  claude
-}
-
-EOF
+    echo "repoGolem $name \"$path\" $mcps" >> "$launchers_file"
   done
 
   echo "${GREEN}✓ Launchers regenerated: $launchers_file${NC}"
@@ -9105,7 +9420,7 @@ function ${lowercase_name}Claude() {
   cd "$path" || return 1
   # Set up project-specific MCPs
   _ralph_setup_mcps '$mcps_json'
-  claude
+  claude "\$@"
 }
 
 EOF

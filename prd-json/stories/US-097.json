@@ -5,51 +5,51 @@
   "acceptanceCriteria": [
     {
       "text": "Add 'Context Migration' step to ralph-setup wizard",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Wizard runs scripts/context-migrate.zsh to analyze current CLAUDE.md",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Show estimated savings (lines moved to shared contexts)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Ask user if they want to apply migration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "If yes: run context-migrate.zsh --apply",
-      "checked": false
+      "checked": true
     },
     {
       "text": "If no: show manual steps for later migration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify ~/.claude/contexts/ directory exists, create if missing",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Copy missing context templates from ralphtools/contexts/ if needed",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Wizard can skip this step with --skip-context-migration flag",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: New user setup creates contexts correctly",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Existing user migration preserves project-specific rules",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: feat: [STORY-ID] description",

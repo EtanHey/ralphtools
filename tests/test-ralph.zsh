@@ -4024,6 +4024,105 @@ test_wizard_validates_shell_config() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# US-097: Context Migration Wizard Tests
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: Context migration function exists
+test_context_migration_function_exists() {
+  test_start "context migration function exists"
+
+  # Check that the function is defined
+  if ! typeset -f _ralph_setup_context_migration >/dev/null 2>&1; then
+    test_fail "_ralph_setup_context_migration function not defined"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Context templates exist in repo
+test_context_templates_exist_in_repo() {
+  test_start "context templates exist in repo"
+
+  local contexts_dir="${SCRIPT_DIR}/../contexts"
+
+  if [[ ! -d "$contexts_dir" ]]; then
+    test_fail "contexts/ directory not found in repo"
+    return
+  fi
+
+  # Check for base.md
+  if [[ ! -f "$contexts_dir/base.md" ]]; then
+    test_fail "contexts/base.md not found"
+    return
+  fi
+
+  # Check for tech/ subdirectory
+  if [[ ! -d "$contexts_dir/tech" ]]; then
+    test_fail "contexts/tech/ not found"
+    return
+  fi
+
+  # Check for workflow/ subdirectory
+  if [[ ! -d "$contexts_dir/workflow" ]]; then
+    test_fail "contexts/workflow/ not found"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Migration script exists
+test_migration_script_exists() {
+  test_start "migration script exists"
+
+  local migrate_script="${SCRIPT_DIR}/../scripts/context-migrate.zsh"
+
+  if [[ ! -f "$migrate_script" ]]; then
+    test_fail "scripts/context-migrate.zsh not found"
+    return
+  fi
+
+  # Check it's executable
+  if [[ ! -x "$migrate_script" ]]; then
+    test_fail "scripts/context-migrate.zsh not executable"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: ralph-setup accepts --skip-context-migration flag
+test_skip_context_migration_flag() {
+  test_start "ralph-setup accepts --skip-context-migration flag"
+
+  local ralph_zsh="${SCRIPT_DIR}/../ralph.zsh"
+
+  # Check that ralph-setup function contains flag parsing for --skip-context-migration
+  if ! grep -q -- '--skip-context-migration' "$ralph_zsh" 2>/dev/null; then
+    test_fail "--skip-context-migration flag not found in ralph-setup"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: Context migration menu item exists in ralph-setup
+test_context_migration_menu_item() {
+  test_start "context migration menu item in ralph-setup"
+
+  local ralph_zsh="${SCRIPT_DIR}/../ralph.zsh"
+
+  # Check that the menu includes the context migration option
+  if ! grep -q 'Migrate CLAUDE.md contexts' "$ralph_zsh" 2>/dev/null; then
+    test_fail "Context migration menu item not found"
+    return
+  fi
+
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════
 
