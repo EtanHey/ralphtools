@@ -110,12 +110,12 @@
     },
     {
       "text": "Commit: test: V-017 wizard setup TDD tests",
-      "checked": false
+      "checked": true
     }
   ],
   "storyType": "V",
   "priority": "high",
   "dependencies": [],
   "createdAt": "2026-01-24T05:30:00.000Z",
-  "passes": false
+  "passes": true
 }

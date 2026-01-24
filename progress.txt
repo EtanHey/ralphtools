@@ -975,3 +975,30 @@ Changes:
 - Layered CLAUDE.md system separates global, project, and runtime contexts
 - TDD verification for existing implementation verifies tests pass (green phase)
 - Git rev-parse --show-toplevel is more reliable than relative paths for repo root
+
+## Iteration 49
+Story: V-017 - Verify: ralph-install wizard completeness (TDD)
+Status: COMPLETED (opus)
+Changes:
+- Reviewed layered CLAUDE.md system: global, contexts, commands
+- Audited commit history for setup-related features
+- Identified gap: validate.sh missing ~/.claude/contexts/ check
+- Added 5 TDD tests for wizard validation coverage
+- Added contexts directory checks to validate.sh (TDD green phase)
+- Updated ralph-install SKILL.md with contexts documentation
+- Created docs.local/wizard-gaps-from-history.md with gap analysis
+- Created docs.local/wizard-setup-audit.md with comprehensive audit
+- Added SC2088 to shellcheck exclusions (tilde in display labels)
+- All 117 ZSH tests + 17 skills tests + 83 Bun tests pass
+- CodeRabbit: PASS
+
+### Key Findings
+- Global CLAUDE.md, contexts, and commands are the three layers
+- validate.sh was missing contexts directory validation
+- Skills requiring API keys: context7, linear (stored in claude-golem item)
+- MCP configuration is out of scope for ralph-install
+
+### Learnings
+- TDD workflow: write failing tests, then implement to make them pass
+- ShellCheck SC2088 is for tilde in quotes - okay in display labels
+- Wizard should validate all three layers of the system
