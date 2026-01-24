@@ -8,15 +8,15 @@
   "acceptanceCriteria": [
     {
       "text": "Update Provider Setup example to use Promise<{locale}> pattern",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Update any other params examples to async pattern",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add note about Next.js 15+ requirement",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit changes",
