@@ -7,17 +7,43 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Basic criteria count is DONE - this story is for prettification only", "checked": true},
-    {"text": "Fix notification line: split into two lines if topic is long", "checked": false},
-    {"text": "  Line 1: '🔔 Notifications: ON'", "checked": false},
-    {"text": "  Line 2: '   Topic: etanheys-ralph-ralphtools-notify'", "checked": false},
-    {"text": "Ensure box borders align properly with all content", "checked": false},
-    {"text": "Add live criteria update during iteration (like stories)", "checked": false},
-    {"text": "Consider: progress bar for criteria [████░░░░] 45/321", "checked": false},
-    {"text": "Test: Long topic name wraps correctly, box looks clean", "checked": false}
+    {
+      "text": "Basic criteria count is DONE - this story is for prettification only",
+      "checked": true
+    },
+    {
+      "text": "Fix notification line: split into two lines if topic is long",
+      "checked": false
+    },
+    {
+      "text": "  Line 1: '🔔 Notifications: ON'",
+      "checked": false
+    },
+    {
+      "text": "  Line 2: '   Topic: etanheys-ralph-ralphtools-notify'",
+      "checked": false
+    },
+    {
+      "text": "Ensure box borders align properly with all content",
+      "checked": false
+    },
+    {
+      "text": "Add live criteria update during iteration (like stories)",
+      "checked": false
+    },
+    {
+      "text": "Consider: progress bar for criteria [████░░░░] 45/321",
+      "checked": false
+    },
+    {
+      "text": "Test: Long topic name wraps correctly, box looks clean",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-085"],
-  "blockedBy": "US-085",
+  "dependencies": [
+    "US-085"
+  ],
+  "blockedBy": null,
   "blockedReason": "React Ink rewrite will solve all UI issues - no point fixing shell escape codes",
   "passes": false
 }

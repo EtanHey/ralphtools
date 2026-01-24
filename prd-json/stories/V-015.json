@@ -48,5 +48,5 @@
   "priority": "high",
   "createdAt": "2026-01-24T01:30:00.000Z",
   "passes": false,
-  "blockedBy": "MP-002"
+  "blockedBy": null
 }

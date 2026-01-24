@@ -32,7 +32,9 @@ typeset -g RESULTS_FILE=""
 # Initialize results tracking
 _init_results() {
   RESULTS_FILE=$(mktemp)
+  FAILURES_FILE=$(mktemp)
   echo "0 0" > "$RESULTS_FILE"
+  echo -n "" > "$FAILURES_FILE"
 }
 
 # Record a pass
@@ -55,14 +57,27 @@ _record_fail() {
   echo "$passed $failed" > "$RESULTS_FILE"
 }
 
+# Record failure details (test name and reason)
+_record_failure_details() {
+  local test_name="$1"
+  local reason="$2"
+  echo "${test_name}|${reason}" >> "$FAILURES_FILE"
+}
+
+# Get all failure details
+_get_failures() {
+  cat "$FAILURES_FILE"
+}
+
 # Get final results
 _get_results() {
   cat "$RESULTS_FILE"
 }
 
-# Cleanup results file
+# Cleanup results files
 _cleanup_results() {
   [[ -f "$RESULTS_FILE" ]] && rm -f "$RESULTS_FILE"
+  [[ -f "$FAILURES_FILE" ]] && rm -f "$FAILURES_FILE"
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -95,6 +110,7 @@ test_fail() {
     echo -e "${RED}FAIL${NC}"
     echo -e "    ${RED}└─ $reason${NC}"
     _record_fail
+    _record_failure_details "$CURRENT_TEST" "$reason"
     TEST_FAILED_FLAG=1
   fi
 }
@@ -234,7 +250,18 @@ run_all_tests() {
   echo "═══════════════════════════════════════════════════════════════"
   echo -e "  Results: ${GREEN}$final_passed passed${NC}, ${RED}$final_failed failed${NC}"
   echo "═══════════════════════════════════════════════════════════════"
-  echo ""
+
+  # Print failures if any
+  if [[ $final_failed -gt 0 ]]; then
+    echo ""
+    echo -e "  ${RED}FAILURES:${NC}"
+    while IFS='|' read -r test_name reason; do
+      [[ -z "$test_name" ]] && continue
+      echo -e "  ${RED}✗${NC} $test_name"
+      echo -e "    └─ $reason"
+    done < <(_get_failures)
+    echo ""
+  fi
 
   # Exit with appropriate code
   if [[ $final_failed -gt 0 ]]; then
@@ -867,8 +894,8 @@ test_ntfy_builds_body_with_project_name() {
   assert_equals "1" "$MOCK_CURL_CALLED" "curl should have been called" || { _teardown_test_fixtures; return; }
 
   # Verify 3 compact lines with emoji labels
-  # Line 1: repo name
-  assert_contains "$MOCK_CURL_BODY" "ralphtools" "line 1 should contain repo name" || { _teardown_test_fixtures; return; }
+  # Line 1: repo name (claude-golem after rename)
+  assert_contains "$MOCK_CURL_BODY" "claude-golem" "line 1 should contain repo name" || { _teardown_test_fixtures; return; }
 
   # Line 2: 🔄 iteration + story + model (e.g., "🔄5 US-001 sonnet")
   assert_contains "$MOCK_CURL_BODY" "🔄5 US-001 sonnet" "line 2 should have compact iteration+story+model" || { _teardown_test_fixtures; return; }

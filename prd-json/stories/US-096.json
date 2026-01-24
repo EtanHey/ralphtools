@@ -8,6 +8,26 @@
   "status": "pending",
   "acceptanceCriteria": [
     {
+      "text": "=== DISCOVERY ===",
+      "checked": false
+    },
+    {
+      "text": "Scan docs/ for content to reference or consolidate",
+      "checked": false
+    },
+    {
+      "text": "Scan docs.local/ for learnings and audit results to incorporate",
+      "checked": false
+    },
+    {
+      "text": "List all features from git log --oneline | head -100",
+      "checked": false
+    },
+    {
+      "text": "=== README UPDATES ===",
+      "checked": false
+    },
+    {
       "text": "Update version to 2.0.0",
       "checked": false
     },
@@ -57,7 +77,6 @@
     }
   ],
   "dependencies": [
-    "US-094",
     "US-095"
   ],
   "passes": false

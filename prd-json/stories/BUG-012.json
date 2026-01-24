@@ -5,23 +5,24 @@
   "priority": "high",
   "storyPoints": 0,
   "description": "V-011 is a verification story for the rename from ralphtools → claude-golem, but cannot be verified until the directory is actually renamed. The directory rename cannot occur while Ralph is running in that directory. This is an infrastructure blocker that prevents the verification chain (V-011 → V-012 → US-065) from proceeding.",
-  "blockedBy": "USER_ACTION_REQUIRED - All criteria require manual user steps outside of Ralph",
+  "blockedBy": "",
+  "status": "completed",
   "acceptanceCriteria": [
     {
       "text": "User must manually rename ~/Desktop/Gits/ralphtools → ~/Desktop/Gits/claude-golem",
-      "checked": false
+      "checked": true
     },
     {
       "text": "User must run scripts/rename-to-claude-golem.sh after rename",
-      "checked": false
+      "checked": true
     },
     {
       "text": "User must update ~/.zshrc as prompted by script",
-      "checked": false
+      "checked": true
     },
     {
       "text": "User must reload Ralph or start new session",
-      "checked": false
+      "checked": true
     }
   ]
 }

@@ -1,0 +1,73 @@
+{
+  "id": "US-111",
+  "title": "Enhanced update.json with index-level operations",
+  "description": "Extend update.json to support index-level changes (moveToPending, moveToBlocked, removeStories) so agents can safely modify PRD state without direct index.json edits. Ralph auto-merges on startup.",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "=== DESIGN ===",
+      "checked": false
+    },
+    {
+      "text": "Support moveToPending: ['BUG-017'] - moves from blocked to pending",
+      "checked": false
+    },
+    {
+      "text": "Support moveToBlocked: ['US-001', 'reason'] - moves to blocked with blockedBy",
+      "checked": false
+    },
+    {
+      "text": "Support removeStories: ['US-094'] - removes from all arrays and deletes file",
+      "checked": false
+    },
+    {
+      "text": "Existing updateStories and newStories still work",
+      "checked": false
+    },
+    {
+      "text": "=== IMPLEMENTATION ===",
+      "checked": false
+    },
+    {
+      "text": "Update _ralph_process_update_queue() in ralph.zsh",
+      "checked": false
+    },
+    {
+      "text": "Update bun/core/stories.ts processUpdateQueue()",
+      "checked": false
+    },
+    {
+      "text": "Add tests for each new operation",
+      "checked": false
+    },
+    {
+      "text": "=== VERIFICATION ===",
+      "checked": false
+    },
+    {
+      "text": "Test: moveToPending removes from blocked, adds to pending, clears blockedBy",
+      "checked": false
+    },
+    {
+      "text": "Test: moveToBlocked removes from pending, adds to blocked, sets blockedBy",
+      "checked": false
+    },
+    {
+      "text": "Test: removeStories deletes from all arrays and removes story file",
+      "checked": false
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": false
+    },
+    {
+      "text": "Commit: feat: US-111 enhanced update.json with index operations",
+      "checked": false
+    }
+  ],
+  "dependencies": [],
+  "passes": false
+}
