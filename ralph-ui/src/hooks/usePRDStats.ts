@@ -56,11 +56,18 @@ export function usePRDStats(prdPath: string): PRDStats {
         }
       }
 
+      // Compute stats from arrays if stats object is missing
+      const pendingCount = index.pending?.length ?? 0;
+      const blockedCount = index.blocked?.length ?? 0;
+      const totalCount = index.storyOrder?.length ?? 0;
+      // Guard against negative value if data is inconsistent
+      const completedCount = Math.max(0, totalCount - pendingCount - blockedCount);
+
       setStats({
-        totalStories: index.stats.total,
-        completedStories: index.stats.completed,
-        pendingStories: index.stats.pending,
-        blockedStories: index.stats.blocked,
+        totalStories: index.stats?.total ?? totalCount,
+        completedStories: index.stats?.completed ?? completedCount,
+        pendingStories: index.stats?.pending ?? pendingCount,
+        blockedStories: index.stats?.blocked ?? blockedCount,
         totalCriteria,
         checkedCriteria,
         currentStory,
@@ -118,11 +125,18 @@ export function createStatsLoader(prdPath: string) {
       }
     }
 
+    // Compute stats from arrays if stats object is missing
+    const pendingCount = index.pending?.length ?? 0;
+    const blockedCount = index.blocked?.length ?? 0;
+    const totalCount = index.storyOrder?.length ?? 0;
+    // Guard against negative value if data is inconsistent
+    const completedCount = Math.max(0, totalCount - pendingCount - blockedCount);
+
     return {
-      totalStories: index.stats.total,
-      completedStories: index.stats.completed,
-      pendingStories: index.stats.pending,
-      blockedStories: index.stats.blocked,
+      totalStories: index.stats?.total ?? totalCount,
+      completedStories: index.stats?.completed ?? completedCount,
+      pendingStories: index.stats?.pending ?? pendingCount,
+      blockedStories: index.stats?.blocked ?? blockedCount,
       totalCriteria,
       checkedCriteria,
       currentStory,

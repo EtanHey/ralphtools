@@ -20,7 +20,8 @@ export interface AcceptanceCriterion {
 
 export interface PRDIndex {
   generatedAt: string;
-  stats: {
+  // stats field is optional - compute from arrays if missing
+  stats?: {
     total: number;
     completed: number;
     pending: number;

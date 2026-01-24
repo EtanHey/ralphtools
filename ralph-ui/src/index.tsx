@@ -84,7 +84,7 @@ Modes:
 const config = parseArgs();
 
 // Render the dashboard
-render(
+const { waitUntilExit } = render(
   <Dashboard
     mode={config.mode}
     prdPath={config.prdPath}
@@ -94,3 +94,8 @@ render(
     ntfyTopic={config.ntfyTopic}
   />
 );
+
+// Wait for the app to exit, then exit the process
+waitUntilExit().then(() => {
+  process.exit(0);
+});
