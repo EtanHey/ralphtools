@@ -129,6 +129,78 @@ Item path format: `{project}/{service}/{key}`
 
 ---
 
+## Vault Organization
+
+### Vault Types
+
+| Vault | Purpose | Example Items |
+|-------|---------|---------------|
+| `development` | Global dev tools | context7, github CLI tokens |
+| `Private` | Personal secrets | SSH keys, personal accounts |
+| `{project}` | Project-specific | linear API key, deploy keys |
+| `Shared` | Team secrets | Shared service accounts |
+
+### Creating Vaults
+
+```bash
+# Create project vault
+op vault create "myproject" --description "MyProject secrets" --icon buildings
+
+# Create tools vault
+op vault create "development" --description "Global dev tools" --icon gears
+```
+
+### Where to Put Secrets
+
+**Global dev tools** → `development` vault:
+- context7, MCP tools, IDE plugins
+- Used across all projects
+
+**Project-specific** → `{project}` vault:
+- Linear API keys (per workspace)
+- Deploy keys, CI/CD tokens
+- Database credentials
+
+**Personal** → `Private` vault:
+- SSH keys, personal tokens
+- Accounts only you use
+
+### Tagging Strategy
+
+Use tags for cross-vault searching and organization:
+
+```bash
+# Add tags when creating
+op item create --vault development --category "API Credential" \
+  --title "context7" 'API_KEY[password]=xxx' \
+  --tags "dev-tools,mcp,documentation"
+
+# Search by tag across all vaults
+op item list --tags "mcp"
+op item list --tags "dev-tools"
+```
+
+**Recommended tags:**
+| Tag | Use for |
+|-----|---------|
+| `dev-tools` | Development utilities |
+| `mcp` | MCP server credentials |
+| `ci-cd` | CI/CD pipeline secrets |
+| `api-key` | Third-party API keys |
+| `deploy` | Deployment credentials |
+| `{project}` | Project name for filtering |
+
+### Reference Format
+
+```bash
+# Vault/Item/Field
+op://development/context7/API_KEY
+op://myproject/linear/API_KEY
+op://Private/github/token
+```
+
+---
+
 ## Safety Rules
 
 1. **Never log secret values** - Only show masked versions

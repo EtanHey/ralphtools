@@ -60,7 +60,7 @@
       "checked": true
     },
     {
-      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "text": "Commit: refactor: [STORY-ID] description",
       "checked": true
     }
   ],

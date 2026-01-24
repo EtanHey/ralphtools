@@ -47,6 +47,30 @@ Each story must complete in ONE context window (~10 min of AI work).
 - Must be verifiable (not vague)
 - Include "Typecheck passes"
 - Include "Verify in browser" for UI stories
+- Include commit criterion with proper type (see Commit Convention below)
+
+### Commit Convention
+Every story ends with a commit criterion. Match type to story:
+
+| Story Type | Commit Type | Example |
+|------------|-------------|---------|
+| US-XXX (feature) | `feat:` | `feat: US-001 add login button` |
+| BUG-XXX (bug fix) | `fix:` | `fix: BUG-001 resolve crash on empty state` |
+| V-XXX (verification) | `test:` | `test: V-001 verify login flow` |
+| TEST-XXX (e2e tests) | `test:` | `test: TEST-001 playwright tests for auth` |
+| MP-XXX (infrastructure) | `refactor:` or `chore:` | `refactor: MP-001 restructure auth module` |
+| AUDIT-XXX (audit/review) | `docs:` or `chore:` | `docs: AUDIT-001 update README` |
+
+**Criterion format:**
+```
+"Commit: {type}: {STORY-ID} {description}"
+```
+
+**Examples:**
+- `"Commit: feat: US-034 add user profile page"`
+- `"Commit: fix: BUG-012 handle null response from API"`
+- `"Commit: test: V-034 verify profile page renders correctly"`
+- `"Commit: refactor: MP-002 migrate to modular contexts"`
 
 ---
 

@@ -1,0 +1,45 @@
+{
+  "id": "US-100",
+  "title": "1Password vault organization and ENV centralization",
+  "description": "Organize secrets into correct vaults based on ownership. Use tags for cross-vault searching.",
+  "acceptanceCriteria": [
+    {"text": "=== DEVELOPMENT VAULT (global dev tools) ===", "checked": true},
+    {"text": "Create: ANTHROPIC_API_KEY --tags 'api-key,ai,personal'", "checked": false},
+    {"text": "Already done: context7/API_KEY --tags 'dev-tools,mcp'", "checked": true},
+
+    {"text": "=== CANTALOUPE VAULT (Union/work) ===", "checked": true},
+    {"text": "Create: OPENAI_API_KEY --tags 'api-key,ai,union'", "checked": false},
+    {"text": "Create: GOOGLE_GENERATIVE_AI_API_KEY --tags 'api-key,ai,union'", "checked": false},
+    {"text": "Create: LINEAR_API_KEY --tags 'api-key,union' (Union workspace)", "checked": false},
+    {"text": "Create: SUPABASE section (url, anon_key, service_role) --tags 'union,db'", "checked": false},
+    {"text": "Create: TWILIO section (account_sid, auth_token, etc) --tags 'union,sms'", "checked": false},
+    {"text": "Create: NYLAS section --tags 'union,email'", "checked": false},
+    {"text": "Create: STRIPE section --tags 'union,payments'", "checked": false},
+    {"text": "Create: VAPI_API_KEY --tags 'union,voice'", "checked": false},
+    {"text": "Create: DEEPGRAM_API_KEY --tags 'union,voice'", "checked": false},
+    {"text": "Create: RESEND_API_KEY --tags 'union,email'", "checked": false},
+
+    {"text": "=== DOMICA VAULT (personal project) ===", "checked": true},
+    {"text": "Create: SUPABASE section (url, anon_key, service_role) --tags 'domica,db'", "checked": false},
+    {"text": "Create: BROWSERBASE section --tags 'domica,scraping'", "checked": false},
+    {"text": "Create: FIRECRAWL_API_KEY --tags 'domica,scraping'", "checked": false},
+    {"text": "Create: MAPBOX section --tags 'domica,maps'", "checked": false},
+    {"text": "Create: UPLOADTHING section --tags 'domica,storage'", "checked": false},
+    {"text": "Create: GOOGLE_DOCUMENT_AI section --tags 'domica,ai'", "checked": false},
+
+    {"text": "=== TEMPLATES ===", "checked": true},
+    {"text": "Update ralphtools/skills/.env.template with correct op:// refs", "checked": false},
+    {"text": "Create domica/.env.template with op://Domica/* refs", "checked": false},
+    {"text": "Create union/.env.template with op://Cantaloupe/* refs", "checked": false},
+
+    {"text": "=== VERIFICATION ===", "checked": true},
+    {"text": "Test: op inject works for ralphtools", "checked": false},
+    {"text": "Test: op inject works for domica", "checked": false},
+    {"text": "Test: op inject works for union", "checked": false},
+    {"text": "Commit: feat: US-100 1Password vault organization", "checked": false}
+  ],
+  "storyType": "US",
+  "priority": "high",
+  "createdAt": "2026-01-24T05:00:00.000Z",
+  "passes": false
+}

@@ -1,0 +1,34 @@
+{
+  "id": "US-101",
+  "title": "Migrate hardcoded MCP secrets from unionClaude/domicaClaude to 1Password",
+  "description": "The unionClaude and domicaClaude functions have hardcoded API tokens. Migrate to 1Password and use op read/inject.",
+  "acceptanceCriteria": [
+    {"text": "=== CANTALOUPE VAULT (Union) ===", "checked": true},
+    {"text": "Create: mcp-linear/API_TOKEN --tags 'union,mcp,linear'", "checked": false},
+    {"text": "Create: mcp-supabase/ACCESS_TOKEN --tags 'union,mcp,supabase'", "checked": false},
+
+    {"text": "=== DOMICA VAULT ===", "checked": true},
+    {"text": "Create: mcp-linear/API_TOKEN --tags 'domica,mcp,linear'", "checked": false},
+    {"text": "Create: mcp-supabase/ACCESS_TOKEN --tags 'domica,mcp,supabase'", "checked": false},
+
+    {"text": "=== DEVELOPMENT VAULT (shared) ===", "checked": true},
+    {"text": "Create: mcp-tempmail/API_KEY --tags 'mcp,dev-tools' (shared across projects)", "checked": false},
+
+    {"text": "=== UPDATE FUNCTIONS ===", "checked": true},
+    {"text": "Update unionClaude to use: op read op://Cantaloupe/mcp-linear/API_TOKEN", "checked": false},
+    {"text": "Update unionClaude to use: op read op://Cantaloupe/mcp-supabase/ACCESS_TOKEN", "checked": false},
+    {"text": "Update domicaClaude to use: op read op://Domica/mcp-linear/API_TOKEN", "checked": false},
+    {"text": "Update domicaClaude to use: op read op://Domica/mcp-supabase/ACCESS_TOKEN", "checked": false},
+    {"text": "Update both to use: op read op://development/mcp-tempmail/API_KEY", "checked": false},
+
+    {"text": "=== VERIFICATION ===", "checked": true},
+    {"text": "Test: unionClaude -m works with 1Password secrets", "checked": false},
+    {"text": "Test: domicaClaude -m works with 1Password secrets", "checked": false},
+    {"text": "Remove hardcoded secrets from .zshrc", "checked": false},
+    {"text": "Commit: feat: US-101 migrate MCP secrets to 1Password", "checked": false}
+  ],
+  "storyType": "US",
+  "priority": "critical",
+  "createdAt": "2026-01-24T05:15:00.000Z",
+  "passes": false
+}
