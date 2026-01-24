@@ -721,3 +721,23 @@ Changes:
 - TDD approach: write failing tests first, then implement to make them pass
 - Runtime type definition should be in TypeScript types AND shell script defaults
 - Config defaults should be updated in all 3 places: skip-setup, gum fallback, and read fallback
+
+## Iteration 35
+Story: US-095 - Docusaurus documentation site
+Status: COMPLETED (opus)
+Changes:
+- Initialized Docusaurus in docs-site/ directory with TypeScript and React
+- Migrated all 11 docs/*.md files to Docusaurus format with proper frontmatter
+- Configured sidebar navigation with ordered document list
+- Added local search plugin (@easyops-cn/docusaurus-search-local)
+- Added versioning support in docusaurus.config.ts
+- Created GitHub Actions workflow for deployment to GitHub Pages
+- Added documentation link to README header
+- Created custom homepage with Ralph features (autonomous execution, smart routing, live tracking)
+- Fixed CodeRabbit issues: user-specific values in docs, incorrect npm package name
+- All 69+83 tests pass, docs site builds successfully
+
+### Learnings
+- Docusaurus tsconfig.json can have comments (valid for TS, not JSON) - may fail strict JSON validation
+- Local search plugin is simpler than Algolia for small docs sites
+- GitHub Pages deployment uses actions/deploy-pages@v4 with pages write permission

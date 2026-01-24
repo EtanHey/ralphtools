@@ -49,9 +49,9 @@
     },
     {
       "text": "Commit: feat: [STORY-ID] description",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true
 }
