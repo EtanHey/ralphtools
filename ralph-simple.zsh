@@ -166,7 +166,35 @@ _ralph_ntfy() {
 _ralph_build_prompt() {
   local story="$1"
 
-  cat << 'PROMPT'
+  # Try to load prompt from shared file
+  local prompt_file="${RALPH_PROMPT_FILE:-$RALPH_CONFIG_DIR/../ralphtools/prompts/ralph-prompt.md}"
+
+  # Also check relative to script location (for development)
+  if [[ ! -f "$prompt_file" ]]; then
+    local script_dir="${0:a:h}"
+    prompt_file="$script_dir/prompts/ralph-prompt.md"
+  fi
+
+  # Also check in ~/.config/ralph/prompts/
+  if [[ ! -f "$prompt_file" ]]; then
+    prompt_file="$HOME/.config/ralph/prompts/ralph-prompt.md"
+  fi
+
+  if [[ -f "$prompt_file" ]]; then
+    # Read prompt and substitute placeholders
+    local prompt_content
+    prompt_content=$(cat "$prompt_file")
+
+    # Substitute template variables
+    prompt_content="${prompt_content//\{\{MODEL\}\}/$RALPH_DEFAULT_MODEL}"
+    prompt_content="${prompt_content//\{\{PRD_JSON_DIR\}\}/prd-json}"
+    prompt_content="${prompt_content//\{\{WORKING_DIR\}\}/$(pwd)}"
+    prompt_content="${prompt_content//\{\{ISO_TIMESTAMP\}\}/$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
+
+    echo "$prompt_content"
+  else
+    # Fallback to inline prompt if file not found
+    cat << 'PROMPT'
 You are Ralph, an autonomous AI coding agent. You implement PRD stories one at a time.
 
 ## Your Task
@@ -193,6 +221,12 @@ If you discover a reusable pattern that future work should know about:
 - Add patterns like: "This codebase uses X for Y"
 - Only add genuinely reusable knowledge
 
+## CodeRabbit Integration
+
+Before committing, run: cr review --prompt-only --type uncommitted
+- If issues found: fix or create BUG-xxx story
+- Log results in progress.txt
+
 ## Completion Signals
 
 When done, output exactly one of:
@@ -206,6 +240,7 @@ When done, output exactly one of:
 - Do NOT implement multiple stories
 - Do NOT skip committing
 PROMPT
+  fi
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

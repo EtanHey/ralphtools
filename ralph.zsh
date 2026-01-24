@@ -16,8 +16,6 @@
 #   -c, --compact : Compact output mode (less vertical whitespace)
 #   -d, --debug   : Debug output mode (more verbose)
 #   --no-live    : Disable live progress bar updates (fswatch)
-#   --no-catchup : Disable auto-catchup context for partial story progress
-#   --ui-ink     : Use React Ink UI dashboard (requires bun)
 #   (no flag) : No notifications, Opus model (default)
 #
 # Model Flags:
@@ -1009,51 +1007,6 @@ _ralph_format_elapsed() {
     printf "%ds" $secs
   fi
 }
-
-# ═══════════════════════════════════════════════════════════════════
-# REACT INK UI INTEGRATION
-# ═══════════════════════════════════════════════════════════════════
-
-# Path to the React Ink UI entry point
-RALPH_UI_PATH="${RALPH_UI_PATH:-${RALPH_SCRIPT_DIR}/ralph-ui/src/index.tsx}"
-
-# Show React Ink UI dashboard
-# Usage: _ralph_show_ink_ui $mode $prd_path $iteration $model $start_time
-# Modes: startup, iteration, live
-_ralph_show_ink_ui() {
-  local mode="$1"
-  local prd_path="$2"
-  local iteration="${3:-1}"
-  local model="${4:-sonnet}"
-  local start_time="${5:-$(date +%s)}"
-
-  # Check if bun is available
-  if ! command -v bun &>/dev/null; then
-    echo -e "${RALPH_COLOR_YELLOW}[WARN] bun not found, falling back to shell UI${RALPH_COLOR_RESET}"
-    return 1
-  fi
-
-  # Check if UI file exists
-  if [[ ! -f "$RALPH_UI_PATH" ]]; then
-    echo -e "${RALPH_COLOR_YELLOW}[WARN] React Ink UI not found at $RALPH_UI_PATH, falling back to shell UI${RALPH_COLOR_RESET}"
-    return 1
-  fi
-
-  # Convert start_time to milliseconds for JavaScript
-  local start_time_ms=$((start_time * 1000))
-
-  # Run the React Ink UI
-  bun "$RALPH_UI_PATH" \
-    --mode="$mode" \
-    --prd-path="$prd_path" \
-    --iteration="$iteration" \
-    --model="$model" \
-    --start-time="$start_time_ms"
-
-  return $?
-}
-
-# ═══════════════════════════════════════════════════════════════════
 
 # Show compact between-iterations status (4-5 lines max)
 # Usage: _ralph_show_iteration_status $json_dir $start_time $i $MAX $current_story $model $compact
@@ -2893,87 +2846,6 @@ _ralph_normalize_criteria() {
   '
 }
 
-# Build catchup context for stories with partial progress
-# Returns catchup context string if story has partial progress, empty otherwise
-# Partial progress = has some checked criteria but passes=false
-_ralph_build_catchup_context() {
-  setopt localoptions noxtrace
-  local json_dir="$1"
-  local story_id="$2"
-  local story_file="$json_dir/stories/${story_id}.json"
-
-  [[ -f "$story_file" ]] || return 1
-
-  # Check if story has partial progress
-  local total_criteria=$(jq '[.acceptanceCriteria[]] | length' "$story_file" 2>/dev/null || echo 0)
-  local checked_criteria=$(jq '[.acceptanceCriteria[] | select(.checked == true)] | length' "$story_file" 2>/dev/null || echo 0)
-  local passes=$(jq -r '.passes // false' "$story_file" 2>/dev/null)
-
-  # No catchup needed if: no checked criteria OR story already passes
-  if [[ "$checked_criteria" -eq 0 || "$passes" == "true" ]]; then
-    echo ""
-    return 0
-  fi
-
-  # Has partial progress - build catchup context
-  local catchup_context="
-## ⚠️ PARTIAL PROGRESS DETECTED - AUTO-CATCHUP
-
-This story has **$checked_criteria/$total_criteria criteria already checked** from a previous iteration.
-
-### Previous Iteration Changes"
-
-  # Add git diff from last commit
-  local files_changed=$(git diff HEAD~1 --name-only 2>/dev/null | head -20)
-  if [[ -n "$files_changed" ]]; then
-    catchup_context+="
-\`\`\`
-Files changed in last commit:
-$files_changed
-\`\`\`"
-  fi
-
-  # Add last commit info
-  local last_commit=$(git log -1 --oneline 2>/dev/null)
-  if [[ -n "$last_commit" ]]; then
-    catchup_context+="
-Last commit: \`$last_commit\`"
-  fi
-
-  # Add criteria status breakdown
-  catchup_context+="
-
-### Criteria Status"
-
-  # Get checked criteria
-  local checked_list=$(jq -r '.acceptanceCriteria[] | select(.checked == true) | "✅ " + .text' "$story_file" 2>/dev/null)
-  if [[ -n "$checked_list" ]]; then
-    catchup_context+="
-**Completed (DO NOT REDO):**
-$checked_list"
-  fi
-
-  # Get unchecked criteria
-  local unchecked_list=$(jq -r '.acceptanceCriteria[] | select(.checked == false) | "⬜ " + .text' "$story_file" 2>/dev/null)
-  if [[ -n "$unchecked_list" ]]; then
-    catchup_context+="
-
-**Remaining (FOCUS ON THESE):**
-$unchecked_list"
-  fi
-
-  catchup_context+="
-
-### Instructions
-1. **Review the changes** from the previous iteration above
-2. **DO NOT redo** already-checked criteria
-3. **Continue from where the previous iteration left off**
-4. Focus on the remaining unchecked criteria
-"
-
-  echo "$catchup_context"
-}
-
 # Apply queued updates from update.json (allows external processes to queue changes)
 # Returns 0 if updates were applied, 1 if no updates
 # Sets RALPH_UPDATES_APPLIED to the count of new stories added
@@ -3210,8 +3082,6 @@ function ralph() {
   local compact_mode=false   # Compact output mode (less verbose)
   local debug_mode=false     # Debug output mode (more verbose)
   local live_updates=true    # Live progress bar updates via file watching
-  local catchup_enabled=true # Auto-catchup context for partial story progress
-  local use_ink_ui=false     # Use React Ink UI for dashboard display
 
   # Interactive control variables (gum-enabled features)
   local ralph_start_time=$(date +%s)  # Track when ralph started
@@ -3253,14 +3123,6 @@ function ralph() {
         ;;
       --no-live)
         live_updates=false
-        shift
-        ;;
-      --no-catchup)
-        catchup_enabled=false
-        shift
-        ;;
-      --ui-ink)
-        use_ink_ui=true
         shift
         ;;
       -O|--opus)
@@ -3981,17 +3843,10 @@ function ralph() {
       # Build the prompt based on JSON vs Markdown mode
       local ralph_prompt=""
 
-      # Build catchup context if enabled and story has partial progress (JSON mode only)
-      local catchup_context=""
-      if [[ "$use_json_mode" == "true" && "$catchup_enabled" == "true" && -n "$current_story" ]]; then
-        catchup_context=$(_ralph_build_catchup_context "$PRD_JSON_DIR" "$current_story")
-      fi
-
       if [[ "$use_json_mode" == "true" ]]; then
         # JSON MODE PROMPT
         # Note: Git rules, skills, and agent instructions now loaded via --append-system-prompt from context files
         ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
-${catchup_context}
 
 ## Model Information
 You are running on model: **${active_model}**
@@ -4666,8 +4521,6 @@ function ralph-help() {
   echo "  ${BOLD}-QN${NC}                   Enable ntfy notifications"
   echo "  ${BOLD}--compact, -c${NC}         Compact output mode (less verbose)"
   echo "  ${BOLD}--debug, -d${NC}           Debug output mode (more verbose)"
-  echo "  ${BOLD}--no-catchup${NC}          Disable auto-catchup for partial progress"
-  echo "  ${BOLD}--ui-ink${NC}              Use React Ink UI dashboard (requires bun)"
   echo ""
   echo "${GREEN}Model Flags:${NC}"
   echo "  ${BOLD}-O${NC}                    Opus (Claude, default)"

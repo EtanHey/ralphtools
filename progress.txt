@@ -527,3 +527,23 @@ UI Features:
 - fs.watch with recursive:true works on macOS for directory watching
 - Ink components use flexbox model similar to React Native
 - Debouncing file watch events (100ms) prevents rapid re-renders
+
+## Iteration 26
+Story: US-091 - Extract Ralph prompt to shared file
+Status: COMPLETED (opus)
+Changes:
+- Created prompts/ralph-prompt.md with complete Ralph system prompt (~300 lines)
+- Prompt includes all sections: model info, paths, steps, incremental criterion checking, dev server rules, blocked task rules, browser rules
+- Added AGENTS.md auto-update section explaining when/how to update AGENTS.md
+- Added CodeRabbit integration section with cr review command and BUG-xxx creation pattern
+- Updated ralph-simple.zsh _ralph_build_prompt() to load prompt from file
+- Implemented multi-location file search: script dir, config dir, RALPH_PROMPT_FILE env var
+- Template variables: {{MODEL}}, {{PRD_JSON_DIR}}, {{WORKING_DIR}}, {{ISO_TIMESTAMP}}
+- Fallback: inline prompt if file not found
+- CodeRabbit: PASS (0 issues)
+- All tests pass
+
+### Learnings
+- ZSH parameter expansion ${var//pattern/replacement} works for template substitution
+- ${0:a:h} gets the absolute path of script's directory in zsh
+- Shared prompts enable consistency between ralph.zsh and ralph-simple.zsh

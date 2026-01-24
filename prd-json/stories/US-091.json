@@ -9,37 +9,39 @@
   "acceptanceCriteria": [
     {
       "text": "Create prompts/ directory in ralphtools",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create prompts/ralph-prompt.md with full Ralph instructions",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Include AGENTS.md auto-update section in prompt",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Include CodeRabbit integration: run cr review, create BUG-xxx if issues",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Update ralph-simple.zsh to read prompt from file",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Ralph uses shared prompt correctly",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: feat: [STORY-ID] description",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-24T11:00:00Z",
+  "completedBy": "opus"
 }
