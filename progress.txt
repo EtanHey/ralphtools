@@ -876,3 +876,28 @@ Changes:
 - Stats are derived on-the-fly from arrays (US-106), not stored in index.json
 - Test section headers (=== SECTION ===) are organizational markers and count as checked
 - CodeRabbit review --prompt-only returns "Review completed" with no issues when PASS
+
+## Iteration 43
+Story: BUG-023 - Orphan processes not cleaned up on hard crash/kill
+Status: COMPLETED (opus)
+Changes:
+- Added RALPH_PID_TRACKING_FILE (~/.config/ralphtools/ralph-pids.txt) to track child processes
+- Added _ralph_track_pid() and _ralph_untrack_pid() functions for PID management
+- Tracks fswatch-wrapper, inotifywait-wrapper, and polling-loop PIDs
+- Added _ralph_check_orphans_at_startup() - detects orphan processes on startup
+- Offers to kill orphans interactively (auto-kills in non-interactive mode)
+- Added ralph-kill-orphans command with --all flag for thorough cleanup
+- Added crash logging to ~/.config/ralphtools/logs/crash-{timestamp}.log
+- _ralph_log_crash() logs iteration, story, criteria, and error message
+- _ralph_show_recent_crash() shows crash info within 24 hours on startup
+- Added ralph-logs command to view recent crash logs
+- Updated cleanup_ralph() to include _ralph_stop_polling_loop() and _ralph_untrack_session()
+- Added 10 new tests for orphan tracking and crash logging (107 total pass)
+- Updated ralph-help with Maintenance section for new commands
+- All 206 tests pass (107 ZSH + 16 skills + 83 Bun)
+
+### Learnings
+- PID tracking file format: "pid type timestamp parent_pid" (space-separated)
+- Orphan detection: check if parent_pid is dead but child pid is still running
+- Crash logs use find with -mtime -1 to find logs within 24 hours
+- ANSI color codes need stripping for reliable regex matching in tests

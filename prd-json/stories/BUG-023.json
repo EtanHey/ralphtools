@@ -21,8 +21,8 @@
     {"text": "Test: ralph-cleanup kills all Ralph-related processes", "checked": true},
     {"text": "Test: Crash log created on failure", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: fix: BUG-023 handle orphan process cleanup and crash logging", "checked": false}
+    {"text": "Commit: fix: BUG-023 handle orphan process cleanup and crash logging", "checked": true}
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true
 }
