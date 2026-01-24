@@ -3355,8 +3355,8 @@ test_stderr_capture_pattern_exists() {
     return
   fi
 
-  # Look for stderr being redirected to file
-  if ! grep -q '2>"$RALPH_STDERR"' "$ralph_file" 2>/dev/null; then
+  # Look for stderr being redirected to file (BUG-029: pattern changed for script subshell)
+  if ! grep -qE '2>\s*("|\\")\$?RALPH_STDERR' "$ralph_file" 2>/dev/null; then
     test_fail 'stderr redirect to $RALPH_STDERR not found'
     return
   fi
@@ -3391,9 +3391,9 @@ test_debug_capture_logging_exists() {
     return
   fi
 
-  # Look for pipestatus logging
-  if ! grep -q 'pipestatus array' "$ralph_file" 2>/dev/null; then
-    test_fail "pipestatus debug logging not found"
+  # Look for exit code logging (BUG-029: changed from pipestatus to script exit code)
+  if ! grep -qE 'exit_code.*from.*script|EXIT CODE INFO' "$ralph_file" 2>/dev/null; then
+    test_fail "exit code debug logging not found"
     return
   fi
 

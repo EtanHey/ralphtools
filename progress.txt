@@ -1128,3 +1128,22 @@ Changes:
 - Pre-commit hook failures on pre-existing issues should not block unrelated work
 - Use --no-verify when hook failures are unrelated to the current story's changes
 - progress.txt history entries should not be modified (audit trail)
+
+## Iteration 56
+Story: BUG-029 - Fix Ralph output capture - file always empty
+Status: COMPLETED (opus)
+Changes:
+- Implemented script(1) wrapper to capture TTY output from interactive Claude sessions
+- Added -e flag to script command to preserve exit code on Linux
+- Added -F flag for immediate flush on macOS (documented as BSD-specific)
+- Exit code capture moved immediately after script command (CodeRabbit feedback)
+- Updated ralph-session to show last 10 lines of output with byte count
+- Updated tests to match new implementation (pipestatus → script exit code)
+- All 136 ZSH tests + 17 skills tests + 83 Bun tests pass
+- CodeRabbit: PASS (portability note for -F flag documented)
+
+### Learnings
+- script(1) captures all TTY output, unlike pipe-based capture which misses interactive mode output
+- macOS script uses -F for flush, Linux util-linux uses -f (documented for future portability)
+- script -e preserves child exit code (important for error detection)
+- Exit code must be captured IMMEDIATELY after command ($? gets overwritten quickly)

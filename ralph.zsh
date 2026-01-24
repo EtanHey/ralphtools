@@ -1346,13 +1346,17 @@ ralph-session() {
 
       [[ "$error" != "null" && -n "$error" ]] && echo "  Error: $error"
 
-      # Show last output
+      # Show last output (BUG-029: show last 5-10 lines for debugging)
       local output_file="/tmp/ralph_output_${pid}.txt"
       if [[ -f "$output_file" ]]; then
-        local lines=$(wc -l < "$output_file" 2>/dev/null)
-        echo "  Output: $output_file ($lines lines)"
+        local lines=$(wc -l < "$output_file" 2>/dev/null | tr -d ' ')
+        local bytes=$(wc -c < "$output_file" 2>/dev/null | tr -d ' ')
+        echo "  Output: $output_file ($lines lines, $bytes bytes)"
         if [[ "$lines" -gt 0 ]]; then
-          echo "  Last line: $(tail -1 "$output_file" 2>/dev/null | head -c 80)"
+          echo ""
+          echo "  ${YELLOW}Last 10 lines:${NC}"
+          # Filter out ANSI escape codes and show last 10 lines, indented
+          tail -10 "$output_file" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' | sed 's/^/    /'
         fi
       fi
       echo ""
@@ -4886,19 +4890,18 @@ At the START of any iteration that needs browser verification:
       # Update status file: running (US-106)
       _ralph_write_status "running"
 
-      # Run CLI with output capture (tee for checking promises)
-      # Note: Claude uses -p flag, Kiro uses positional argument (${prompt_flag:+...} expands only if non-empty)
-      # NODE_OPTIONS: Force unhandled promise rejections to become exceptions (properly captured by pipe)
+      # Run CLI with output capture using script(1) to capture TTY output
+      # BUG-029 FIX: Claude in interactive mode writes directly to TTY, bypassing stdout pipes.
+      # The script(1) command captures all terminal output (including TTY writes) to a file.
       #
-      # BUG-028 FIX: Capture stderr separately to ensure error messages like "No messages returned"
-      # are captured even if they're written to stderr before the 2>&1 redirect takes effect.
-      # This uses a separate file for stderr, then appends it to RALPH_TMP.
+      # BUG-028 FIX: stderr is captured separately to ensure error messages like "No messages returned"
+      # are captured even if written to stderr before redirects take effect.
       local RALPH_STDERR="/tmp/ralph_stderr_$$.txt"
       rm -f "$RALPH_STDERR" 2>/dev/null
+      rm -f "$RALPH_TMP" 2>/dev/null
 
-      # Execute with stderr going to separate file, stdout to RALPH_TMP (via tee or cat)
-      # The { cmd 2>file; } pattern ensures stderr is captured to file before any redirects
-      { NODE_OPTIONS="--unhandled-rejections=strict" "${cli_cmd_arr[@]}" ${prompt_flag:+$prompt_flag} "${ralph_prompt}
+      # Build the prompt as a variable to pass to the shell command
+      local full_prompt="${ralph_prompt}
 
 ## Dev Server Rules (CRITICAL)
 
@@ -4934,11 +4937,11 @@ A task is BLOCKED only when you CANNOT fix it yourself:
 - 1Password auth timeout (see below)
 
 **1Password/Biometric Auth Timeout:**
-If \`op\` commands fail with "authorization timeout" or similar auth errors:
+If \`op\` commands fail with \"authorization timeout\" or similar auth errors:
 1. Retry up to 3 times with 30 second waits between attempts
-2. After 3 failed attempts, mark story as BLOCKED with reason: "1Password authentication timeout - user not present"
+2. After 3 failed attempts, mark story as BLOCKED with reason: \"1Password authentication timeout - user not present\"
 3. Do NOT keep retrying indefinitely - user may be AFK
-4. Detection: check stderr for "authorization timeout", "biometric", "Touch ID", or exit code from op commands
+4. Detection: check stderr for \"authorization timeout\", \"biometric\", \"Touch ID\", or exit code from op commands
 
 **When you find a BLOCKED task:**
 1. In the story JSON, set blockedBy field: \`\"blockedBy\": \"[specific reason]\"\`
@@ -4972,7 +4975,7 @@ The next Ralph is a FRESH instance with NO MEMORY of your work. The ONLY way the
 → Infinite loop forever
 
 **If typecheck PASSES (JSON mode):**
-1. **UPDATE story JSON**: Set checked=true for completed criteria, passes=true if all done, AND add completedAt with ISO timestamp AND completedBy with the model name (e.g. \"completedAt\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"completedBy\": \"${active_model}\")
+1. **UPDATE story JSON**: Set checked=true for completed criteria, passes=true if all done, AND add completedAt with ISO timestamp AND completedBy with the model name (e.g. \"completedAt\": \"\$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"completedBy\": \"${active_model}\")
 2. **UPDATE index.json**: Remove from pending, update stats, set nextStory
 3. **UPDATE progress.txt**: Add iteration summary (include CodeRabbit results if run)
 4. **CODERABBIT** (if enabled): Run \`cr review --prompt-only --type uncommitted\` before commit
@@ -5004,7 +5007,7 @@ The next Ralph is a FRESH instance with NO MEMORY of your work. The ONLY way the
 
 At the end of EVERY iteration, provide an expressive summary:
 - \"I completed [story ID] which was about [what it accomplished/changed]\"
-- \"Next I think I should work on \[next story ID\] which is \[what it will do\]. I'm planning to \[specific actions X, Y, Z\]\"
+- \"Next I think I should work on [next story ID] which is [what it will do]. I'm planning to [specific actions X, Y, Z]\"
 - Be descriptive and conversational about what you did and what's next, not just checkboxes
 
 **NEVER OUTPUT TASK COUNTS** - No 'remaining=N', no 'X stories left', no task counts at all. The Ralph script displays this automatically. Just describe what you did.
@@ -5014,7 +5017,29 @@ At the end of EVERY iteration, provide an expressive summary:
 After completing task, check PRD state:
 - ALL stories have passes=true (or pending array empty): output <promise>COMPLETE</promise>
 - ALL remaining stories are blocked: output <promise>ALL_BLOCKED</promise>
-- Some stories still pending: end response (next iteration continues)" 2>"$RALPH_STDERR"; } | if [[ "$verbose_enabled" == "true" ]]; then tee "$RALPH_TMP"; else cat > "$RALPH_TMP"; fi
+- Some stories still pending: end response (next iteration continues)"
+
+      # BUG-029: Use script(1) to capture TTY output from interactive Claude sessions
+      # script -q -e -F captures terminal output with immediate flush, -e preserves exit code
+      # Note: -F (flush) is BSD/macOS specific; on Linux, use script -f instead (util-linux)
+      # Since Ralph is primarily used on macOS, we use -F. For Linux support, detect OS.
+      # We use a wrapper approach: script runs a subshell that executes Claude and captures stderr
+      if [[ "$verbose_enabled" == "true" ]]; then
+        # Verbose mode: output is visible on terminal AND captured to file
+        script -q -e -F "$RALPH_TMP" /bin/zsh -c "
+          NODE_OPTIONS='--unhandled-rejections=strict' ${(qq)cli_cmd_arr[@]} ${prompt_flag:+$prompt_flag} \"\$1\" 2>\"$RALPH_STDERR\"
+        " -- "$full_prompt"
+      else
+        # Non-verbose mode: output captured to file only (no terminal display)
+        # Use script -q -e without -F, redirect script's stdout to /dev/null
+        script -q -e "$RALPH_TMP" /bin/zsh -c "
+          NODE_OPTIONS='--unhandled-rejections=strict' ${(qq)cli_cmd_arr[@]} ${prompt_flag:+$prompt_flag} \"\$1\" 2>\"$RALPH_STDERR\"
+        " -- "$full_prompt" > /dev/null
+      fi
+
+      # Capture exit code IMMEDIATELY after script command (before any other operations)
+      # BUG-029: script -e returns the exit code of the command it ran
+      local exit_code=$?
 
       # BUG-028: Append stderr to RALPH_TMP so error patterns are detected
       # This ensures "No messages returned" and other errors written to stderr are captured
@@ -5037,10 +5062,6 @@ After completing task, check PRD state:
       # Clean up context file generated for this iteration
       _ralph_cleanup_context_file "$RALPH_CONTEXT_FILE"
 
-      # Capture exit code of Claude (pipestatus[1] in zsh gets first command in pipe)
-      # Note: zsh uses lowercase 'pipestatus' and 1-indexed arrays
-      local exit_code=${pipestatus[1]:-999}
-
       # DEBUG LOGGING (BUG-028): Diagnose No messages returned capture issues
       # These logs help identify if stderr is being captured and what exit codes we're seeing
       if [[ "${RALPH_DEBUG_CAPTURE:-false}" == "true" ]]; then
@@ -5051,8 +5072,7 @@ After completing task, check PRD state:
           echo "═══════════════════════════════════════════════════════════════"
           echo ""
           echo "─── EXIT CODE INFO ──────────────────────────────────────────"
-          echo "pipestatus array: ${pipestatus[*]}"
-          echo "exit_code (pipestatus[1]): $exit_code"
+          echo "exit_code (from script command): $exit_code"
           echo ""
           echo "─── RALPH_TMP FILE INFO ─────────────────────────────────────"
           echo "RALPH_TMP path: $RALPH_TMP"
