@@ -8,23 +8,23 @@
   "acceptanceCriteria": [
     {
       "text": "Add Bun test section to .githooks/pre-commit",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Only run if bun/ directory exists",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run: cd bun && bun test",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Fail commit if Bun tests fail",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: verify commit blocked when test fails",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit changes",

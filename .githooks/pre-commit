@@ -301,6 +301,30 @@ if [[ -n "$SKILLS_TEST_SCRIPT" && -x "$SKILLS_TEST_SCRIPT" ]]; then
 else
   echo "  ${YELLOW}⚠${NC} test-skills.zsh not found - skipping skills tests"
 fi
+
+# Run Bun tests (if bun/ directory exists)
+if [[ -d "$REPO_ROOT/bun" ]]; then
+  echo ""
+  echo "  Running Bun tests..."
+  echo ""
+
+  # Capture test output and exit code
+  BUN_TEST_OUTPUT=$(cd "$REPO_ROOT/bun" && bun test 2>&1) || BUN_TEST_EXIT_CODE=$?
+  BUN_TEST_EXIT_CODE=${BUN_TEST_EXIT_CODE:-0}
+
+  # Show output (tests have their own formatting)
+  echo "$BUN_TEST_OUTPUT"
+
+  if [[ $BUN_TEST_EXIT_CODE -ne 0 ]]; then
+    echo ""
+    echo "  ${RED}✗ Bun tests failed${NC}"
+    ERRORS=$((ERRORS + 1))
+  else
+    echo "  ${GREEN}✓${NC} Bun tests passed"
+  fi
+else
+  echo "  ${GREEN}✓${NC} No bun/ directory - skipping Bun tests"
+fi
 echo ""
 
 # ═══════════════════════════════════════════════════════════════
