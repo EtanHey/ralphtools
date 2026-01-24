@@ -52,3 +52,12 @@ export interface PRDStats {
   currentStory: StoryData | null;
   nextStoryId: string;
 }
+
+// Status file written by ralph.zsh at /tmp/ralph-status-$$.json
+export interface RalphStatus {
+  state: 'running' | 'cr_review' | 'error' | 'retry';
+  lastActivity: number; // Unix timestamp in seconds
+  error: string | null;
+  retryIn: number; // Seconds until retry (0 if not retrying)
+  pid: number;
+}

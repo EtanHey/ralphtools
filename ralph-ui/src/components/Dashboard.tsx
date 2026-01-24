@@ -4,7 +4,13 @@ import { IterationHeader } from './IterationHeader.js';
 import { PRDStatus } from './PRDStatus.js';
 import { StoryBox } from './StoryBox.js';
 import { NotificationStatus } from './NotificationStatus.js';
+import { AliveIndicator } from './AliveIndicator.js';
+import { CodeRabbitStatus } from './CodeRabbitStatus.js';
+import { ErrorBanner } from './ErrorBanner.js';
+import { RetryCountdown } from './RetryCountdown.js';
+import { HangingWarning } from './HangingWarning.js';
 import { useFileWatch } from '../hooks/useFileWatch.js';
+import { useStatusFile } from '../hooks/useStatusFile.js';
 import type { DashboardProps, PRDStats } from '../types.js';
 
 // Live clock hook - only used in live mode
@@ -71,6 +77,12 @@ export function Dashboard({
     debounceMs: 100,
   });
 
+  // Watch ralph status file for live state updates
+  const ralphStatus = useStatusFile({
+    enabled: isLiveMode || mode === 'iteration',
+    pollIntervalMs: 1000,
+  });
+
   // Use live stats if available, otherwise use defaults
   const stats: PRDStats = liveStats || {
     totalStories: 0,
@@ -121,6 +133,36 @@ export function Dashboard({
             model={model}
             startTime={startTime}
             isRunning={mode === 'iteration'}
+          />
+        </Box>
+      )}
+
+      {/* Ralph Status Indicators (shown in iteration/live modes) */}
+      {(mode === 'iteration' || mode === 'live') && ralphStatus && (
+        <Box flexDirection="column" marginBottom={1} gap={1}>
+          {/* Alive Indicator - always show when running */}
+          <AliveIndicator
+            lastActivity={ralphStatus.lastActivity}
+            isRunning={ralphStatus.state === 'running' || ralphStatus.state === 'cr_review'}
+          />
+
+          {/* CodeRabbit Status - show during CR review */}
+          <CodeRabbitStatus isReviewing={ralphStatus.state === 'cr_review'} />
+
+          {/* Error Banner - show on error */}
+          <ErrorBanner error={ralphStatus.error} />
+
+          {/* Retry Countdown - show during retry */}
+          <RetryCountdown
+            retryIn={ralphStatus.retryIn}
+            isRetrying={ralphStatus.state === 'retry'}
+          />
+
+          {/* Hanging Warning - show if no activity for >60s */}
+          <HangingWarning
+            lastActivity={ralphStatus.lastActivity}
+            isRunning={ralphStatus.state === 'running' || ralphStatus.state === 'cr_review'}
+            thresholdSeconds={60}
           />
         </Box>
       )}
