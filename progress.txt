@@ -901,3 +901,17 @@ Changes:
 - Orphan detection: check if parent_pid is dead but child pid is still running
 - Crash logs use find with -mtime -1 to find logs within 24 hours
 - ANSI color codes need stripping for reliable regex matching in tests
+
+## Iteration 44
+Story: US-103 - Update nextjs.md for Next.js 15+ async params pattern
+Status: COMPLETED (opus)
+Changes:
+- Updated Provider Setup example to use Promise<{locale}> async pattern
+- Added prominent note at top of file explaining Next.js 15+ params changes
+- Added inline note above Provider Setup code block
+- Note: nextjs.md is in ~/.claude/contexts/tech/ (global contexts dir, not this repo)
+
+### Learnings
+- Next.js 15+ changed params and searchParams to be Promises that must be awaited
+- Global context files (~/.claude/contexts/) are outside ralphtools repo
+- Old pattern: `params: { locale: string }` → New pattern: `params: Promise<{ locale: string }>`

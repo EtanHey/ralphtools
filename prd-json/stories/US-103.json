@@ -4,7 +4,8 @@
   "type": "feature",
   "priority": "medium",
   "storyPoints": 2,
-  "status": "pending",
+  "status": "completed",
+  "passes": true,
   "acceptanceCriteria": [
     {
       "text": "Update Provider Setup example to use Promise<{locale}> pattern",
@@ -20,7 +21,7 @@
     },
     {
       "text": "Commit changes",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": []
