@@ -9,35 +9,35 @@
   "acceptanceCriteria": [
     {
       "text": "In SongScript, create admin:deleteUserAndAllData mutation following the pattern",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Mutation deletes from: users, wordProgress, userSongProgress, lineProgress",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Mutation deletes from: userWishlist, userPracticeLog, userGoals, userPreferences",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Mutation handles Better Auth tables (user, session, account)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Create test user, add progress data, delete user, verify all data gone",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: npx convex run admin:deleteUserAndAllData works from CLI",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Return deletion counts for each table",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: test: [STORY-ID] description",
