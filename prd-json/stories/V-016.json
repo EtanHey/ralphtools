@@ -4,25 +4,90 @@
   "description": "Opus audit + TDD: Identify what needs syncing, create tests FIRST, then update US-086 criteria.",
   "model": "opus",
   "acceptanceCriteria": [
-    {"text": "=== EXPLORATION ===", "checked": true},
-    {"text": "Explore all config files projects typically need (.env*, tsconfig, etc)", "checked": false},
-    {"text": "Identify context/agent files that should sync (AGENTS.md, CLAUDE.md, contexts/)", "checked": false},
-    {"text": "Check what prd-json files are needed in worktrees", "checked": false},
-    {"text": "List MCP configs that might need worktree-specific setup", "checked": false},
-    {"text": "Review 1Password integration files (.env.template, op:// refs)", "checked": false},
-    
-    {"text": "=== TDD: CREATE TESTS FIRST ===", "checked": true},
-    {"text": "Add test: test_worktree_syncs_env_files() in tests/test-ralph.zsh", "checked": false},
-    {"text": "Add test: test_worktree_syncs_agent_files() for AGENTS.md, CLAUDE.md", "checked": false},
-    {"text": "Add test: test_worktree_syncs_context_files() for contexts/", "checked": false},
-    {"text": "Add test: test_worktree_syncs_prd_json() if prd-json exists", "checked": false},
-    {"text": "Add test: test_worktree_sync_config_file() for .worktree-sync.json", "checked": false},
-    {"text": "Tests should FAIL initially (TDD red phase)", "checked": false},
-    
-    {"text": "=== UPDATE US-086 ===", "checked": true},
-    {"text": "Document findings in docs.local/worktree-sync-audit.md", "checked": false},
-    {"text": "Update US-086 acceptanceCriteria with items to pass new tests", "checked": false},
-    {"text": "Commit: test: V-016 worktree sync TDD tests", "checked": false}
+    {
+      "text": "=== UNDERSTAND LAYERED SYSTEM ===",
+      "checked": true
+    },
+    {
+      "text": "Review ~/.claude/CLAUDE.md (global layer)",
+      "checked": false
+    },
+    {
+      "text": "Review project CLAUDE.md with @context directives",
+      "checked": false
+    },
+    {
+      "text": "Review ~/.claude/contexts/ structure (base.md, workflow/, tech/)",
+      "checked": false
+    },
+    {
+      "text": "Understand MP-002 modular context loading via --append-system-prompt-file",
+      "checked": false
+    },
+    {
+      "text": "=== EXPLORATION ===",
+      "checked": true
+    },
+    {
+      "text": "Identify which context files worktrees need copied vs symlinked",
+      "checked": false
+    },
+    {
+      "text": "Check .env*, tsconfig, package.json sync needs",
+      "checked": false
+    },
+    {
+      "text": "Check prd-json/ directory sync needs",
+      "checked": false
+    },
+    {
+      "text": "Review 1Password .env.template files",
+      "checked": false
+    },
+    {
+      "text": "=== TDD: CREATE TESTS FIRST ===",
+      "checked": true
+    },
+    {
+      "text": "Add test: test_worktree_syncs_env_files()",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_worktree_syncs_claude_md() for project CLAUDE.md",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_worktree_syncs_contexts() for context files",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_worktree_syncs_prd_json()",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_worktree_sync_config() for .worktree-sync.json",
+      "checked": false
+    },
+    {
+      "text": "Tests should FAIL initially (TDD red phase)",
+      "checked": false
+    },
+    {
+      "text": "=== UPDATE US-086 ===",
+      "checked": true
+    },
+    {
+      "text": "Document layered system in docs.local/worktree-sync-audit.md",
+      "checked": false
+    },
+    {
+      "text": "Update US-086 criteria to handle all layers",
+      "checked": false
+    },
+    {
+      "text": "Commit: test: V-016 worktree sync TDD tests",
+      "checked": false
+    }
   ],
   "storyType": "V",
   "priority": "high",

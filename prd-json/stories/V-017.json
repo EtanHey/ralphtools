@@ -4,26 +4,90 @@
   "description": "Opus audit + TDD: Identify wizard setup needs, create tests FIRST, then update wizard criteria.",
   "model": "opus",
   "acceptanceCriteria": [
-    {"text": "=== EXPLORATION ===", "checked": true},
-    {"text": "Review all skills and their ENV/config requirements", "checked": false},
-    {"text": "Check 1Password vault structure needs (development, project vaults)", "checked": false},
-    {"text": "Identify MCP servers that should be configured", "checked": false},
-    {"text": "Review context files that need initial setup (~/.claude/contexts/)", "checked": false},
-    {"text": "Check symlink requirements (~/.claude/commands/ -> skills/)", "checked": false},
-    {"text": "List shell config additions needed (.zshrc sourcing)", "checked": false},
-    
-    {"text": "=== TDD: CREATE TESTS FIRST ===", "checked": true},
-    {"text": "Add test: test_wizard_creates_config_dir() in tests/test-ralph.zsh", "checked": false},
-    {"text": "Add test: test_wizard_creates_symlinks() for skill symlinks", "checked": false},
-    {"text": "Add test: test_wizard_creates_context_files() for base contexts", "checked": false},
-    {"text": "Add test: test_wizard_checks_1password() for vault setup", "checked": false},
-    {"text": "Add test: test_wizard_validates_skills() for skill requirements", "checked": false},
-    {"text": "Tests should FAIL initially (TDD red phase)", "checked": false},
-    
-    {"text": "=== UPDATE WIZARD ===", "checked": true},
-    {"text": "Document findings in docs.local/wizard-setup-audit.md", "checked": false},
-    {"text": "Update ralph-install skill criteria with items to pass new tests", "checked": false},
-    {"text": "Commit: test: V-017 wizard setup TDD tests", "checked": false}
+    {
+      "text": "=== UNDERSTAND LAYERED SYSTEM ===",
+      "checked": true
+    },
+    {
+      "text": "Review ~/.claude/CLAUDE.md (global layer)",
+      "checked": false
+    },
+    {
+      "text": "Review ~/.claude/contexts/ structure and @context directive system",
+      "checked": false
+    },
+    {
+      "text": "Review ~/.claude/commands/ symlink structure for skills",
+      "checked": false
+    },
+    {
+      "text": "Understand how projects use @context: directives",
+      "checked": false
+    },
+    {
+      "text": "=== EXPLORATION ===",
+      "checked": true
+    },
+    {
+      "text": "Audit all skills and their ENV/config requirements",
+      "checked": false
+    },
+    {
+      "text": "Check 1Password vault structure (development, project vaults)",
+      "checked": false
+    },
+    {
+      "text": "Identify MCP servers that need configuration",
+      "checked": false
+    },
+    {
+      "text": "List shell config additions (.zshrc sourcing)",
+      "checked": false
+    },
+    {
+      "text": "=== TDD: CREATE TESTS FIRST ===",
+      "checked": true
+    },
+    {
+      "text": "Add test: test_wizard_creates_global_claude_md()",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_wizard_creates_contexts_dir()",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_wizard_creates_skill_symlinks()",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_wizard_checks_1password()",
+      "checked": false
+    },
+    {
+      "text": "Add test: test_wizard_validates_shell_config()",
+      "checked": false
+    },
+    {
+      "text": "Tests should FAIL initially (TDD red phase)",
+      "checked": false
+    },
+    {
+      "text": "=== UPDATE WIZARD ===",
+      "checked": true
+    },
+    {
+      "text": "Document layered system in docs.local/wizard-setup-audit.md",
+      "checked": false
+    },
+    {
+      "text": "Update ralph-install skill with missing setup steps",
+      "checked": false
+    },
+    {
+      "text": "Commit: test: V-017 wizard setup TDD tests",
+      "checked": false
+    }
   ],
   "storyType": "V",
   "priority": "high",
