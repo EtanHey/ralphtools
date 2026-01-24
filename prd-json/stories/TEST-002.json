@@ -5,44 +5,44 @@
   "acceptanceCriteria": [
     {
       "text": "Add test_precommit_hook_installed() - .git/hooks/pre-commit exists and executable",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_precommit_runs_tests() - hook invokes test-ralph.zsh",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_precommit_blocks_on_failure() - exit code propagates correctly",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_precommit_allows_good_commit() - clean commits succeed",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_no_verify_bypass_works() - --no-verify still available for emergencies",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Document hook behavior in scripts/README.md",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add meta-test: run test suite, introduce failure, verify commit blocked",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: test: [STORY-ID] description",
-      "checked": false
+      "checked": true
     }
   ],
   "storyType": "TEST",
   "priority": "medium",
   "createdAt": "2026-01-24T01:30:00.000Z",
-  "passes": false,
-  "status": "pending"
+  "passes": true,
+  "status": "completed"
 }

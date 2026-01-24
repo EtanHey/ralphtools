@@ -638,3 +638,18 @@ Changes:
 - Pre-commit hook can run Bun tests by changing directory and running `bun test`
 - Skills tests need updating after namespace migration (golem-powers) - separate issue
 - Bun test output captures both stdout and stderr with `2>&1`
+
+## Iteration 31
+Story: TEST-002 - Add verification tests for pre-commit hooks
+Status: COMPLETED (opus)
+Changes:
+- Verified all 7 pre-commit hook tests already exist and pass (added in previous partial iteration)
+- Tests cover: hook installation, test invocation, failure blocking, success path, --no-verify bypass, all 8 components, meta-test
+- Documentation already in place at scripts/README.md with comprehensive hook behavior docs
+- All 56 tests pass including the new pre-commit hook tests
+- CodeRabbit review: PASS (0 issues)
+
+### Learnings
+- Pre-commit hook tests verify the hook structure (checking for exit codes, component sections)
+- Meta-tests (test_precommit_meta_test_failure_detection) verify the test framework itself propagates failures
+- scripts/README.md serves as the canonical documentation for hook behavior

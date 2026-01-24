@@ -1,0 +1,18 @@
+{
+  "id": "BUG-025",
+  "title": "Context content leaks to stdout during iteration",
+  "description": "The full context_content variable is being printed to stdout during Ralph iterations, showing 'context_content=# Base Context...' with escaped newlines.\n\nThis is cosmetic - Ralph still works - but clutters the output.\n\nLikely cause: Shell trace or debug output during context building/passing to Claude CLI.",
+  "type": "bug",
+  "priority": "low",
+  "storyPoints": 1,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Find where context_content is being echoed/printed", "checked": false},
+    {"text": "Add setopt noxtrace to context building section if needed", "checked": false},
+    {"text": "Verify context is passed silently to Claude CLI", "checked": false},
+    {"text": "Test: ralph iteration shows no context_content= output", "checked": false},
+    {"text": "Commit: fix: BUG-025 suppress context debug output", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}
