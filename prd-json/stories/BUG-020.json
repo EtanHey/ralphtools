@@ -1,0 +1,98 @@
+{
+  "id": "BUG-020",
+  "title": "CRITICAL: US-091 deleted _ralph_build_catchup_context function - 1 test failing",
+  "description": "## Summary\nUS-091 (commit 5c8193b) accidentally deleted the `_ralph_build_catchup_context` function from ralph.zsh while extracting the Ralph prompt to a shared file. The function was added in US-084 (commit 6ffa19b) along with 3 unit tests. Now 1 test fails on every commit.\n\n## Root Cause Analysis\n1. US-084 added `_ralph_build_catchup_context()` function (~40 lines) for detecting partial story progress\n2. US-084 added 3 unit tests for this function in tests/test-ralph.zsh\n3. US-091 refactored prompt handling and ACCIDENTALLY DELETED the function\n4. The pre-commit hook should have blocked this, but it didn't (likely --no-verify was used)\n5. Now tests show: 48 passed, 1 failed\n\n## Evidence\n```bash\n# Function exists in US-084 commit:\ngit show 6ffa19b:ralph.zsh | grep -c '_ralph_build_catchup_context'  # Returns 2\n\n# Function missing in US-091 commit:\ngit show 5c8193b:ralph.zsh | grep -c '_ralph_build_catchup_context'  # Returns 0\n\n# Test still references it:\ngrep '_ralph_build_catchup_context' tests/test-ralph.zsh  # Shows 6 references\n```\n\n## The Missing Function (from US-084)\nThe function detects when a story has partial progress (some criteria checked but not complete) and generates context to help the next iteration continue from where the previous left off.\n\n## Impact\n- **Test suite broken**: 1 test always fails\n- **Pre-commit hook bypassed**: Tests should block bad commits\n- **Catchup feature disabled**: Partial progress detection not working\n\n## Why This Matters\nThis is exactly the kind of regression that tests are supposed to catch. The fact that it slipped through means either:\n1. `--no-verify` was used to bypass pre-commit hook\n2. The test wasn't running properly at that time\n3. There's a gap in our test coverage enforcement\n\n## Fix Required\n1. Restore the `_ralph_build_catchup_context` function from commit 6ffa19b\n2. Verify all 49 tests pass (currently 48 pass, 1 fail)\n3. Investigate why pre-commit hook didn't catch this\n4. Add a check to Ralph prompt: 'Verify all tests pass before committing'",
+  "type": "bug",
+  "priority": "critical",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "=== RESTORE MISSING FUNCTION ===",
+      "checked": false
+    },
+    {
+      "text": "Extract _ralph_build_catchup_context from commit 6ffa19b: git show 6ffa19b:ralph.zsh | grep -A50 '_ralph_build_catchup_context()'",
+      "checked": false
+    },
+    {
+      "text": "Add function back to ralph.zsh in the CONTEXT BUILDING section (near line 2740)",
+      "checked": false
+    },
+    {
+      "text": "Verify function signature: _ralph_build_catchup_context(json_dir, story_id)",
+      "checked": false
+    },
+    {
+      "text": "Verify function returns: catchup context string or empty if no partial progress",
+      "checked": false
+    },
+    {
+      "text": "=== VERIFY TESTS PASS ===",
+      "checked": false
+    },
+    {
+      "text": "Run: ./tests/test-ralph.zsh - MUST show 49 passed, 0 failed",
+      "checked": false
+    },
+    {
+      "text": "Specifically verify: 'catchup returns non-empty context for partial progress' PASSES",
+      "checked": false
+    },
+    {
+      "text": "Specifically verify: 'catchup returns empty for fresh story' PASSES",
+      "checked": false
+    },
+    {
+      "text": "Specifically verify: 'catchup returns empty for completed story' PASSES",
+      "checked": false
+    },
+    {
+      "text": "=== INVESTIGATE PRE-COMMIT BYPASS ===",
+      "checked": false
+    },
+    {
+      "text": "Check if US-091 commit used --no-verify: git log --format='%H %s' 5c8193b -1",
+      "checked": false
+    },
+    {
+      "text": "Verify pre-commit hook runs tests: cat .githooks/pre-commit | grep test",
+      "checked": false
+    },
+    {
+      "text": "Add note to progress.txt: How did failing tests get committed?",
+      "checked": false
+    },
+    {
+      "text": "=== PREVENT FUTURE REGRESSIONS ===",
+      "checked": false
+    },
+    {
+      "text": "Add to Ralph prompt: 'BEFORE COMMITTING: Run ./tests/test-ralph.zsh and verify ALL tests pass'",
+      "checked": false
+    },
+    {
+      "text": "Consider: Add test count verification to pre-commit hook (expected vs actual)",
+      "checked": false
+    },
+    {
+      "text": "=== FINAL VERIFICATION ===",
+      "checked": false
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": false
+    },
+    {
+      "text": "Commit: fix: BUG-020 restore _ralph_build_catchup_context deleted in US-091",
+      "checked": false
+    }
+  ],
+  "dependencies": [],
+  "notes": [
+    "CRITICAL: This bug proves that test enforcement can be bypassed",
+    "The function was working fine after US-084, deleted accidentally in US-091",
+    "Git archaeology command: git show 6ffa19b:ralph.zsh | grep -A60 '_ralph_build_catchup_context()' > /tmp/restore.txt",
+    "The catchup feature helps Ralph continue from partial progress instead of redoing work"
+  ]
+}
