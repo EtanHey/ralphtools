@@ -29,8 +29,8 @@
     {"text": "Test: CodeRabbit status shows during cr review", "checked": true},
     {"text": "Test: Error banner shows on API error", "checked": true},
     {"text": "Test: Hanging warning shows after 60s inactivity", "checked": true},
-    {"text": "Commit changes", "checked": false}
+    {"text": "Commit changes", "checked": true}
   ],
   "dependencies": ["BUG-022", "US-106"],
-  "passes": false
+  "passes": true
 }

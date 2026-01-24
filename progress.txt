@@ -929,3 +929,24 @@ Changes:
 - Context files should reference skills rather than duplicating command documentation
 - Simple one-liner commands are still useful for quick reference
 - package.json scripts often wrap underlying commands (e.g., bun dev may include Convex)
+
+## Iteration 46
+Story: US-105 - Enhanced Ink UI: alive indicator, CodeRabbit status, error detection
+Status: COMPLETED (opus)
+Changes:
+- Created components/AliveIndicator.tsx with spinner + "last activity Xs ago" display
+- Created components/CodeRabbitStatus.tsx showing during CR review state
+- Created components/ErrorBanner.tsx with red banner for error display
+- Created components/RetryCountdown.tsx with countdown timer during retry
+- Created components/HangingWarning.tsx for >60s inactivity warning
+- Created hooks/useStatusFile.ts to watch /tmp/ralph-status-$$.json
+- Added RalphStatus type to types.ts
+- Integrated all components into Dashboard.tsx
+- Status file protocol already implemented in US-106 (marked criteria as checked)
+- All 107 ZSH tests + 16 skills tests + 83 Bun tests pass
+
+### Learnings
+- Status file protocol was already implemented in US-106, story had redundant criteria
+- React Ink components use fs.statSync for file modification time (not Bun.file)
+- Polling at 1s interval is more reliable than fs.watch for /tmp files
+- All status indicators conditionally render based on ralphStatus state
