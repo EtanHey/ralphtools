@@ -9,39 +9,39 @@
   "acceptanceCriteria": [
     {
       "text": "Intentionally break a skill file (bad JSON)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Attempt git commit - should fail with error message",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Fix the skill file",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Attempt git commit - should succeed",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify tests ran (check output shows test results)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify --no-verify bypasses hook (for documentation)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: test: [STORY-ID] description",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [
     "US-071"
   ],
-  "passes": false
+  "passes": true
 }
