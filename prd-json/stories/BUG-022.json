@@ -1,0 +1,42 @@
+{
+  "id": "BUG-022",
+  "title": "Wire --ui-ink flag to actually use React Ink UI",
+  "type": "bug",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "completed",
+  "passes": true,
+  "acceptanceCriteria": [
+    {
+      "text": "Find where _ralph_show_iteration_status is called in main loop",
+      "checked": true
+    },
+    {
+      "text": "Add conditional: if use_ink_ui, call _ralph_show_ink_ui instead",
+      "checked": true
+    },
+    {
+      "text": "Pass correct parameters (mode, prd_path, iteration, model, start_time)",
+      "checked": true
+    },
+    {
+      "text": "Handle fallback gracefully if Ink UI fails",
+      "checked": true
+    },
+    {
+      "text": "Test: ralph 5 --ui-ink shows Ink dashboard instead of shell UI",
+      "checked": true
+    },
+    {
+      "text": "Test: ralph 5 (no flag) shows shell UI as before",
+      "checked": true
+    },
+    {
+      "text": "Commit changes",
+      "checked": true
+    }
+  ],
+  "dependencies": [
+    "US-085"
+  ]
+}

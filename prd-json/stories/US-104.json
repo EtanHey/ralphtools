@@ -1,0 +1,31 @@
+{
+  "id": "US-104",
+  "title": "Clean up skill references in context files",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Update ralph.md to just reference /prd-manager skill",
+      "checked": false
+    },
+    {
+      "text": "Update convex.md to reference /convex skill for dev server",
+      "checked": false
+    },
+    {
+      "text": "Keep simple one-liner CLI commands",
+      "checked": false
+    },
+    {
+      "text": "Add note about checking package.json for project commands",
+      "checked": false
+    },
+    {
+      "text": "Commit changes",
+      "checked": false
+    }
+  ],
+  "dependencies": []
+}

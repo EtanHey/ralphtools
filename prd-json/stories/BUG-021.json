@@ -1,0 +1,35 @@
+{
+  "id": "BUG-021",
+  "title": "Pre-commit hook missing Bun tests (83 tests not enforced)",
+  "type": "bug",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Add Bun test section to .githooks/pre-commit",
+      "checked": false
+    },
+    {
+      "text": "Only run if bun/ directory exists",
+      "checked": false
+    },
+    {
+      "text": "Run: cd bun && bun test",
+      "checked": false
+    },
+    {
+      "text": "Fail commit if Bun tests fail",
+      "checked": false
+    },
+    {
+      "text": "Test: verify commit blocked when test fails",
+      "checked": false
+    },
+    {
+      "text": "Commit changes",
+      "checked": false
+    }
+  ],
+  "dependencies": []
+}

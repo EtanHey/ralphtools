@@ -1,0 +1,27 @@
+{
+  "id": "US-103",
+  "title": "Update nextjs.md for Next.js 15+ async params pattern",
+  "type": "feature",
+  "priority": "medium",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Update Provider Setup example to use Promise<{locale}> pattern",
+      "checked": false
+    },
+    {
+      "text": "Update any other params examples to async pattern",
+      "checked": false
+    },
+    {
+      "text": "Add note about Next.js 15+ requirement",
+      "checked": false
+    },
+    {
+      "text": "Commit changes",
+      "checked": false
+    }
+  ],
+  "dependencies": []
+}

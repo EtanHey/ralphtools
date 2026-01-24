@@ -2696,7 +2696,8 @@ _ralph_ntfy() {
 RALPH_CONTEXTS_DIR="${RALPH_CONTEXTS_DIR:-$HOME/.claude/contexts}"
 
 # Script directory (for finding ralph-ui and other assets)
-RALPH_SCRIPT_DIR="${RALPH_SCRIPT_DIR:-${0:a:h}}"
+# Use ${0:A:h} to resolve symlinks (capital A = absolute path resolving symlinks)
+RALPH_SCRIPT_DIR="${RALPH_SCRIPT_DIR:-${0:A:h}}"
 
 # React Ink UI path for dashboard display (relative to script dir)
 RALPH_UI_PATH="${RALPH_UI_PATH:-${RALPH_SCRIPT_DIR}/ralph-ui/src/index.tsx}"

@@ -1,0 +1,39 @@
+{
+  "id": "US-102",
+  "title": "Refactor context architecture: extract interactive rules from base.md",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 3,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {
+      "text": "Create ~/.claude/contexts/workflow/interactive.md",
+      "checked": false
+    },
+    {
+      "text": "Move git safety rules from base.md to interactive.md",
+      "checked": false
+    },
+    {
+      "text": "Move CLAUDE_COUNTER system from base.md to interactive.md",
+      "checked": false
+    },
+    {
+      "text": "Update base.md to only contain truly universal rules",
+      "checked": false
+    },
+    {
+      "text": "Remove OVERRIDE comment from ralph.md (no longer needed)",
+      "checked": false
+    },
+    {
+      "text": "Update README.md in contexts with new architecture",
+      "checked": false
+    },
+    {
+      "text": "Commit changes",
+      "checked": false
+    }
+  ],
+  "dependencies": []
+}
