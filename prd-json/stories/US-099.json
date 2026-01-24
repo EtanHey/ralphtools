@@ -1,0 +1,22 @@
+{
+  "id": "US-099",
+  "title": "Add Obsidian MCP to ralphtools ecosystem",
+  "description": "Integrate Obsidian Claude Code MCP plugin into ralphtools. Add to wizard, document in README, create install script.",
+  "acceptanceCriteria": [
+    {"text": "Create scripts/install-obsidian-mcp.sh that builds and installs plugin", "checked": false},
+    {"text": "Script auto-detects Obsidian vault locations", "checked": false},
+    {"text": "Script handles multiple vaults (let user choose)", "checked": false},
+    {"text": "Add 'Obsidian MCP' step to ralph-setup wizard", "checked": false},
+    {"text": "Wizard asks if user wants Obsidian integration", "checked": false},
+    {"text": "Wizard runs install script if yes", "checked": false},
+    {"text": "Document Obsidian MCP in README.md", "checked": false},
+    {"text": "Add troubleshooting section (port conflicts, connection issues)", "checked": false},
+    {"text": "Test: Fresh install works on new vault", "checked": false},
+    {"text": "Test: Plugin appears in Obsidian after install", "checked": false},
+    {"text": "Commit changes with message: feat/fix: [STORY-ID] description", "checked": false}
+  ],
+  "storyType": "US",
+  "priority": "medium",
+  "createdAt": "2026-01-24T04:05:00.000Z",
+  "passes": false
+}
