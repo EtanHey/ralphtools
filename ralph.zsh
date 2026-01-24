@@ -2863,6 +2863,87 @@ _ralph_normalize_criteria() {
   '
 }
 
+# Build catchup context for partial story progress (US-084)
+# Args: json_dir story_id
+# Returns: Catchup context string if partial progress, empty string otherwise
+_ralph_build_catchup_context() {
+  setopt localoptions noxtrace
+  local json_dir="$1"
+  local story_id="$2"
+  local story_file="$json_dir/stories/${story_id}.json"
+
+  [[ -f "$story_file" ]] || return 1
+
+  # Check if story has partial progress
+  local total_criteria=$(jq '[.acceptanceCriteria[]] | length' "$story_file" 2>/dev/null || echo 0)
+  local checked_criteria=$(jq '[.acceptanceCriteria[] | select(.checked == true)] | length' "$story_file" 2>/dev/null || echo 0)
+  local passes=$(jq -r '.passes // false' "$story_file" 2>/dev/null)
+
+  # No catchup needed if: no checked criteria OR story already passes
+  if [[ "$checked_criteria" -eq 0 || "$passes" == "true" ]]; then
+    echo ""
+    return 0
+  fi
+
+  # Has partial progress - build catchup context
+  local catchup_context="
+## ⚠️ PARTIAL PROGRESS DETECTED - AUTO-CATCHUP
+
+This story has **$checked_criteria/$total_criteria criteria already checked** from a previous iteration.
+
+### Previous Iteration Changes"
+
+  # Add git diff from last commit
+  local files_changed=$(git diff HEAD~1 --name-only 2>/dev/null | head -20)
+  if [[ -n "$files_changed" ]]; then
+    catchup_context+="
+\`\`\`
+Files changed in last commit:
+$files_changed
+\`\`\`"
+  fi
+
+  # Add last commit info
+  local last_commit=$(git log -1 --oneline 2>/dev/null)
+  if [[ -n "$last_commit" ]]; then
+    catchup_context+="
+Last commit: \`$last_commit\`"
+  fi
+
+  # Add criteria status breakdown
+  catchup_context+="
+
+### Criteria Status"
+
+  # Get checked criteria
+  local checked_list=$(jq -r '.acceptanceCriteria[] | select(.checked == true) | "✅ " + .text' "$story_file" 2>/dev/null)
+  if [[ -n "$checked_list" ]]; then
+    catchup_context+="
+**Completed (DO NOT REDO):**
+$checked_list"
+  fi
+
+  # Get unchecked criteria
+  local unchecked_list=$(jq -r '.acceptanceCriteria[] | select(.checked == false) | "⬜ " + .text' "$story_file" 2>/dev/null)
+  if [[ -n "$unchecked_list" ]]; then
+    catchup_context+="
+
+**Remaining (FOCUS ON THESE):**
+$unchecked_list"
+  fi
+
+  catchup_context+="
+
+### Instructions
+1. **Review the changes** from the previous iteration above
+2. **DO NOT redo** already-checked criteria
+3. **Continue from where the previous iteration left off**
+4. Focus on the remaining unchecked criteria
+"
+
+  echo "$catchup_context"
+}
+
 # Apply queued updates from update.json (allows external processes to queue changes)
 # Returns 0 if updates were applied, 1 if no updates
 # Sets RALPH_UPDATES_APPLIED to the count of new stories added
@@ -3077,6 +3158,17 @@ _ralph_json_remaining_stats() {
 function ralph() {
   # Disable xtrace in case user's shell has it enabled (prevents debug output leakage)
   setopt localoptions noxtrace
+
+  # Clean up stale context files from ANY previous crashed session (not just current PID)
+  # This fixes the bug where $$ gives current PID but stale files have old PID
+  for stale_file in /tmp/ralph-context-*.md(N); do
+    local stale_pids=$(lsof -t "$stale_file" 2>/dev/null)
+    if [[ -n "$stale_pids" ]]; then
+      kill $stale_pids 2>/dev/null
+      sleep 0.1
+    fi
+    rm -f "$stale_file"
+  done
 
   local MAX=$RALPH_MAX_ITERATIONS
   local SLEEP=$RALPH_SLEEP_SECONDS

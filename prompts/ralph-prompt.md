@@ -43,12 +43,15 @@ Example workflow:
 ## Final Steps
 7. Run typecheck to verify all code changes
 8. If 'verify in browser': take a screenshot (see Browser Rules below)
-9. Update prd-json/index.json:
+9. **BEFORE COMMITTING:** Run `./tests/test-ralph.zsh` and verify ALL tests pass
+   - If any tests fail, FIX the issue before committing
+   - Never use --no-verify to bypass pre-commit hooks
+10. Update prd-json/index.json:
    - Remove story from pending array
    - Update stats.completed and stats.pending counts
    - Set nextStory to first remaining pending item
-10. Commit prd-json/ AND progress.txt together
-11. Verify commit succeeded before ending iteration
+11. Commit prd-json/ AND progress.txt together
+12. Verify commit succeeded before ending iteration
 
 ## Dev Server Rules (CRITICAL)
 

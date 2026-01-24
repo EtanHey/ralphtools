@@ -5,87 +5,88 @@
   "type": "bug",
   "priority": "critical",
   "storyPoints": 2,
-  "status": "pending",
+  "status": "completed",
+  "passes": true,
   "acceptanceCriteria": [
     {
       "text": "=== RESTORE MISSING FUNCTION ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Extract _ralph_build_catchup_context from commit 6ffa19b: git show 6ffa19b:ralph.zsh | grep -A50 '_ralph_build_catchup_context()'",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add function back to ralph.zsh in the CONTEXT BUILDING section (near line 2740)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify function signature: _ralph_build_catchup_context(json_dir, story_id)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify function returns: catchup context string or empty if no partial progress",
-      "checked": false
+      "checked": true
     },
     {
       "text": "=== VERIFY TESTS PASS ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run: ./tests/test-ralph.zsh - MUST show 49 passed, 0 failed",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Specifically verify: 'catchup returns non-empty context for partial progress' PASSES",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Specifically verify: 'catchup returns empty for fresh story' PASSES",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Specifically verify: 'catchup returns empty for completed story' PASSES",
-      "checked": false
+      "checked": true
     },
     {
       "text": "=== INVESTIGATE PRE-COMMIT BYPASS ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Check if US-091 commit used --no-verify: git log --format='%H %s' 5c8193b -1",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify pre-commit hook runs tests: cat .githooks/pre-commit | grep test",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add note to progress.txt: How did failing tests get committed?",
-      "checked": false
+      "checked": true
     },
     {
       "text": "=== PREVENT FUTURE REGRESSIONS ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add to Ralph prompt: 'BEFORE COMMITTING: Run ./tests/test-ralph.zsh and verify ALL tests pass'",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Consider: Add test count verification to pre-commit hook (expected vs actual)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "=== FINAL VERIFICATION ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: fix: BUG-020 restore _ralph_build_catchup_context deleted in US-091",
-      "checked": false
+      "checked": true
     }
   ],
   "dependencies": [],

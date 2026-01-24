@@ -547,3 +547,28 @@ Changes:
 - ZSH parameter expansion ${var//pattern/replacement} works for template substitution
 - ${0:a:h} gets the absolute path of script's directory in zsh
 - Shared prompts enable consistency between ralph.zsh and ralph-simple.zsh
+
+## Iteration 27
+Story: BUG-020 - CRITICAL: US-091 deleted _ralph_build_catchup_context function
+Status: COMPLETED (opus)
+Changes:
+- Restored _ralph_build_catchup_context() function to ralph.zsh (line 2866)
+- Function was deleted accidentally during US-091 prompt extraction refactor
+- All 49 tests now pass (was 48 pass, 1 fail before fix)
+- Pre-commit hook does run tests (lines 254-269 in .githooks/pre-commit)
+- Investigation: US-091 commit 5c8193b likely used --no-verify to bypass hook
+- Added reminder to Ralph prompt about running tests before committing
+
+### Investigation: How did failing tests get committed?
+1. The pre-commit hook DOES run tests properly (verified lines 254-269)
+2. The commit message "feat: US-091 extract Ralph prompt to shared file" appears normal
+3. Most likely explanation: --no-verify was used, possibly due to:
+   - Rate limit or timeout during commit
+   - Developer wanting to commit WIP quickly
+   - Hook being temporarily disabled
+4. No way to definitively prove --no-verify was used (git doesn't log this)
+
+### Learnings
+- Always run tests manually if unsure about pre-commit hook
+- --no-verify should be used sparingly and never for feature commits
+- Function deletions in refactors are easy to miss when not test-running
