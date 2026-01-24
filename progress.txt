@@ -770,3 +770,22 @@ Changes:
 - Separate stderr capture with explicit file and append is more reliable than inline redirect
 - Debug logging controlled by env var (RALPH_DEBUG_CAPTURE) avoids noise in normal operation
 - pipestatus[1] in zsh correctly captures first command's exit code in a pipeline
+
+## Iteration 37
+Story: BUG-024 - Ink UI blocks Ralph - doesn't auto-exit after rendering
+Status: COMPLETED (opus)
+Changes:
+- Added waitUntilExit() + process.exit(0) in index.tsx for proper process exit
+- Updated Dashboard component to use useCallback for stable exit callback
+- Auto-exit after render for startup/iteration modes (100ms delay ensures render completes)
+- Keyboard handler only rendered in live mode when raw mode is supported
+- Fixed usePRDStats to compute stats from arrays if stats object missing in index.json
+- Added Math.max(0, ...) guard for completedCount (CodeRabbit fix)
+- Updated PRDIndex type to make stats field optional
+- All 80 ZSH + 16 skills + 83 Bun tests pass (179 total)
+
+### Learnings
+- React Ink's waitUntilExit() returns a Promise that resolves when the app exits
+- useApp().exit() triggers the exit, but process.exit(0) may be needed for clean shutdown
+- Raw mode support depends on terminal context - non-interactive shells don't support it
+- PRD index.json may not have a stats object - compute from pending/blocked arrays as fallback

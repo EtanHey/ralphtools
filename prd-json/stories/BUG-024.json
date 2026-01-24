@@ -21,8 +21,8 @@
     {"text": "Test: Ink UI renders startup then exits", "checked": true},
     {"text": "Test: Ink UI renders iteration then exits", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: fix: BUG-024 Ink UI auto-exit for non-live modes", "checked": false}
+    {"text": "Commit: fix: BUG-024 Ink UI auto-exit for non-live modes", "checked": true}
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true
 }
