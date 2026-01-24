@@ -1284,6 +1284,95 @@ ralph-logs() {
   echo ""
 }
 
+# ═══════════════════════════════════════════════════════════════════
+# ralph-session - Show current Ralph session state and data locations
+# ═══════════════════════════════════════════════════════════════════
+# Usage: ralph-session [--paths]
+#   --paths : Show all data file paths
+#
+# Data locations:
+#   /tmp/ralph-status-$$.json    - Current session status (state, lastActivity, error)
+#   /tmp/ralph_output_$$.txt     - Current session Claude output
+#   ~/.config/ralphtools/logs/   - Crash logs (persistent)
+#   ./progress.txt               - Story progress (persistent, per-repo)
+#   ./prd-json/                  - Story definitions (persistent, per-repo)
+# ═══════════════════════════════════════════════════════════════════
+ralph-session() {
+  local show_paths=false
+  [[ "$1" == "--paths" ]] && show_paths=true
+
+  local CYAN='\033[0;36m'
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local RED='\033[0;31m'
+  local NC='\033[0m'
+
+  echo ""
+  echo "${CYAN}═══ Ralph Status ═══${NC}"
+  echo ""
+
+  # Find running Ralph sessions
+  local status_files=(/tmp/ralph-status-*.json(N))
+
+  if [[ ${#status_files[@]} -eq 0 ]]; then
+    echo "${YELLOW}No active Ralph sessions found${NC}"
+  else
+    for sf in "${status_files[@]}"; do
+      local pid=$(basename "$sf" | sed 's/ralph-status-//; s/.json//')
+      local state=$(jq -r '.state // "unknown"' "$sf" 2>/dev/null)
+      local last=$(jq -r '.lastActivity // 0' "$sf" 2>/dev/null)
+      local error=$(jq -r '.error // null' "$sf" 2>/dev/null)
+      local now=$(date +%s)
+      local age=$((now - last))
+
+      # Check if process is alive
+      if ps -p "$pid" &>/dev/null; then
+        echo "${GREEN}● Session $pid: $state${NC} (active ${age}s ago)"
+      else
+        echo "${RED}○ Session $pid: $state${NC} (dead, ${age}s stale)"
+      fi
+
+      [[ "$error" != "null" && -n "$error" ]] && echo "  Error: $error"
+
+      # Show last output
+      local output_file="/tmp/ralph_output_${pid}.txt"
+      if [[ -f "$output_file" ]]; then
+        local lines=$(wc -l < "$output_file" 2>/dev/null)
+        echo "  Output: $output_file ($lines lines)"
+        if [[ "$lines" -gt 0 ]]; then
+          echo "  Last line: $(tail -1 "$output_file" 2>/dev/null | head -c 80)"
+        fi
+      fi
+      echo ""
+    done
+  fi
+
+  # Show progress.txt location if in a repo
+  if [[ -f "./progress.txt" ]]; then
+    local last_story=$(grep "^Story:" ./progress.txt 2>/dev/null | tail -1 | cut -d: -f2 | xargs)
+    local last_status=$(grep "^Status:" ./progress.txt 2>/dev/null | tail -1 | cut -d: -f2 | xargs)
+    echo "${CYAN}Progress file:${NC} ./progress.txt"
+    echo "  Last story: $last_story - $last_status"
+    echo ""
+  fi
+
+  # Show paths if requested
+  if $show_paths; then
+    echo "${CYAN}═══ Data Locations ═══${NC}"
+    echo ""
+    echo "  ${YELLOW}Session (temporary):${NC}"
+    echo "    /tmp/ralph-status-\$\$.json  - State, lastActivity, error, retryIn"
+    echo "    /tmp/ralph_output_\$\$.txt   - Claude output for current iteration"
+    echo ""
+    echo "  ${YELLOW}Persistent:${NC}"
+    echo "    ~/.config/ralphtools/logs/  - Crash logs"
+    echo "    ./progress.txt              - Story progress (per-repo)"
+    echo "    ./prd-json/                 - Story definitions (per-repo)"
+    echo "    ./prd-json/index.json       - Story order, pending, completed"
+    echo ""
+  fi
+}
+
 # Kill all Ralph-related orphan processes
 # Usage: ralph-kill-orphans [--all]
 #   --all : Also kill processes by name pattern (fswatch, bun ui) even if not tracked

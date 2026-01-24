@@ -20,3 +20,4 @@ node_modules/
 # Screenshots
 screenshot.png
 claude.scratchpad.md
+.claude/
