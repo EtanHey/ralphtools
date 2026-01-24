@@ -4123,6 +4123,158 @@ test_context_migration_menu_item() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# REPOGOLEM LAUNCHER TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: repoGolem creates three launcher functions
+test_repogolem_creates_functions() {
+  test_start "repoGolem creates three launcher functions"
+
+  # Create a test launcher
+  repoGolem testproject "/tmp/testproject" Context7
+
+  # Check all three functions exist
+  if ! type testprojectClaude &>/dev/null; then
+    test_fail "testprojectClaude function not created"
+    return
+  fi
+
+  if ! type openTestproject &>/dev/null; then
+    test_fail "openTestproject function not created"
+    return
+  fi
+
+  if ! type runTestproject &>/dev/null; then
+    test_fail "runTestproject function not created"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: repoGolem launcher parses -s flag
+test_repogolem_skip_permissions_flag() {
+  test_start "repoGolem launcher parses -s flag"
+
+  repoGolem flagtest "/tmp/flagtest" Context7
+
+  # Get function definition and check for skip-permissions handling
+  local func_def=$(which flagtestClaude 2>/dev/null)
+
+  if [[ "$func_def" != *"-s"*"--skip-permissions"* ]]; then
+    test_fail "-s flag not found in generated function"
+    return
+  fi
+
+  if [[ "$func_def" != *"--dangerously-skip-permissions"* ]]; then
+    test_fail "--dangerously-skip-permissions not in generated function"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: repoGolem launcher parses -c flag
+test_repogolem_continue_flag() {
+  test_start "repoGolem launcher parses -c flag"
+
+  repoGolem conttest "/tmp/conttest" Context7
+
+  local func_def=$(which conttestClaude 2>/dev/null)
+
+  if [[ "$func_def" != *"-c"*"--continue"* ]]; then
+    test_fail "-c flag not found in generated function"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: repoGolem launcher parses -u flag
+test_repogolem_update_flag() {
+  test_start "repoGolem launcher parses -u flag"
+
+  repoGolem updtest "/tmp/updtest" Context7
+
+  local func_def=$(which updtestClaude 2>/dev/null)
+
+  if [[ "$func_def" != *"-u"*"--update"* ]]; then
+    test_fail "-u flag not found in generated function"
+    return
+  fi
+
+  if [[ "$func_def" != *"should_update=true"* ]]; then
+    test_fail "update logic not found in generated function"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: repoGolem launcher parses notification flags
+test_repogolem_notification_flags() {
+  test_start "repoGolem launcher parses notification flags"
+
+  repoGolem notifytest "/tmp/notifytest" Context7
+
+  local func_def=$(which notifytestClaude 2>/dev/null)
+
+  if [[ "$func_def" != *"-QN"*"--quiet-notify"* ]]; then
+    test_fail "-QN flag not found in generated function"
+    return
+  fi
+
+  if [[ "$func_def" != *"-SN"*"--simple-notify"* ]]; then
+    test_fail "-SN flag not found in generated function"
+    return
+  fi
+
+  if [[ "$func_def" != *"-VN"*"--verbose-notify"* ]]; then
+    test_fail "-VN flag not found in generated function"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: repoGolem launcher sets ntfy topic correctly
+test_repogolem_ntfy_topic() {
+  test_start "repoGolem launcher sets ntfy topic correctly"
+
+  repoGolem topictest "/tmp/topictest" Context7
+
+  local func_def=$(which topictestClaude 2>/dev/null)
+
+  if [[ "$func_def" != *'ntfy_topic="etans-topictestClaude"'* ]]; then
+    test_fail "ntfy topic not set correctly"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: repoGolem passes MCPs to _ralph_setup_mcps
+test_repogolem_mcp_passthrough() {
+  test_start "repoGolem passes MCPs to _ralph_setup_mcps"
+
+  repoGolem mcptest "/tmp/mcptest" Context7 tempmail supabase
+
+  local func_def=$(which mcptestClaude 2>/dev/null)
+
+  if [[ "$func_def" != *'_ralph_setup_mcps'* ]]; then
+    test_fail "_ralph_setup_mcps call not found"
+    return
+  fi
+
+  if [[ "$func_def" != *'"Context7"'* ]] || [[ "$func_def" != *'"tempmail"'* ]]; then
+    test_fail "MCPs not passed correctly"
+    return
+  fi
+
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════
 
