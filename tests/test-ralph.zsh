@@ -1331,6 +1331,575 @@ EOF
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# TEST-003: COMPREHENSIVE update.json MERGE TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: newStories creates story file in stories/ dir
+test_update_queue_creates_story_file() {
+  test_start "newStories creates story file in stories/ dir"
+  _setup_test_fixtures
+
+  # Create PRD structure
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  # Create update.json with a new story
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {
+      "id": "US-NEW-001",
+      "title": "New test story",
+      "type": "feature",
+      "acceptanceCriteria": [
+        {"text": "Criterion 1", "checked": false}
+      ]
+    }
+  ]
+}
+EOF
+
+  # Apply the update queue
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify story file was created
+  assert_file_exists "$TEST_TMP_DIR/prd-json/stories/US-NEW-001.json" "story file should be created" || { _teardown_test_fixtures; return; }
+
+  # Verify story content is correct
+  local story_title=$(jq -r '.title' "$TEST_TMP_DIR/prd-json/stories/US-NEW-001.json")
+  assert_equals "New test story" "$story_title" "story title should match" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: newStories adds story ID to pending array (no duplicates)
+test_update_queue_adds_to_pending_unique() {
+  test_start "newStories adds to pending array (no duplicates)"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-EXISTING"],
+  "pending": ["US-EXISTING"],
+  "blocked": [],
+  "nextStory": "US-EXISTING"
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-NEW-002", "title": "New story", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify pending array contains both stories
+  local pending_count=$(jq '.pending | length' "$TEST_TMP_DIR/prd-json/index.json")
+  assert_equals "2" "$pending_count" "pending should have 2 stories" || { _teardown_test_fixtures; return; }
+
+  # Add the same story again via update.json
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-NEW-002", "title": "Duplicate story", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify no duplicate in pending
+  local pending_after=$(jq '.pending | length' "$TEST_TMP_DIR/prd-json/index.json")
+  assert_equals "2" "$pending_after" "pending should still have 2 (no duplicate)" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: newStories adds story ID to storyOrder array (no duplicates)
+test_update_queue_adds_to_storyorder_unique() {
+  test_start "newStories adds to storyOrder (no duplicates)"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-001"],
+  "pending": ["US-001"],
+  "blocked": [],
+  "nextStory": "US-001"
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-002", "title": "Story 2", "acceptanceCriteria": []},
+    {"id": "US-002", "title": "Duplicate", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify storyOrder has unique values
+  local order_count=$(jq '.storyOrder | length' "$TEST_TMP_DIR/prd-json/index.json")
+  assert_equals "2" "$order_count" "storyOrder should have 2 unique entries" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Multiple newStories in one update.json all processed
+test_update_queue_multiple_new_stories() {
+  test_start "multiple newStories in one update.json"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-MULTI-1", "title": "First", "acceptanceCriteria": []},
+    {"id": "US-MULTI-2", "title": "Second", "acceptanceCriteria": []},
+    {"id": "US-MULTI-3", "title": "Third", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify all 3 story files exist
+  assert_file_exists "$TEST_TMP_DIR/prd-json/stories/US-MULTI-1.json" || { _teardown_test_fixtures; return; }
+  assert_file_exists "$TEST_TMP_DIR/prd-json/stories/US-MULTI-2.json" || { _teardown_test_fixtures; return; }
+  assert_file_exists "$TEST_TMP_DIR/prd-json/stories/US-MULTI-3.json" || { _teardown_test_fixtures; return; }
+
+  # Verify pending array has all 3
+  local pending_count=$(jq '.pending | length' "$TEST_TMP_DIR/prd-json/index.json")
+  assert_equals "3" "$pending_count" "pending should have 3 stories" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: updateStories merges changes into existing story file
+test_update_queue_merges_update_stories() {
+  test_start "updateStories merges changes into story file"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-UPDATE-001"],
+  "pending": ["US-UPDATE-001"],
+  "blocked": [],
+  "nextStory": "US-UPDATE-001"
+}
+EOF
+
+  # Create existing story file
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-UPDATE-001.json" << 'EOF'
+{
+  "id": "US-UPDATE-001",
+  "title": "Original title",
+  "type": "feature",
+  "status": "pending",
+  "acceptanceCriteria": [{"text": "Original criterion", "checked": false}]
+}
+EOF
+
+  # Create update.json to change the title and status
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "updateStories": [
+    {
+      "id": "US-UPDATE-001",
+      "title": "Updated title",
+      "status": "blocked",
+      "blockedBy": "BUG-999"
+    }
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify title was updated
+  local new_title=$(jq -r '.title' "$TEST_TMP_DIR/prd-json/stories/US-UPDATE-001.json")
+  assert_equals "Updated title" "$new_title" "title should be updated" || { _teardown_test_fixtures; return; }
+
+  # Verify blockedBy was added
+  local blocker=$(jq -r '.blockedBy' "$TEST_TMP_DIR/prd-json/stories/US-UPDATE-001.json")
+  assert_equals "BUG-999" "$blocker" "blockedBy should be added" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: updateStories preserves unmodified fields
+test_update_queue_preserves_unmodified_fields() {
+  test_start "updateStories preserves unmodified fields"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-PRESERVE"],
+  "pending": ["US-PRESERVE"],
+  "blocked": [],
+  "nextStory": "US-PRESERVE"
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-PRESERVE.json" << 'EOF'
+{
+  "id": "US-PRESERVE",
+  "title": "Keep this title",
+  "type": "feature",
+  "priority": "high",
+  "description": "Important description",
+  "acceptanceCriteria": [{"text": "Original", "checked": false}]
+}
+EOF
+
+  # Update only the priority
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "updateStories": [
+    {"id": "US-PRESERVE", "priority": "low"}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify priority was updated
+  local priority=$(jq -r '.priority' "$TEST_TMP_DIR/prd-json/stories/US-PRESERVE.json")
+  assert_equals "low" "$priority" "priority should be updated" || { _teardown_test_fixtures; return; }
+
+  # Verify other fields preserved
+  local title=$(jq -r '.title' "$TEST_TMP_DIR/prd-json/stories/US-PRESERVE.json")
+  assert_equals "Keep this title" "$title" "title should be preserved" || { _teardown_test_fixtures; return; }
+
+  local desc=$(jq -r '.description' "$TEST_TMP_DIR/prd-json/stories/US-PRESERVE.json")
+  assert_equals "Important description" "$desc" "description should be preserved" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: updateStories skips non-existent story IDs gracefully
+test_update_queue_skips_nonexistent_story() {
+  test_start "updateStories skips non-existent story IDs"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-EXISTS"],
+  "pending": ["US-EXISTS"],
+  "blocked": [],
+  "nextStory": "US-EXISTS"
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-EXISTS.json" << 'EOF'
+{"id": "US-EXISTS", "title": "Exists", "acceptanceCriteria": []}
+EOF
+
+  # Try to update a non-existent story
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "updateStories": [
+    {"id": "US-GHOST", "title": "Ghost update"}
+  ]
+}
+EOF
+
+  # Should not fail
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+  local exit_code=$?
+
+  # Verify no ghost story file was created
+  if [[ -f "$TEST_TMP_DIR/prd-json/stories/US-GHOST.json" ]]; then
+    test_fail "ghost story file should not be created"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Malformed JSON in update.json handled gracefully
+test_update_queue_handles_malformed_json() {
+  test_start "malformed JSON in update.json handled"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  # Write malformed JSON
+  echo '{ "newStories": [ invalid json' > "$TEST_TMP_DIR/prd-json/update.json"
+
+  # Should not crash (capture stderr)
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json" 2>/dev/null
+  local exit_code=$?
+
+  # Function should return 1 (no updates applied)
+  assert_equals "1" "$exit_code" "should return 1 on malformed JSON" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Empty update.json (no newStories/updateStories) is a no-op
+test_update_queue_empty_is_noop() {
+  test_start "empty update.json is a no-op"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-ORIG"],
+  "pending": ["US-ORIG"],
+  "blocked": [],
+  "nextStory": "US-ORIG"
+}
+EOF
+
+  # Empty update.json (valid JSON but no stories)
+  echo '{}' > "$TEST_TMP_DIR/prd-json/update.json"
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+  local exit_code=$?
+
+  # Should return 1 (no updates applied)
+  assert_equals "1" "$exit_code" "should return 1 on empty update" || { _teardown_test_fixtures; return; }
+
+  # Verify pending is unchanged
+  local pending_count=$(jq '.pending | length' "$TEST_TMP_DIR/prd-json/index.json")
+  assert_equals "1" "$pending_count" "pending should be unchanged" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Missing index.json returns error code 1
+test_update_queue_missing_index_returns_error() {
+  test_start "missing index.json returns error code 1"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  # No index.json created
+
+  echo '{"newStories": [{"id": "US-X", "acceptanceCriteria": []}]}' > "$TEST_TMP_DIR/prd-json/update.json"
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+  local exit_code=$?
+
+  assert_equals "1" "$exit_code" "should return 1 when index.json missing" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: update.json deleted after successful merge
+test_update_queue_deletes_file_on_success() {
+  test_start "update.json deleted after successful merge"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-DEL-TEST", "title": "Delete test", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify update.json was deleted
+  if [[ -f "$TEST_TMP_DIR/prd-json/update.json" ]]; then
+    test_fail "update.json should be deleted after success"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: update.json preserved if merge fails (no update.json in first place returns 1)
+test_update_queue_no_update_file_returns_error() {
+  test_start "no update.json returns error code 1"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  # No update.json created
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+  local exit_code=$?
+
+  assert_equals "1" "$exit_code" "should return 1 when no update.json" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Warning printed for ignored fields (storyOrder, pending, stats)
+test_update_queue_warns_ignored_fields() {
+  test_start "warns about ignored fields"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  # update.json with ignored fields
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "storyOrder": ["ignored"],
+  "pending": ["also-ignored"],
+  "stats": {"total": 99},
+  "newStories": [
+    {"id": "US-WARN", "title": "Real story", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  # Capture output for warning check
+  local output=$(_ralph_apply_update_queue "$TEST_TMP_DIR/prd-json" 2>&1)
+
+  # Verify warning was printed
+  if [[ "$output" != *"Warning"* ]] && [[ "$output" != *"ignored"* ]]; then
+    test_fail "should warn about ignored fields"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: RALPH_UPDATES_APPLIED is set correctly
+test_update_queue_sets_updates_applied_var() {
+  test_start "RALPH_UPDATES_APPLIED set correctly"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-COUNT-1", "acceptanceCriteria": []},
+    {"id": "US-COUNT-2", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  assert_equals "2" "$RALPH_UPDATES_APPLIED" "RALPH_UPDATES_APPLIED should be 2" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: nextStory is set to first pending after newStories
+test_update_queue_sets_next_story() {
+  test_start "nextStory set to first pending after newStories"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": [],
+  "pending": [],
+  "blocked": [],
+  "nextStory": null
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-FIRST", "acceptanceCriteria": []},
+    {"id": "US-SECOND", "acceptanceCriteria": []}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  local next_story=$(jq -r '.nextStory' "$TEST_TMP_DIR/prd-json/index.json")
+  assert_equals "US-FIRST" "$next_story" "nextStory should be first pending" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # BUG-014: COMPLETE SIGNAL VERIFICATION TESTS
 # ═══════════════════════════════════════════════════════════════════
 
