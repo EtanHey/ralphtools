@@ -460,3 +460,20 @@ Changes:
 - Use case statements and functions instead of associative arrays for compatibility
 - $((...)) arithmetic is bash 3.2 compatible, but ((var++)) may not work in all modes
 - Space-separated strings with for-loops work as array alternatives in older bash
+
+## Iteration 24
+Story: US-083 - golem-powers:catchup - Context recovery skills for long sessions
+Status: COMPLETED (opus)
+Changes:
+- Created skills/golem-powers/catchup/ directory and SKILL.md
+- Created skills/golem-powers/catchup-recent/ directory and SKILL.md
+- catchup: Full branch context recovery using git diff --name-only main...HEAD
+- catchup-recent: Quick context refresh using git status --short
+- Both are instruction-only skills (no execute: frontmatter)
+- Both accessible via parent golem-powers symlink
+- Includes usage examples and comparison table
+
+### Learnings
+- Instruction-only skills don't need execute: frontmatter - they just guide Claude
+- Context recovery is useful for long sessions (48+ hours) or context overflow
+- Two patterns: full branch recovery vs quick uncommitted-only refresh
