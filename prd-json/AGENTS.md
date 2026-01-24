@@ -46,7 +46,7 @@ Ralph can run in an isolated git worktree to prevent polluting the main project'
 ralph-start 50 -S        # Creates worktree + outputs command
 
 # 2. Copy the command and run it:
-cd ~/worktrees/<repo>/ralph-session && source ~/.config/ralph/ralph.zsh && ralph 50 -S
+cd ~/worktrees/<repo>/ralph-session && source ~/.config/ralphtools/ralph.zsh && ralph 50 -S
 
 # 3. When done, merge back and cleanup:
 ralph-cleanup            # Syncs changes, removes worktree

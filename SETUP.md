@@ -34,7 +34,7 @@ Create `ralph-config.local` with the user's preferences.
 
 ### Create Config File
 
-Based on answers, create `~/.config/ralph/ralph-config.local`:
+Based on answers, create `~/.config/ralphtools/ralph-config.local`:
 
 ```bash
 # User's Ralph Configuration
@@ -66,7 +66,7 @@ grep -q "ralph.zsh" ~/.zshrc
 # If not, add it
 echo '' >> ~/.zshrc
 echo '# Ralph - Autonomous Coding Loop' >> ~/.zshrc
-echo '[[ -f ~/.config/ralph/ralph.zsh ]] && source ~/.config/ralph/ralph.zsh' >> ~/.zshrc
+echo '[[ -f ~/.config/ralphtools/ralph.zsh ]] && source ~/.config/ralphtools/ralph.zsh' >> ~/.zshrc
 ```
 
 ### For Bash (~/.bashrc)
@@ -74,7 +74,7 @@ echo '[[ -f ~/.config/ralph/ralph.zsh ]] && source ~/.config/ralph/ralph.zsh' >>
 ```bash
 echo '' >> ~/.bashrc
 echo '# Ralph - Autonomous Coding Loop' >> ~/.bashrc
-echo '[[ -f ~/.config/ralph/ralph.zsh ]] && source ~/.config/ralph/ralph.zsh' >> ~/.bashrc
+echo '[[ -f ~/.config/ralphtools/ralph.zsh ]] && source ~/.config/ralphtools/ralph.zsh' >> ~/.bashrc
 ```
 
 ---
@@ -88,10 +88,10 @@ Symlink Ralph skills to Claude Code commands directory.
 mkdir -p ~/.claude/commands
 
 # Symlink /prd command
-ln -sf ~/.config/ralph/skills/prd.md ~/.claude/commands/prd.md
+ln -sf ~/.config/ralphtools/skills/prd.md ~/.claude/commands/prd.md
 
 # Symlink /critique-waves command
-ln -sf ~/.config/ralph/skills/critique-waves.md ~/.claude/commands/critique-waves.md
+ln -sf ~/.config/ralphtools/skills/critique-waves.md ~/.claude/commands/critique-waves.md
 ```
 
 ---
@@ -113,7 +113,7 @@ Run these checks:
 
 ```bash
 # 1. Source the config (or open new terminal)
-source ~/.config/ralph/ralph.zsh
+source ~/.config/ralphtools/ralph.zsh
 
 # 2. Check ralph command exists
 which ralph || type ralph
@@ -151,12 +151,12 @@ rm -rf prd-json progress.txt
 - Open a new terminal, or run: `source ~/.zshrc`
 
 ### Config not loading
-- Check file exists: `ls ~/.config/ralph/ralph-config.local`
-- Check syntax: `zsh -n ~/.config/ralph/ralph-config.local`
+- Check file exists: `ls ~/.config/ralphtools/ralph-config.local`
+- Check syntax: `zsh -n ~/.config/ralphtools/ralph-config.local`
 
 ### Skills not available
 - Check symlinks: `ls -la ~/.claude/commands/`
-- Recreate: `ln -sf ~/.config/ralph/skills/prd.md ~/.claude/commands/prd.md`
+- Recreate: `ln -sf ~/.config/ralphtools/skills/prd.md ~/.claude/commands/prd.md`
 
 ---
 

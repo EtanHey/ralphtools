@@ -16,7 +16,7 @@ PASS=0
 FAIL=0
 
 # Source helper functions from ralph.zsh
-RALPH_ZSH="$HOME/.config/ralph/ralph.zsh"
+RALPH_ZSH="$HOME/.config/ralphtools/ralph.zsh"
 
 echo "═══════════════════════════════════════════════════════════════"
 echo "  Ralph JSON Mode Tests"

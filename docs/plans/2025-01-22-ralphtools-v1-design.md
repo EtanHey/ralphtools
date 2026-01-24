@@ -593,7 +593,7 @@ jobs:
 
 ## Security: Separating Sensitive Data
 
-**CRITICAL:** Current `~/.config/ralph/` contains sensitive tokens that must NOT be open sourced:
+**CRITICAL:** Current `~/.config/ralphtools/` contains sensitive tokens that must NOT be open sourced:
 - Supabase tokens (`sbp_...`)
 - Linear API keys (`lin_api_...`)
 - Tempmail API keys

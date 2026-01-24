@@ -43,7 +43,7 @@
 # PATHS (usually don't need to change)
 # ═══════════════════════════════════════════════════════════════════
 # Directory containing Ralph configuration
-# export RALPH_CONFIG_DIR="$HOME/.config/ralph"
+# export RALPH_CONFIG_DIR="$HOME/.config/ralphtools"
 
 # Directory for Claude Code skills/commands
 # export CLAUDE_COMMANDS_DIR="$HOME/.claude/commands"

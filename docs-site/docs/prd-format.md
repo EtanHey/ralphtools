@@ -90,7 +90,7 @@ The `/prd` command is a Claude Code skill that generates PRDs.
 
 ```bash
 mkdir -p ~/.claude/commands
-ln -s ~/.config/ralph/skills/golem-powers ~/.claude/commands/golem-powers
+ln -s ~/.config/ralphtools/skills/golem-powers ~/.claude/commands/golem-powers
 ```
 
 ### Workflow

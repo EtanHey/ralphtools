@@ -19,7 +19,7 @@ Creates a full snapshot of the current PRD state in `docs.local/prd-archive/`.
 ### 1. Run Archive with --keep Flag
 
 ```bash
-source ~/.config/ralph/ralph.zsh && ralph-archive --keep
+source ~/.config/ralphtools/ralph.zsh && ralph-archive --keep
 ```
 
 This creates an archive but keeps the working PRD intact.

@@ -50,7 +50,7 @@ Output:
 
 Session isolated! Run this command to start Ralph:
 
-  cd ~/worktrees/myproject/ralph-session && source ~/.config/ralph/ralph.zsh && ralph 50 -S
+  cd ~/worktrees/myproject/ralph-session && source ~/.config/ralphtools/ralph.zsh && ralph 50 -S
 
 ─────────────────────────────────────────────────────────────
 
@@ -82,7 +82,7 @@ cd ~/projects/myproject
 ralph-start 50 -S
 
 # 2. Copy and run the output command
-cd ~/worktrees/myproject/ralph-session && source ~/.config/ralph/ralph.zsh && ralph 50 -S
+cd ~/worktrees/myproject/ralph-session && source ~/.config/ralphtools/ralph.zsh && ralph 50 -S
 
 # 3. Watch Ralph run (optional, new terminal)
 ralph-live

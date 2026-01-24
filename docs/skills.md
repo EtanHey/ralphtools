@@ -133,5 +133,5 @@ For critical verification, use multi-agent consensus. This spawns multiple agent
 ### Setup
 
 ```bash
-cp ~/.config/ralph/skills/critique-waves.md ~/.claude/commands/critique-waves.md
+cp ~/.config/ralphtools/skills/critique-waves.md ~/.claude/commands/critique-waves.md
 ```

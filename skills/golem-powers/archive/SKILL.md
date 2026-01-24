@@ -30,7 +30,7 @@ Run these directly - standalone, no ralph.zsh dependency:
 ## CLI Command (Requires ralph.zsh)
 
 ```bash
-source ~/.config/ralph/ralph.zsh && ralph-archive [app] [flags]
+source ~/.config/ralphtools/ralph.zsh && ralph-archive [app] [flags]
 ```
 
 ### Flags

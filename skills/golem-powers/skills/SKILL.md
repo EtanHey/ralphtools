@@ -69,8 +69,8 @@ get_source() {
         echo "ralphtools"
     elif [[ "$resolved" == *"/superpowers/"* ]]; then
         echo "superpowers"
-    elif [[ "$resolved" == *"/.config/ralph/"* ]]; then
-        echo "ralph-config"
+    elif [[ "$resolved" == *"/.config/ralphtools/"* ]]; then
+        echo "ralphtools-config"
     else
         echo "custom"
     fi
@@ -220,9 +220,9 @@ For each skill, show:
 
 | Skill | Description | Source | Workflows |
 |-------|-------------|--------|-----------|
-| **brave** | Browser automation via brave-manager | ralph-config | - |
-| **prd** | Generate Product Requirements Documents | ralph-config | - |
-| **archive** | Archive completed PRD stories | ralph-config | - |
+| **brave** | Browser automation via brave-manager | ralphtools-config | - |
+| **prd** | Generate Product Requirements Documents | ralphtools-config | - |
+| **archive** | Archive completed PRD stories | ralphtools-config | - |
 
 ---
 *Use `/skills --search <keyword>` to filter skills*

@@ -136,8 +136,8 @@ echo ""
 
 # Section: Ralph (optional)
 echo "=== Ralph (Optional) ==="
-if [ -f ~/.config/ralph/ralph.zsh ]; then
-    check "ralph.zsh exists" "test -f ~/.config/ralph/ralph.zsh"
+if [ -f ~/.config/ralphtools/ralph.zsh ]; then
+    check "ralph.zsh exists" "test -f ~/.config/ralphtools/ralph.zsh"
     # Can't source in subshell effectively, just check file exists
 else
     echo -e "${YELLOW}[SKIP]${NC} ralph.zsh not installed"

@@ -3346,7 +3346,7 @@ test_stderr_capture_pattern_exists() {
   # Check that the new stderr capture pattern exists in ralph.zsh
   local ralph_file="${SCRIPT_DIR}/../ralph.zsh"
   if [[ ! -f "$ralph_file" ]]; then
-    ralph_file="$HOME/.config/ralph/ralph.zsh"
+    ralph_file="$HOME/.config/ralphtools/ralph.zsh"
   fi
 
   # Look for RALPH_STDERR variable declaration
@@ -3376,7 +3376,7 @@ test_debug_capture_logging_exists() {
 
   local ralph_file="${SCRIPT_DIR}/../ralph.zsh"
   if [[ ! -f "$ralph_file" ]]; then
-    ralph_file="$HOME/.config/ralph/ralph.zsh"
+    ralph_file="$HOME/.config/ralphtools/ralph.zsh"
   fi
 
   # Look for RALPH_DEBUG_CAPTURE environment variable check
@@ -3406,7 +3406,7 @@ test_error_detection_debug_logging() {
 
   local ralph_file="${SCRIPT_DIR}/../ralph.zsh"
   if [[ ! -f "$ralph_file" ]]; then
-    ralph_file="$HOME/.config/ralph/ralph.zsh"
+    ralph_file="$HOME/.config/ralphtools/ralph.zsh"
   fi
 
   # Look for debug output showing has_error value
@@ -3434,7 +3434,7 @@ test_us107_fresh_install_defaults_to_bun() {
 
   local ralph_file="${SCRIPT_DIR}/../ralph.zsh"
   if [[ ! -f "$ralph_file" ]]; then
-    ralph_file="$HOME/.config/ralph/ralph.zsh"
+    ralph_file="$HOME/.config/ralphtools/ralph.zsh"
   fi
 
   # Check that the config template in ralph.zsh uses runtime: bun
@@ -4453,7 +4453,7 @@ test_repogolem_mcp_passthrough() {
 # Check local repo first, then installed location
 SCRIPT_DIR="${0:a:h}"
 REPO_RALPH_ZSH="${SCRIPT_DIR}/../ralph.zsh"
-INSTALLED_RALPH_ZSH="$HOME/.config/ralph/ralph.zsh"
+INSTALLED_RALPH_ZSH="$HOME/.config/ralphtools/ralph.zsh"
 
 if [[ -n "$RALPH_ZSH" && -f "$RALPH_ZSH" ]]; then
   source "$RALPH_ZSH" 2>/dev/null || true

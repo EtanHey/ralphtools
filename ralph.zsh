@@ -2326,7 +2326,7 @@ _ralph_migrate_to_registry() {
 
   local old_projects="$HOME/.config/ralphtools/projects.json"
   local shared_mcps="$HOME/.claude/shared-project-mcps.json"
-  local repo_claude_v2="$HOME/.config/ralph/repo-claude-v2.zsh"
+  local repo_claude_v2="$HOME/.config/ralphtools/repo-claude-v2.zsh"
   local registry="$RALPH_REGISTRY_FILE"
 
   # Check if registry already exists
@@ -4296,21 +4296,13 @@ function ralph() {
     RALPH_LIVE_ENABLED=false
   fi
 
-  # Start React Ink UI in LIVE mode with PTY wrapper
-  # Uses 'script' to give background process a pseudo-terminal
+  # Show React Ink UI for startup (renders once, exits)
+  # Note: True live mode with persistent background TUI not yet supported (see research/07-live-ink-ui)
   if [[ "$use_ink_ui" == "true" ]]; then
-    if command -v bun &>/dev/null && [[ -f "$RALPH_UI_PATH" ]]; then
-      local start_time_ms=$(($(date +%s) * 1000))
-      local ink_cmd="bun $RALPH_UI_PATH --mode=live --prd-path=$PRD_JSON_DIR --iteration=1 --model=${primary_model:-sonnet} --start-time=$start_time_ms"
-      [[ -n "$ntfy_topic" ]] && ink_cmd="$ink_cmd --ntfy-topic=$ntfy_topic"
-
-      # Use 'script' to provide PTY for background process
-      script -q /dev/null $ink_cmd &
-      RALPH_INK_UI_PID=$!
-      disown $RALPH_INK_UI_PID 2>/dev/null
-      _ralph_track_pid "$RALPH_INK_UI_PID" "ink-ui"
-      sleep 0.5
+    if _ralph_show_ink_ui "startup" "$PRD_JSON_DIR" "1" "${primary_model:-sonnet}" "$(date +%s)" "$ntfy_topic"; then
+      : # Ink UI succeeded
     else
+      # Ink UI failed, fall through to shell UI
       use_ink_ui=false
     fi
   fi
@@ -4749,12 +4741,13 @@ function ralph() {
         if [[ -f "$RALPH_CONTEXT_FILE" ]]; then
           # Read context file and add to CLI as --append-system-prompt
           # Use $(<file) syntax and noxtrace to prevent content leaking to terminal (BUG-025)
-          local context_content
+          # CRITICAL: The array assignment MUST be inside noxtrace block to prevent $context_content expansion leak
           {
             setopt localoptions noxtrace
+            local context_content
             context_content=$(<"$RALPH_CONTEXT_FILE")
+            cli_cmd_arr+=(--append-system-prompt "$context_content")
           }
-          cli_cmd_arr+=(--append-system-prompt "$context_content")
         fi
       fi
 
@@ -5890,7 +5883,7 @@ function ralph-start() {
     echo "${YELLOW}⚠️  Worktree already exists: $worktree_path${NC}"
     echo ""
     echo "   Options:"
-    echo "   1. cd $worktree_path && source ~/.config/ralph/ralph.zsh && ralph ${ralph_args[*]}"
+    echo "   1. cd $worktree_path && source ~/.config/ralphtools/ralph.zsh && ralph ${ralph_args[*]}"
     echo "   2. ralph-cleanup (to remove it first)"
     echo ""
     read -q "REPLY?Resume existing worktree? (y/n) "
@@ -6204,9 +6197,9 @@ _ralph_output_worktree_command() {
   local NC='\033[0m'
 
   if [[ -n "$ralph_args" ]]; then
-    echo "  ${BOLD}cd $worktree_path && source ~/.config/ralph/ralph.zsh && ralph $ralph_args${NC}"
+    echo "  ${BOLD}cd $worktree_path && source ~/.config/ralphtools/ralph.zsh && ralph $ralph_args${NC}"
   else
-    echo "  ${BOLD}cd $worktree_path && source ~/.config/ralph/ralph.zsh && ralph${NC}"
+    echo "  ${BOLD}cd $worktree_path && source ~/.config/ralphtools/ralph.zsh && ralph${NC}"
   fi
 }
 
@@ -9078,8 +9071,8 @@ function _ralph_setup_obsidian_mcp() {
     script_path="${RALPH_SCRIPT_DIR}/scripts/install-obsidian-mcp.sh"
   elif [[ -f "${RALPH_CONFIG_DIR}/../ralph/scripts/install-obsidian-mcp.sh" ]]; then
     script_path="${RALPH_CONFIG_DIR}/../ralph/scripts/install-obsidian-mcp.sh"
-  elif [[ -f "$HOME/.config/ralph/scripts/install-obsidian-mcp.sh" ]]; then
-    script_path="$HOME/.config/ralph/scripts/install-obsidian-mcp.sh"
+  elif [[ -f "$HOME/.config/ralphtools/scripts/install-obsidian-mcp.sh" ]]; then
+    script_path="$HOME/.config/ralphtools/scripts/install-obsidian-mcp.sh"
   fi
 
   if [[ -n "$script_path" ]] && [[ -f "$script_path" ]]; then

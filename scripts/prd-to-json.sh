@@ -248,7 +248,7 @@ echo -e "${BLUE}Schema: prd.schema.json${NC}"
 
 # Validate with schema if ajv is available
 if command -v ajv &> /dev/null; then
-  schema_path="$HOME/.config/ralph/schemas/prd.schema.json"
+  schema_path="$HOME/.config/ralphtools/schemas/prd.schema.json"
   if [[ -f "$schema_path" ]]; then
     echo -e "${YELLOW}Validating against schema...${NC}"
     if ajv validate -s "$schema_path" -d "$OUTPUT_FILE" 2>/dev/null; then

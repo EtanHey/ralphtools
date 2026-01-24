@@ -23,7 +23,7 @@ Ralph takes a PRD with acceptance criteria and executes each story autonomously:
 ```bash
 # Install Ralph
 git clone https://github.com/etanheyman/ralphtools.git ~/.config/ralph
-source ~/.config/ralph/ralph.zsh
+source ~/.config/ralphtools/ralph.zsh
 
 # Initialize a PRD in your project
 ralph-init

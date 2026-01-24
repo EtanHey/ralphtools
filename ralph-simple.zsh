@@ -175,9 +175,9 @@ _ralph_build_prompt() {
     prompt_file="$script_dir/prompts/ralph-prompt.md"
   fi
 
-  # Also check in ~/.config/ralph/prompts/
+  # Also check in ~/.config/ralphtools/prompts/
   if [[ ! -f "$prompt_file" ]]; then
-    prompt_file="$HOME/.config/ralph/prompts/ralph-prompt.md"
+    prompt_file="$HOME/.config/ralphtools/prompts/ralph-prompt.md"
   fi
 
   if [[ -f "$prompt_file" ]]; then

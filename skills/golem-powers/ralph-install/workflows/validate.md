@@ -181,7 +181,7 @@ echo "test" | gum filter
 
 ```bash
 # Source ralph
-source ~/.config/ralph/ralph.zsh
+source ~/.config/ralphtools/ralph.zsh
 
 # Check ralph is available
 type ralph

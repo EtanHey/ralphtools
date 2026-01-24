@@ -23,13 +23,13 @@ done
 
 ```bash
 # Install
-git clone https://github.com/EtanHey/ralph-tooling.git ~/.config/ralph
-echo 'source ~/.config/ralph/ralph.zsh' >> ~/.zshrc
+git clone https://github.com/EtanHey/ralph-tooling.git ~/.config/ralphtools
+echo 'source ~/.config/ralphtools/ralph.zsh' >> ~/.zshrc
 source ~/.zshrc
 
 # Setup skills
 mkdir -p ~/.claude/commands
-ln -sf ~/.config/ralph/skills/prd.md ~/.claude/commands/prd.md
+ln -sf ~/.config/ralphtools/skills/prd.md ~/.claude/commands/prd.md
 
 # Use
 claude                        # Open Claude Code
@@ -142,14 +142,14 @@ ralph myapp 20        # Run on apps/myapp/ (monorepo)
 
 ## Skills System
 
-Ralph includes a library of skills that provide workflows for common tasks. Skills are stored in `~/.config/ralph/skills/` and made available to Claude via symlinks in `~/.claude/commands/`.
+Ralph includes a library of skills that provide workflows for common tasks. Skills are stored in `~/.config/ralphtools/skills/` and made available to Claude via symlinks in `~/.claude/commands/`.
 
 ### Sourcing Skills in Other Projects
 
 Projects can access Ralph's skills automatically - they're globally available through `~/.claude/commands/`. No per-project configuration needed.
 
 **How it works:**
-1. Ralph's skills are in `~/.config/ralph/skills/` (the cloned repo)
+1. Ralph's skills are in `~/.config/ralphtools/skills/` (the cloned repo)
 2. Symlinks in `~/.claude/commands/` point to these skills
 3. Claude Code finds skills via `~/.claude/commands/` automatically
 4. All projects get the same skills without duplication
@@ -206,7 +206,7 @@ Run `/project-context` at session start to auto-detect:
 Skills auto-update when you pull ralphtools:
 
 ```bash
-cd ~/.config/ralph && git pull
+cd ~/.config/ralphtools && git pull
 # Skills update immediately - symlinks point to latest files
 ```
 
@@ -218,7 +218,7 @@ claude
 > /ralph-install   # Follow setup workflow
 
 # Or manually symlink all skills:
-cd ~/.config/ralph
+cd ~/.config/ralphtools
 for skill in skills/*.md; do
   ln -sf "$(pwd)/$skill" ~/.claude/commands/
 done
@@ -254,14 +254,14 @@ op read "op://Private/claude-golem/context7/API_KEY" | head -c 10
 
 ```bash
 # Option 1: op inject (creates .env file)
-op inject -i ~/.config/ralph/skills/.env.template -o ~/.config/ralph/skills/.env
-source ~/.config/ralph/skills/.env
+op inject -i ~/.config/ralphtools/skills/.env.template -o ~/.config/ralphtools/skills/.env
+source ~/.config/ralphtools/skills/.env
 
 # Option 2: op run (inject for single command)
-op run --env-file=~/.config/ralph/skills/.env.template -- claude
+op run --env-file=~/.config/ralphtools/skills/.env.template -- claude
 
 # Option 3: Shell alias (recommended)
-alias claude-with-keys='op run --env-file=~/.config/ralph/skills/.env.template -- claude'
+alias claude-with-keys='op run --env-file=~/.config/ralphtools/skills/.env.template -- claude'
 ```
 
 ### Obsidian MCP

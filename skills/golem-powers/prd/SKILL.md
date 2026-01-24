@@ -7,7 +7,7 @@ description: "Generate a Product Requirements Document (PRD) for a new feature. 
 
 Create PRDs for autonomous AI implementation via Ralph loop.
 
-**Config files available:** Read from `~/.config/ralph/configs/` when needed:
+**Config files available:** Read from `~/.config/ralphtools/configs/` when needed:
 - `iteration-rules.json` - Critical iteration rules
 - `rtl-rules.json` - RTL layout rules (Hebrew/Arabic projects)
 - `modal-rules.json` - Modal/dynamic state rules
@@ -156,10 +156,10 @@ Every story ends with a commit criterion. Match type to story:
 ## Conditional Rules
 
 **For RTL projects (Hebrew/Arabic):**
-Read `~/.config/ralph/configs/rtl-rules.json` and include RTL checklist in stories.
+Read `~/.config/ralphtools/configs/rtl-rules.json` and include RTL checklist in stories.
 
 **For modals/dynamic states:**
-Read `~/.config/ralph/configs/modal-rules.json` - each state = separate story.
+Read `~/.config/ralphtools/configs/modal-rules.json` - each state = separate story.
 
 ---
 

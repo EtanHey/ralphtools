@@ -18,7 +18,7 @@ Archives current state then removes completed stories for a fresh start.
 ### Option A: Interactive Cleanup
 
 ```bash
-source ~/.config/ralph/ralph.zsh && ralph-archive
+source ~/.config/ralphtools/ralph.zsh && ralph-archive
 ```
 
 1. Creates archive snapshot
@@ -28,7 +28,7 @@ source ~/.config/ralph/ralph.zsh && ralph-archive
 ### Option B: Auto Cleanup
 
 ```bash
-source ~/.config/ralph/ralph.zsh && ralph-archive --clean
+source ~/.config/ralphtools/ralph.zsh && ralph-archive --clean
 ```
 
 Skips confirmation, automatically cleans up after archiving.
