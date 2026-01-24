@@ -1,0 +1,31 @@
+{
+  "id": "MP-003",
+  "title": "Ralph setup wizard and config-driven runtime (TDD)",
+  "description": "Create ralph-setup wizard that configures runtime (bash/bun), notifications, max iterations, model routing. All stored in config.json.\n\nAPPROACH: Test-Driven Development\n1. Write unit tests for config validation FIRST\n2. Write tests for wizard behavior FIRST\n3. Then implement to make tests pass\n4. Integration tests last",
+  "type": "master-plan",
+  "priority": "high",
+  "storyPoints": 5,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "PHASE 1 - UNIT TESTS (write first, should fail initially)", "checked": false},
+    {"text": "Test: _ralph_load_config loads runtime field from config.json", "checked": false},
+    {"text": "Test: _ralph_load_config defaults runtime to 'bash' when not specified", "checked": false},
+    {"text": "Test: config.json runtime field accepts 'bash' or 'bun' values", "checked": false},
+    {"text": "Test: maxIterations is read from config.defaults.maxIterations", "checked": false},
+    {"text": "PHASE 2 - IMPLEMENTATION (make tests pass)", "checked": false},
+    {"text": "Add runtime field to config schema and TypeScript types", "checked": false},
+    {"text": "Extend _ralph_load_config to load RALPH_RUNTIME from config", "checked": false},
+    {"text": "ralph-config wizard asks: Runtime preference (bash/bun)", "checked": false},
+    {"text": "ralph-config wizard asks: Max iterations (default 100)", "checked": false},
+    {"text": "ralph-config wizard saves all preferences to config.json", "checked": false},
+    {"text": "ralph command reads config.runtime to choose bash/bun UI", "checked": false},
+    {"text": "PHASE 3 - INTEGRATION TESTS", "checked": false},
+    {"text": "Test: Fresh config triggers wizard on first ralph run", "checked": false},
+    {"text": "Test: Config changes are respected without CLI flags", "checked": false},
+    {"text": "Run full test suite - all tests must pass", "checked": false},
+    {"text": "Run CodeRabbit review", "checked": false},
+    {"text": "Commit: feat: MP-003 ralph setup wizard with config-driven runtime", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}

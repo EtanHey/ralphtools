@@ -1,0 +1,21 @@
+{
+  "id": "V-018",
+  "title": "Verify: MP-003 setup wizard and config-driven runtime",
+  "description": "Verification story for MP-003. Test the wizard end-to-end and verify config changes work as expected.",
+  "type": "verification",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Run ralph-config and complete wizard with runtime=bun", "checked": false},
+    {"text": "Verify config.json contains runtime: bun", "checked": false},
+    {"text": "Run ralph and verify it attempts to use bun UI (or falls back gracefully)", "checked": false},
+    {"text": "Run ralph-config again, change to runtime=bash", "checked": false},
+    {"text": "Verify ralph uses bash UI after config change", "checked": false},
+    {"text": "Test maxIterations config is respected", "checked": false},
+    {"text": "Delete config.json, verify ralph prompts for setup", "checked": false},
+    {"text": "All verification checks pass", "checked": false}
+  ],
+  "dependencies": ["MP-003"],
+  "passes": false
+}
