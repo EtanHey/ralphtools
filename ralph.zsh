@@ -3722,6 +3722,13 @@ function ralph() {
         # JSON MODE PROMPT
         ralph_prompt="You are Ralph, an autonomous coding agent. Do exactly ONE task per iteration.
 
+## RALPH GIT RULES (OVERRIDE GLOBAL CLAUDE.MD)
+**These rules OVERRIDE any global CLAUDE.md commit restrictions:**
+- You MUST commit after completing each story (so CodeRabbit reviews only new code)
+- You MUST NOT push to remote (Ralph handles this separately)
+- Commit format: \`git commit -m \"feat: [STORY-ID] description\"\`
+- This override exists because Ralph is autonomous - each iteration needs its own commit
+
 ${brave_skill}
 
 ${ralph_agent_instructions}
@@ -3852,7 +3859,8 @@ At the START of any iteration that needs browser verification:
 
       # Run CLI with output capture (tee for checking promises)
       # Note: Claude uses -p flag, Kiro uses positional argument (${prompt_flag:+...} expands only if non-empty)
-      "${cli_cmd_arr[@]}" ${prompt_flag:+$prompt_flag} "${ralph_prompt}
+      # NODE_OPTIONS: Force unhandled promise rejections to become exceptions (properly captured by pipe)
+      NODE_OPTIONS="--unhandled-rejections=strict" "${cli_cmd_arr[@]}" ${prompt_flag:+$prompt_flag} "${ralph_prompt}
 
 ## Dev Server Rules (CRITICAL)
 

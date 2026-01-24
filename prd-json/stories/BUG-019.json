@@ -16,7 +16,7 @@
     {"text": "Load error handling settings from config.json in ralph.zsh", "checked": true},
     {"text": "FIX: Capture Node.js unhandled promise rejections properly", "checked": true},
     {"text": "  - Use script(1) or unbuffer to capture all terminal output", "checked": false},
-    {"text": "  - OR: Wrap claude-code call with node --unhandled-rejections=strict", "checked": false},
+    {"text": "  - OR: Wrap claude-code call with node --unhandled-rejections=strict", "checked": true},
     {"text": "  - OR: Pipe stderr separately and merge after", "checked": true},
     {"text": "Add error pattern: 'This error originated' (Node.js rejection preamble)", "checked": true},
     {"text": "Add error pattern: 'promise rejected with the reason'", "checked": true},

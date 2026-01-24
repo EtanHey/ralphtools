@@ -1,0 +1,22 @@
+{
+  "id": "TEST-001",
+  "title": "Add context injection tests to commit hooks",
+  "description": "Add automated tests for the modular context system that run on every commit. Tests should verify context files exist, are valid, and can be merged correctly.",
+  "acceptanceCriteria": [
+    {"text": "Add test_context_files_exist() - verify base.md exists", "checked": false},
+    {"text": "Add test_context_base_has_required_sections() - CLAUDE_COUNTER, git rules, etc.", "checked": false},
+    {"text": "Add test_context_merge_function() - _ralph_build_context_file works", "checked": false},
+    {"text": "Add test_context_cleanup() - temp files are removed after use", "checked": false},
+    {"text": "Add test_context_patterns_valid() - context-migrate.zsh patterns work", "checked": false},
+    {"text": "Add test_no_old_injection() - ${brave_skill} injection removed from ralph.zsh", "checked": false},
+    {"text": "Add test_workflow_ralph_has_git_rules() - RALPH GIT RULES in workflow/ralph.md", "checked": false},
+    {"text": "Tests run in pre-commit hook alongside existing tests", "checked": false},
+    {"text": "Tests fail commit if context system is broken", "checked": false},
+    {"text": "Document test coverage in tests/README.md", "checked": false}
+  ],
+  "storyType": "TEST",
+  "priority": "high",
+  "createdAt": "2026-01-24T01:30:00.000Z",
+  "passes": false,
+  "blockedBy": "MP-002"
+}

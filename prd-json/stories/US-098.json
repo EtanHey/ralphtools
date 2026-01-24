@@ -1,0 +1,20 @@
+{
+  "id": "US-098",
+  "title": "LSP integration for Ralph code intelligence",
+  "description": "Research and implement LSP (Language Server Protocol) integration for Ralph. This enables code intelligence features like go-to-definition, find-references, and hover info during autonomous coding.",
+  "acceptanceCriteria": [
+    {"text": "Research: How Claude Code's LSP tool works (goToDefinition, findReferences, hover)", "checked": false},
+    {"text": "Research: What LSP servers are commonly configured (TypeScript, Python, etc.)", "checked": false},
+    {"text": "Research: How to configure LSP servers for Claude Code", "checked": false},
+    {"text": "Add LSP usage guidance to workflow/ralph.md context", "checked": false},
+    {"text": "Document when Ralph should use LSP vs grep/glob for code exploration", "checked": false},
+    {"text": "Add LSP examples to Ralph's prompt (for complex refactoring stories)", "checked": false},
+    {"text": "Test: Ralph uses LSP for go-to-definition during refactoring", "checked": false},
+    {"text": "Test: Ralph uses findReferences before renaming symbols", "checked": false},
+    {"text": "Optional: Create golem-powers:lsp skill for guided LSP usage", "checked": false}
+  ],
+  "storyType": "US",
+  "priority": "low",
+  "createdAt": "2026-01-24T01:30:00.000Z",
+  "passes": false
+}

@@ -1,0 +1,22 @@
+{
+  "id": "US-097",
+  "title": "Migration wizard for modular context setup",
+  "description": "Add a step to ralph-setup wizard that helps users migrate their CLAUDE.md files to the modular context system. Uses scripts/context-migrate.zsh for analysis and optionally applies migration.",
+  "acceptanceCriteria": [
+    {"text": "Add 'Context Migration' step to ralph-setup wizard", "checked": false},
+    {"text": "Wizard runs scripts/context-migrate.zsh to analyze current CLAUDE.md", "checked": false},
+    {"text": "Show estimated savings (lines moved to shared contexts)", "checked": false},
+    {"text": "Ask user if they want to apply migration", "checked": false},
+    {"text": "If yes: run context-migrate.zsh --apply", "checked": false},
+    {"text": "If no: show manual steps for later migration", "checked": false},
+    {"text": "Verify ~/.claude/contexts/ directory exists, create if missing", "checked": false},
+    {"text": "Copy missing context templates from ralphtools/contexts/ if needed", "checked": false},
+    {"text": "Wizard can skip this step with --skip-context-migration flag", "checked": false},
+    {"text": "Test: New user setup creates contexts correctly", "checked": false},
+    {"text": "Test: Existing user migration preserves project-specific rules", "checked": false}
+  ],
+  "storyType": "US",
+  "priority": "medium",
+  "createdAt": "2026-01-24T01:30:00.000Z",
+  "passes": false
+}
