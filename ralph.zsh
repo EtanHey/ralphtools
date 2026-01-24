@@ -2785,6 +2785,7 @@ _ralph_detect_tech_stack() {
 # Usage: _ralph_build_context_file [output_file]
 # Returns: path to generated context file
 _ralph_build_context_file() {
+  setopt localoptions noxtrace  # Prevent context content leaking to terminal (BUG-025)
   local output_file="${1:-/tmp/ralph-context-$$.md}"
   local contexts_dir="$RALPH_CONTEXTS_DIR"
 

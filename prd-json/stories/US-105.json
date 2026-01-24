@@ -31,6 +31,6 @@
     {"text": "Test: Hanging warning shows after 60s inactivity", "checked": false},
     {"text": "Commit changes", "checked": false}
   ],
-  "dependencies": ["BUG-022"],
+  "dependencies": ["BUG-022", "US-106"],
   "passes": false
 }

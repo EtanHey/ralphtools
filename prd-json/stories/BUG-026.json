@@ -5,7 +5,7 @@
   "type": "bug",
   "priority": "high",
   "storyPoints": 2,
-  "status": "pending",
+  "status": "completed",
   "acceptanceCriteria": [
     {"text": "Fix brace balance check to ignore braces in strings/heredocs or tolerate small imbalances", "checked": true},
     {"text": "Fix break detection to verify break is actually outside a loop (check for while/for/until context)", "checked": true},

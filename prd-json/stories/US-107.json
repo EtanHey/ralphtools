@@ -1,0 +1,21 @@
+{
+  "id": "US-107",
+  "title": "Make Ink UI the default runtime",
+  "description": "After BUG-024 is fixed (Ink UI auto-exits properly), change the default runtime from 'bash' to 'bun' so Ralph uses the React Ink UI by default.\n\nUsers can still switch back to bash UI via ralph-config if needed.",
+  "type": "feature",
+  "priority": "high",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Update bun/core/config.ts: change default runtime from 'bash' to 'bun'", "checked": false},
+    {"text": "Update all default config templates to use runtime: 'bun'", "checked": false},
+    {"text": "Update ralph-config wizard to show 'bun' as recommended option", "checked": false},
+    {"text": "Update README to document Ink UI as default, bash as fallback", "checked": false},
+    {"text": "Test: Fresh install uses Ink UI by default", "checked": false},
+    {"text": "Test: ralph-config can switch back to bash", "checked": false},
+    {"text": "Test: Existing configs with runtime=bash still work", "checked": false},
+    {"text": "Commit: feat: US-107 make Ink UI the default runtime", "checked": false}
+  ],
+  "dependencies": ["BUG-024"],
+  "passes": false
+}

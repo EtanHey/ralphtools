@@ -11,10 +11,17 @@
     {"text": "On Ralph startup, check for orphan processes from previous runs", "checked": false},
     {"text": "Offer to kill orphan processes if found", "checked": false},
     {"text": "Add ralph-cleanup helper command", "checked": false},
+    {"text": "=== DEBUGGING/LOGGING ===", "checked": false},
+    {"text": "Add crash log to ~/.config/ralphtools/logs/crash-{timestamp}.log", "checked": false},
+    {"text": "Log: last iteration, story, criteria, error message", "checked": false},
+    {"text": "On startup, show recent crash info if available", "checked": false},
+    {"text": "Add ralph-logs command to view recent logs", "checked": false},
+    {"text": "=== TESTING ===", "checked": false},
     {"text": "Test: Force kill Ralph, verify orphans detected on restart", "checked": false},
     {"text": "Test: ralph-cleanup kills all Ralph-related processes", "checked": false},
+    {"text": "Test: Crash log created on failure", "checked": false},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: fix: BUG-023 handle orphan process cleanup", "checked": false}
+    {"text": "Commit: fix: BUG-023 handle orphan process cleanup and crash logging", "checked": false}
   ],
   "dependencies": [],
   "passes": false

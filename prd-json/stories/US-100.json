@@ -1,7 +1,7 @@
 {
   "id": "US-100",
   "title": "1Password vault organization and ENV centralization",
-  "description": "Organize secrets into correct vaults based on ownership. Use tags for cross-vault searching.",
+  "description": "Organize secrets into correct vaults based on ownership. Use 1Password Environments pattern (like SongScript) where 1Password is source of truth.\n\nVault structure:\n- Development: Shared dev tools (context7, tempmail)\n- Personal: Your personal keys (GitHub PAT, personal API keys)\n- Project vaults (Cantaloupe, Domica): Org/project-specific keys\n\nCLI Trust: Use biometric + session caching. Set OP_SESSION_TIMEOUT for longer sessions.",
   "acceptanceCriteria": [
     {
       "text": "=== DEVELOPMENT VAULT (global dev tools) ===",
