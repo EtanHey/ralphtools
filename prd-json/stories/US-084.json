@@ -7,15 +7,46 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Detect partial progress: story has checked criteria but passes=false", "checked": false},
-    {"text": "When partial progress detected, add catchup context to prompt:", "checked": false},
-    {"text": "  - Run: git diff HEAD~1 --name-only (files changed last iteration)", "checked": false},
-    {"text": "  - Run: git log -1 --oneline (what was committed)", "checked": false},
-    {"text": "  - Include: 'Previous iteration made progress. Review changes before continuing.'", "checked": false},
-    {"text": "Add to Claude prompt: list of checked vs unchecked criteria", "checked": false},
-    {"text": "Consider: --no-catchup flag to skip this behavior", "checked": false},
-    {"text": "Test: Partially complete a story, restart Ralph, verify catchup context shown", "checked": false},
-    {"text": "Test: Fresh story (0 checked) should NOT trigger catchup", "checked": false}
+    {
+      "text": "Detect partial progress: story has checked criteria but passes=false",
+      "checked": false
+    },
+    {
+      "text": "When partial progress detected, add catchup context to prompt:",
+      "checked": false
+    },
+    {
+      "text": "  - Run: git diff HEAD~1 --name-only (files changed last iteration)",
+      "checked": false
+    },
+    {
+      "text": "  - Run: git log -1 --oneline (what was committed)",
+      "checked": false
+    },
+    {
+      "text": "  - Include: 'Previous iteration made progress. Review changes before continuing.'",
+      "checked": false
+    },
+    {
+      "text": "Add to Claude prompt: list of checked vs unchecked criteria",
+      "checked": false
+    },
+    {
+      "text": "Consider: --no-catchup flag to skip this behavior",
+      "checked": false
+    },
+    {
+      "text": "Test: Partially complete a story, restart Ralph, verify catchup context shown",
+      "checked": false
+    },
+    {
+      "text": "Test: Fresh story (0 checked) should NOT trigger catchup",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
   "dependencies": [],
   "passes": false

@@ -7,16 +7,49 @@
   "storyPoints": 5,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Create bun/ directory structure", "checked": false},
-    {"text": "Create core/config.ts - reads config.json", "checked": false},
-    {"text": "Create core/models.ts - model routing logic", "checked": false},
-    {"text": "Create core/costs.ts - cost tracking to costs.jsonl", "checked": false},
-    {"text": "Create core/stories.ts - read/write prd-json/", "checked": false},
-    {"text": "Create core/claude.ts - spawn Claude CLI with prompt", "checked": false},
-    {"text": "Export all modules from core/index.ts", "checked": false},
-    {"text": "Add unit tests for each core module", "checked": false},
-    {"text": "Test: Core modules work standalone with Bun", "checked": false}
+    {
+      "text": "Create bun/ directory structure",
+      "checked": false
+    },
+    {
+      "text": "Create core/config.ts - reads config.json",
+      "checked": false
+    },
+    {
+      "text": "Create core/models.ts - model routing logic",
+      "checked": false
+    },
+    {
+      "text": "Create core/costs.ts - cost tracking to costs.jsonl",
+      "checked": false
+    },
+    {
+      "text": "Create core/stories.ts - read/write prd-json/",
+      "checked": false
+    },
+    {
+      "text": "Create core/claude.ts - spawn Claude CLI with prompt",
+      "checked": false
+    },
+    {
+      "text": "Export all modules from core/index.ts",
+      "checked": false
+    },
+    {
+      "text": "Add unit tests for each core module",
+      "checked": false
+    },
+    {
+      "text": "Test: Core modules work standalone with Bun",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-091"],
+  "dependencies": [
+    "US-091"
+  ],
   "passes": false
 }

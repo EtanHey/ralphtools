@@ -3667,9 +3667,25 @@ function ralph() {
 
       case "$active_model" in
         kiro)
+          # Default Kiro (Auto router - cheapest)
           cli_cmd_arr=(kiro-cli chat --trust-all-tools --no-interactive)
           prompt_flag=""  # Kiro takes prompt as positional argument
           iteration_session_id=""  # Kiro doesn't use session IDs
+          ;;
+        kiro-haiku)
+          cli_cmd_arr=(kiro-cli chat --trust-all-tools --no-interactive --model claude-haiku4)
+          prompt_flag=""
+          iteration_session_id=""
+          ;;
+        kiro-sonnet)
+          cli_cmd_arr=(kiro-cli chat --trust-all-tools --no-interactive --model claude-sonnet4)
+          prompt_flag=""
+          iteration_session_id=""
+          ;;
+        kiro-opus)
+          cli_cmd_arr=(kiro-cli chat --trust-all-tools --no-interactive --model claude-opus4-5)
+          prompt_flag=""
+          iteration_session_id=""
           ;;
         gemini*)
           cli_cmd_arr=(gemini -y)

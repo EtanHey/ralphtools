@@ -7,25 +7,85 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Audit all skills for ENV requirements:", "checked": false},
-    {"text": "  - coderabbit: None (uses CLI auth)", "checked": false},
-    {"text": "  - context7: CONTEXT7_API_KEY", "checked": false},
-    {"text": "  - linear: LINEAR_API_KEY", "checked": false},
-    {"text": "  - github: gh auth (no ENV needed)", "checked": false},
-    {"text": "  - 1password: op auth (no ENV needed)", "checked": false},
-    {"text": "Create 1Password items for each key:", "checked": false},
-    {"text": "  - claude-golem/context7/API_KEY", "checked": false},
-    {"text": "  - claude-golem/linear/API_KEY", "checked": false},
-    {"text": "Create skills/.env.template with op:// references:", "checked": false},
-    {"text": "  CONTEXT7_API_KEY=op://Private/claude-golem/context7/API_KEY/password", "checked": false},
-    {"text": "  LINEAR_API_KEY=op://Private/claude-golem/linear/API_KEY/password", "checked": false},
-    {"text": "Document in README: how to inject ENVs with op run", "checked": false},
-    {"text": "Update ralph-install skill to check for these keys during setup", "checked": false},
-    {"text": "Test: op inject -i skills/.env.template works", "checked": false},
-    {"text": "Test: Skills work when ENVs are injected", "checked": false},
-    {"text": "⚠️ DO NOT delete any local .env files until 1Password items are verified working", "checked": false},
-    {"text": "⚠️ Keep local .env as backup until user confirms 1Password setup is complete", "checked": false}
+    {
+      "text": "Audit all skills for ENV requirements:",
+      "checked": false
+    },
+    {
+      "text": "  - coderabbit: None (uses CLI auth)",
+      "checked": false
+    },
+    {
+      "text": "  - context7: CONTEXT7_API_KEY",
+      "checked": false
+    },
+    {
+      "text": "  - linear: LINEAR_API_KEY",
+      "checked": false
+    },
+    {
+      "text": "  - github: gh auth (no ENV needed)",
+      "checked": false
+    },
+    {
+      "text": "  - 1password: op auth (no ENV needed)",
+      "checked": false
+    },
+    {
+      "text": "Create 1Password items for each key:",
+      "checked": false
+    },
+    {
+      "text": "  - claude-golem/context7/API_KEY",
+      "checked": false
+    },
+    {
+      "text": "  - claude-golem/linear/API_KEY",
+      "checked": false
+    },
+    {
+      "text": "Create skills/.env.template with op:// references:",
+      "checked": false
+    },
+    {
+      "text": "  CONTEXT7_API_KEY=op://Private/claude-golem/context7/API_KEY/password",
+      "checked": false
+    },
+    {
+      "text": "  LINEAR_API_KEY=op://Private/claude-golem/linear/API_KEY/password",
+      "checked": false
+    },
+    {
+      "text": "Document in README: how to inject ENVs with op run",
+      "checked": false
+    },
+    {
+      "text": "Update ralph-install skill to check for these keys during setup",
+      "checked": false
+    },
+    {
+      "text": "Test: op inject -i skills/.env.template works",
+      "checked": false
+    },
+    {
+      "text": "Test: Skills work when ENVs are injected",
+      "checked": false
+    },
+    {
+      "text": "⚠️ DO NOT delete any local .env files until 1Password items are verified working",
+      "checked": false
+    },
+    {
+      "text": "⚠️ Keep local .env as backup until user confirms 1Password setup is complete",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-076"],
+  "dependencies": [
+    "US-076"
+  ],
   "passes": false
 }

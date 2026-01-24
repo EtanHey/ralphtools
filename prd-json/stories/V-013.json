@@ -7,13 +7,37 @@
   "storyPoints": 1,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Intentionally break a skill file (bad JSON)", "checked": false},
-    {"text": "Attempt git commit - should fail with error message", "checked": false},
-    {"text": "Fix the skill file", "checked": false},
-    {"text": "Attempt git commit - should succeed", "checked": false},
-    {"text": "Verify tests ran (check output shows test results)", "checked": false},
-    {"text": "Verify --no-verify bypasses hook (for documentation)", "checked": false}
+    {
+      "text": "Intentionally break a skill file (bad JSON)",
+      "checked": false
+    },
+    {
+      "text": "Attempt git commit - should fail with error message",
+      "checked": false
+    },
+    {
+      "text": "Fix the skill file",
+      "checked": false
+    },
+    {
+      "text": "Attempt git commit - should succeed",
+      "checked": false
+    },
+    {
+      "text": "Verify tests ran (check output shows test results)",
+      "checked": false
+    },
+    {
+      "text": "Verify --no-verify bypasses hook (for documentation)",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-071"],
+  "dependencies": [
+    "US-071"
+  ],
   "passes": false
 }

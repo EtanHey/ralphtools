@@ -7,20 +7,66 @@
   "storyPoints": 3,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Copy .env and .env.local files to worktree (if they exist)", "checked": false},
-    {"text": "OR: Use 1Password injection via op run --env-file=.env.template", "checked": false},
-    {"text": "Add --install flag: run npm/bun install in worktree", "checked": false},
-    {"text": "Auto-detect package manager (npm, bun, pnpm, yarn)", "checked": false},
-    {"text": "Add --dev flag: start dev server in background after setup", "checked": false},
-    {"text": "Check for .worktree-sync.json config file for custom sync rules", "checked": false},
-    {"text": "  - sync.files: additional files to copy", "checked": false},
-    {"text": "  - sync.symlinks: files to symlink instead of copy", "checked": false},
-    {"text": "  - sync.commands: post-setup commands to run", "checked": false},
-    {"text": "Symlink node_modules if --symlink-deps flag (faster than install)", "checked": false},
-    {"text": "Show setup progress with clear status messages", "checked": false},
-    {"text": "Document all new flags in ralph --help and README", "checked": false},
-    {"text": "Test: ralph-start --install on a Node project", "checked": false},
-    {"text": "Test: ralph-start with .worktree-sync.json config", "checked": false}
+    {
+      "text": "Copy .env and .env.local files to worktree (if they exist)",
+      "checked": false
+    },
+    {
+      "text": "OR: Use 1Password injection via op run --env-file=.env.template",
+      "checked": false
+    },
+    {
+      "text": "Add --install flag: run npm/bun install in worktree",
+      "checked": false
+    },
+    {
+      "text": "Auto-detect package manager (npm, bun, pnpm, yarn)",
+      "checked": false
+    },
+    {
+      "text": "Add --dev flag: start dev server in background after setup",
+      "checked": false
+    },
+    {
+      "text": "Check for .worktree-sync.json config file for custom sync rules",
+      "checked": false
+    },
+    {
+      "text": "  - sync.files: additional files to copy",
+      "checked": false
+    },
+    {
+      "text": "  - sync.symlinks: files to symlink instead of copy",
+      "checked": false
+    },
+    {
+      "text": "  - sync.commands: post-setup commands to run",
+      "checked": false
+    },
+    {
+      "text": "Symlink node_modules if --symlink-deps flag (faster than install)",
+      "checked": false
+    },
+    {
+      "text": "Show setup progress with clear status messages",
+      "checked": false
+    },
+    {
+      "text": "Document all new flags in ralph --help and README",
+      "checked": false
+    },
+    {
+      "text": "Test: ralph-start --install on a Node project",
+      "checked": false
+    },
+    {
+      "text": "Test: ralph-start with .worktree-sync.json config",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
   "dependencies": [],
   "passes": false

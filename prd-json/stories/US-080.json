@@ -7,23 +7,77 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Create directory: skills/golem-powers/test-plan/", "checked": false},
-    {"text": "Create SKILL.md with frontmatter: name: test-plan, execute: scripts/generate.sh", "checked": false},
-    {"text": "Create scripts/generate.sh:", "checked": false},
-    {"text": "  - Takes arguments: --base (default: main)", "checked": false},
-    {"text": "  - Runs git diff --name-only against base", "checked": false},
-    {"text": "  - Categorizes changes by type (UI, API, DB, Config, etc.)", "checked": false},
-    {"text": "  - Outputs Markdown checklist for manual testing", "checked": false},
-    {"text": "  - chmod +x", "checked": false},
-    {"text": "Checklist format:", "checked": false},
-    {"text": "  - [ ] Test: <description based on file changed>", "checked": false},
-    {"text": "  - Group by feature/component", "checked": false},
-    {"text": "  - Include regression tests for related areas", "checked": false},
-    {"text": "Reference Union's .claude/skills/generate-test-plan/SKILL.md", "checked": false},
-    {"text": "Symlink via parent golem-powers symlink", "checked": false},
-    {"text": "Run shellcheck - must pass", "checked": false},
-    {"text": "Test: Make changes, run skill, verify sensible test plan generated", "checked": false}
+    {
+      "text": "Create directory: skills/golem-powers/test-plan/",
+      "checked": false
+    },
+    {
+      "text": "Create SKILL.md with frontmatter: name: test-plan, execute: scripts/generate.sh",
+      "checked": false
+    },
+    {
+      "text": "Create scripts/generate.sh:",
+      "checked": false
+    },
+    {
+      "text": "  - Takes arguments: --base (default: main)",
+      "checked": false
+    },
+    {
+      "text": "  - Runs git diff --name-only against base",
+      "checked": false
+    },
+    {
+      "text": "  - Categorizes changes by type (UI, API, DB, Config, etc.)",
+      "checked": false
+    },
+    {
+      "text": "  - Outputs Markdown checklist for manual testing",
+      "checked": false
+    },
+    {
+      "text": "  - chmod +x",
+      "checked": false
+    },
+    {
+      "text": "Checklist format:",
+      "checked": false
+    },
+    {
+      "text": "  - [ ] Test: <description based on file changed>",
+      "checked": false
+    },
+    {
+      "text": "  - Group by feature/component",
+      "checked": false
+    },
+    {
+      "text": "  - Include regression tests for related areas",
+      "checked": false
+    },
+    {
+      "text": "Reference Union's .claude/skills/generate-test-plan/SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Symlink via parent golem-powers symlink",
+      "checked": false
+    },
+    {
+      "text": "Run shellcheck - must pass",
+      "checked": false
+    },
+    {
+      "text": "Test: Make changes, run skill, verify sensible test plan generated",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-075"],
+  "dependencies": [
+    "US-075"
+  ],
   "passes": false
 }

@@ -7,23 +7,77 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Create directory: skills/golem-powers/create-pr/", "checked": false},
-    {"text": "Create SKILL.md with frontmatter: name: create-pr, execute: scripts/create-pr.sh", "checked": false},
-    {"text": "Create scripts/create-pr.sh:", "checked": false},
-    {"text": "  - Takes arguments: --title, --body, --base (default: main)", "checked": false},
-    {"text": "  - Pushes current branch to origin with -u flag", "checked": false},
-    {"text": "  - Creates PR using gh pr create", "checked": false},
-    {"text": "  - Outputs Markdown with PR URL and details", "checked": false},
-    {"text": "  - chmod +x", "checked": false},
-    {"text": "Handle edge cases:", "checked": false},
-    {"text": "  - Already on main/dev branch: warn and exit", "checked": false},
-    {"text": "  - Uncommitted changes: warn and exit", "checked": false},
-    {"text": "  - PR already exists: show existing PR URL", "checked": false},
-    {"text": "Reference Union's .claude/skills/create-pr/SKILL.md for patterns", "checked": false},
-    {"text": "Symlink via parent golem-powers symlink", "checked": false},
-    {"text": "Run shellcheck - must pass", "checked": false},
-    {"text": "Test: Create a test branch, run skill, verify PR created", "checked": false}
+    {
+      "text": "Create directory: skills/golem-powers/create-pr/",
+      "checked": false
+    },
+    {
+      "text": "Create SKILL.md with frontmatter: name: create-pr, execute: scripts/create-pr.sh",
+      "checked": false
+    },
+    {
+      "text": "Create scripts/create-pr.sh:",
+      "checked": false
+    },
+    {
+      "text": "  - Takes arguments: --title, --body, --base (default: main)",
+      "checked": false
+    },
+    {
+      "text": "  - Pushes current branch to origin with -u flag",
+      "checked": false
+    },
+    {
+      "text": "  - Creates PR using gh pr create",
+      "checked": false
+    },
+    {
+      "text": "  - Outputs Markdown with PR URL and details",
+      "checked": false
+    },
+    {
+      "text": "  - chmod +x",
+      "checked": false
+    },
+    {
+      "text": "Handle edge cases:",
+      "checked": false
+    },
+    {
+      "text": "  - Already on main/dev branch: warn and exit",
+      "checked": false
+    },
+    {
+      "text": "  - Uncommitted changes: warn and exit",
+      "checked": false
+    },
+    {
+      "text": "  - PR already exists: show existing PR URL",
+      "checked": false
+    },
+    {
+      "text": "Reference Union's .claude/skills/create-pr/SKILL.md for patterns",
+      "checked": false
+    },
+    {
+      "text": "Symlink via parent golem-powers symlink",
+      "checked": false
+    },
+    {
+      "text": "Run shellcheck - must pass",
+      "checked": false
+    },
+    {
+      "text": "Test: Create a test branch, run skill, verify PR created",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-075"],
+  "dependencies": [
+    "US-075"
+  ],
   "passes": false
 }

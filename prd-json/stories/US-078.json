@@ -8,45 +8,165 @@
   "status": "pending",
   "model": "opus",
   "acceptanceCriteria": [
-    {"text": "Create skills/golem-powers/ directory if not exists", "checked": false},
-    {"text": "IMPORTANT: Do NOT move coderabbit - it's handled by US-077", "checked": false},
-    {"text": "Move skills/1password/ to skills/golem-powers/1password/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md: name, description", "checked": false},
-    {"text": "  - Keep existing workflows/", "checked": false},
-    {"text": "Move skills/archive/ to skills/golem-powers/archive/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Move skills/brave/ to skills/golem-powers/brave/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Move skills/convex/ to skills/golem-powers/convex/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Move skills/critique-waves/ to skills/golem-powers/critique-waves/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Convert skills/github.md to skills/golem-powers/github/SKILL.md", "checked": false},
-    {"text": "  - Single file becomes directory with SKILL.md", "checked": false},
-    {"text": "  - Add YAML frontmatter", "checked": false},
-    {"text": "Move skills/linear/ to skills/golem-powers/linear/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Convert skills/prd.md to skills/golem-powers/prd/SKILL.md", "checked": false},
-    {"text": "  - Single file becomes directory with SKILL.md", "checked": false},
-    {"text": "  - Add YAML frontmatter", "checked": false},
-    {"text": "Move skills/ralph-install/ to skills/golem-powers/ralph-install/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Convert skills/skills.md to skills/golem-powers/skills/SKILL.md", "checked": false},
-    {"text": "  - Single file becomes directory with SKILL.md", "checked": false},
-    {"text": "  - Add YAML frontmatter", "checked": false},
-    {"text": "Move skills/update/ to skills/golem-powers/update/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Move skills/worktrees/ to skills/golem-powers/worktrees/", "checked": false},
-    {"text": "  - Add YAML frontmatter to SKILL.md", "checked": false},
-    {"text": "Remove old symlinks from ~/.claude/commands/ for each skill", "checked": false},
-    {"text": "Create single symlink: ~/.claude/commands/golem-powers -> skills/golem-powers/", "checked": false},
-    {"text": "Verify all skills accessible via /golem-powers:skillname", "checked": false},
-    {"text": "Delete empty skills/ directory contents (only golem-powers/ should remain)", "checked": false},
-    {"text": "Update any references in ralph.zsh that point to old skill paths", "checked": false},
-    {"text": "Test: /golem-powers:1password loads correctly", "checked": false},
-    {"text": "Test: /golem-powers:github loads correctly", "checked": false},
-    {"text": "Test: /golem-powers:prd loads correctly", "checked": false}
+    {
+      "text": "Create skills/golem-powers/ directory if not exists",
+      "checked": false
+    },
+    {
+      "text": "IMPORTANT: Do NOT move coderabbit - it's handled by US-077",
+      "checked": false
+    },
+    {
+      "text": "Move skills/1password/ to skills/golem-powers/1password/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md: name, description",
+      "checked": false
+    },
+    {
+      "text": "  - Keep existing workflows/",
+      "checked": false
+    },
+    {
+      "text": "Move skills/archive/ to skills/golem-powers/archive/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Move skills/brave/ to skills/golem-powers/brave/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Move skills/convex/ to skills/golem-powers/convex/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Move skills/critique-waves/ to skills/golem-powers/critique-waves/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Convert skills/github.md to skills/golem-powers/github/SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - Single file becomes directory with SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter",
+      "checked": false
+    },
+    {
+      "text": "Move skills/linear/ to skills/golem-powers/linear/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Convert skills/prd.md to skills/golem-powers/prd/SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - Single file becomes directory with SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter",
+      "checked": false
+    },
+    {
+      "text": "Move skills/ralph-install/ to skills/golem-powers/ralph-install/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Convert skills/skills.md to skills/golem-powers/skills/SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - Single file becomes directory with SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter",
+      "checked": false
+    },
+    {
+      "text": "Move skills/update/ to skills/golem-powers/update/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Move skills/worktrees/ to skills/golem-powers/worktrees/",
+      "checked": false
+    },
+    {
+      "text": "  - Add YAML frontmatter to SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "Remove old symlinks from ~/.claude/commands/ for each skill",
+      "checked": false
+    },
+    {
+      "text": "Create single symlink: ~/.claude/commands/golem-powers -> skills/golem-powers/",
+      "checked": false
+    },
+    {
+      "text": "Verify all skills accessible via /golem-powers:skillname",
+      "checked": false
+    },
+    {
+      "text": "Delete empty skills/ directory contents (only golem-powers/ should remain)",
+      "checked": false
+    },
+    {
+      "text": "Update any references in ralph.zsh that point to old skill paths",
+      "checked": false
+    },
+    {
+      "text": "Test: /golem-powers:1password loads correctly",
+      "checked": false
+    },
+    {
+      "text": "Test: /golem-powers:github loads correctly",
+      "checked": false
+    },
+    {
+      "text": "Test: /golem-powers:prd loads correctly",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-075"],
+  "dependencies": [
+    "US-075"
+  ],
   "passes": false
 }

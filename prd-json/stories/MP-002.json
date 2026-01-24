@@ -3,20 +3,66 @@
   "title": "Ralph loads modular contexts via --append-system-prompt-file",
   "description": "Implement the actual context loading in Ralph using Claude Code's --append-system-prompt-file flag. Ralph should concatenate relevant context files from ~/.claude/contexts/ at runtime and pass them to Claude. This completes what MP-001 started (which only created the files).",
   "acceptanceCriteria": [
-    {"text": "Research: Confirm --append-system-prompt-file works with Claude CLI", "checked": false},
-    {"text": "Create _ralph_build_context_file() function that concatenates context files", "checked": false},
-    {"text": "Load ~/.claude/contexts/base.md always (core Ralph rules)", "checked": false},
-    {"text": "Load story-type specific contexts: tech/*.md based on project detection", "checked": false},
-    {"text": "Load workflow/ralph.md for Ralph-specific instructions", "checked": false},
-    {"text": "Generate merged context to /tmp/ralph-context-$$.md", "checked": false},
-    {"text": "Add --append-system-prompt-file to cli_cmd_arr (line ~3685)", "checked": false},
-    {"text": "REMOVE ${brave_skill} injection from ralph.zsh (line ~3718)", "checked": false},
-    {"text": "REMOVE ${ralph_agent_instructions} injection (line ~3719)", "checked": false},
-    {"text": "Move RALPH GIT RULES override to ~/.claude/contexts/workflow/ralph.md", "checked": false},
-    {"text": "Test: Ralph spawns with context loaded correctly", "checked": false},
-    {"text": "Test: Context file is cleaned up after iteration", "checked": false},
-    {"text": "Update config.json schema to allow context customization", "checked": false},
-    {"text": "Document context loading in README", "checked": false}
+    {
+      "text": "Research: Confirm --append-system-prompt-file works with Claude CLI",
+      "checked": false
+    },
+    {
+      "text": "Create _ralph_build_context_file() function that concatenates context files",
+      "checked": false
+    },
+    {
+      "text": "Load ~/.claude/contexts/base.md always (core Ralph rules)",
+      "checked": false
+    },
+    {
+      "text": "Load story-type specific contexts: tech/*.md based on project detection",
+      "checked": false
+    },
+    {
+      "text": "Load workflow/ralph.md for Ralph-specific instructions",
+      "checked": false
+    },
+    {
+      "text": "Generate merged context to /tmp/ralph-context-$$.md",
+      "checked": false
+    },
+    {
+      "text": "Add --append-system-prompt-file to cli_cmd_arr (line ~3685)",
+      "checked": false
+    },
+    {
+      "text": "REMOVE ${brave_skill} injection from ralph.zsh (line ~3718)",
+      "checked": false
+    },
+    {
+      "text": "REMOVE ${ralph_agent_instructions} injection (line ~3719)",
+      "checked": false
+    },
+    {
+      "text": "Move RALPH GIT RULES override to ~/.claude/contexts/workflow/ralph.md",
+      "checked": false
+    },
+    {
+      "text": "Test: Ralph spawns with context loaded correctly",
+      "checked": false
+    },
+    {
+      "text": "Test: Context file is cleaned up after iteration",
+      "checked": false
+    },
+    {
+      "text": "Update config.json schema to allow context customization",
+      "checked": false
+    },
+    {
+      "text": "Document context loading in README",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
   "storyType": "MP",
   "priority": "high",

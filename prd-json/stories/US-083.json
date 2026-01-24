@@ -7,18 +7,57 @@
   "storyPoints": 1,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Create skills/golem-powers/catchup/SKILL.md", "checked": false},
-    {"text": "  - No execute: frontmatter (instruction-only skill)", "checked": false},
-    {"text": "  - Instructs Claude to: git diff --name-only main...HEAD", "checked": false},
-    {"text": "  - Then: Read ALL changed files to recover full branch context", "checked": false},
-    {"text": "Create skills/golem-powers/catchup-recent/SKILL.md", "checked": false},
-    {"text": "  - No execute: frontmatter (instruction-only skill)", "checked": false},
-    {"text": "  - Instructs Claude to: git status --short", "checked": false},
-    {"text": "  - Then: Read only modified/unstaged files (quick catch-up)", "checked": false},
-    {"text": "Symlink via parent golem-powers symlink", "checked": false},
-    {"text": "Test: /golem-powers:catchup reads branch changes", "checked": false},
-    {"text": "Test: /golem-powers:catchup-recent reads only unstaged files", "checked": false}
+    {
+      "text": "Create skills/golem-powers/catchup/SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - No execute: frontmatter (instruction-only skill)",
+      "checked": false
+    },
+    {
+      "text": "  - Instructs Claude to: git diff --name-only main...HEAD",
+      "checked": false
+    },
+    {
+      "text": "  - Then: Read ALL changed files to recover full branch context",
+      "checked": false
+    },
+    {
+      "text": "Create skills/golem-powers/catchup-recent/SKILL.md",
+      "checked": false
+    },
+    {
+      "text": "  - No execute: frontmatter (instruction-only skill)",
+      "checked": false
+    },
+    {
+      "text": "  - Instructs Claude to: git status --short",
+      "checked": false
+    },
+    {
+      "text": "  - Then: Read only modified/unstaged files (quick catch-up)",
+      "checked": false
+    },
+    {
+      "text": "Symlink via parent golem-powers symlink",
+      "checked": false
+    },
+    {
+      "text": "Test: /golem-powers:catchup reads branch changes",
+      "checked": false
+    },
+    {
+      "text": "Test: /golem-powers:catchup-recent reads only unstaged files",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-075"],
+  "dependencies": [
+    "US-075"
+  ],
   "passes": false
 }

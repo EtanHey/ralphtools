@@ -7,28 +7,98 @@
   "storyPoints": 3,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Update skills/ralph-install/workflows/check-deps.md:", "checked": false},
-    {"text": "  - Add check for Bun: command -v bun", "checked": false},
-    {"text": "  - Add check for CodeRabbit CLI: command -v cr", "checked": false},
-    {"text": "Update skills/ralph-install/workflows/install-deps.md:", "checked": false},
-    {"text": "  - Add Bun installation: brew install oven-sh/bun/bun", "checked": false},
-    {"text": "  - Add CodeRabbit CLI installation: curl script", "checked": false},
-    {"text": "Update skills/ralph-install/workflows/setup-tokens.md:", "checked": false},
-    {"text": "  - Guide user to create CONTEXT7_API_KEY in 1Password", "checked": false},
-    {"text": "  - Guide user to create LINEAR_API_KEY in 1Password", "checked": false},
-    {"text": "  - Provide op:// path format for each", "checked": false},
-    {"text": "Update skills/ralph-install/workflows/setup-symlinks.md:", "checked": false},
-    {"text": "  - Create ~/.claude/commands/golem-powers symlink", "checked": false},
-    {"text": "  - Remove old individual skill symlinks", "checked": false},
-    {"text": "Update skills/ralph-install/workflows/validate.md:", "checked": false},
-    {"text": "  - Test: bun --version", "checked": false},
-    {"text": "  - Test: cr --version", "checked": false},
-    {"text": "  - Test: op read context7 key (if configured)", "checked": false},
-    {"text": "  - Test: golem-powers symlink exists and is valid", "checked": false},
-    {"text": "Update SKILL.md to reflect new workflow steps", "checked": false},
-    {"text": "Test: Run /ralph-install on fresh machine simulation", "checked": false},
-    {"text": "Test: All validations pass after setup", "checked": false}
+    {
+      "text": "Update skills/ralph-install/workflows/check-deps.md:",
+      "checked": false
+    },
+    {
+      "text": "  - Add check for Bun: command -v bun",
+      "checked": false
+    },
+    {
+      "text": "  - Add check for CodeRabbit CLI: command -v cr",
+      "checked": false
+    },
+    {
+      "text": "Update skills/ralph-install/workflows/install-deps.md:",
+      "checked": false
+    },
+    {
+      "text": "  - Add Bun installation: brew install oven-sh/bun/bun",
+      "checked": false
+    },
+    {
+      "text": "  - Add CodeRabbit CLI installation: curl script",
+      "checked": false
+    },
+    {
+      "text": "Update skills/ralph-install/workflows/setup-tokens.md:",
+      "checked": false
+    },
+    {
+      "text": "  - Guide user to create CONTEXT7_API_KEY in 1Password",
+      "checked": false
+    },
+    {
+      "text": "  - Guide user to create LINEAR_API_KEY in 1Password",
+      "checked": false
+    },
+    {
+      "text": "  - Provide op:// path format for each",
+      "checked": false
+    },
+    {
+      "text": "Update skills/ralph-install/workflows/setup-symlinks.md:",
+      "checked": false
+    },
+    {
+      "text": "  - Create ~/.claude/commands/golem-powers symlink",
+      "checked": false
+    },
+    {
+      "text": "  - Remove old individual skill symlinks",
+      "checked": false
+    },
+    {
+      "text": "Update skills/ralph-install/workflows/validate.md:",
+      "checked": false
+    },
+    {
+      "text": "  - Test: bun --version",
+      "checked": false
+    },
+    {
+      "text": "  - Test: cr --version",
+      "checked": false
+    },
+    {
+      "text": "  - Test: op read context7 key (if configured)",
+      "checked": false
+    },
+    {
+      "text": "  - Test: golem-powers symlink exists and is valid",
+      "checked": false
+    },
+    {
+      "text": "Update SKILL.md to reflect new workflow steps",
+      "checked": false
+    },
+    {
+      "text": "Test: Run /ralph-install on fresh machine simulation",
+      "checked": false
+    },
+    {
+      "text": "Test: All validations pass after setup",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-078", "US-081"],
+  "dependencies": [
+    "US-078",
+    "US-081"
+  ],
   "passes": false
 }

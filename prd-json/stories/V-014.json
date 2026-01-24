@@ -7,14 +7,42 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "In SongScript, create admin:deleteUserAndAllData mutation following the pattern", "checked": false},
-    {"text": "Mutation deletes from: users, wordProgress, userSongProgress, lineProgress", "checked": false},
-    {"text": "Mutation deletes from: userWishlist, userPracticeLog, userGoals, userPreferences", "checked": false},
-    {"text": "Mutation handles Better Auth tables (user, session, account)", "checked": false},
-    {"text": "Test: Create test user, add progress data, delete user, verify all data gone", "checked": false},
-    {"text": "Test: npx convex run admin:deleteUserAndAllData works from CLI", "checked": false},
-    {"text": "Return deletion counts for each table", "checked": false}
+    {
+      "text": "In SongScript, create admin:deleteUserAndAllData mutation following the pattern",
+      "checked": false
+    },
+    {
+      "text": "Mutation deletes from: users, wordProgress, userSongProgress, lineProgress",
+      "checked": false
+    },
+    {
+      "text": "Mutation deletes from: userWishlist, userPracticeLog, userGoals, userPreferences",
+      "checked": false
+    },
+    {
+      "text": "Mutation handles Better Auth tables (user, session, account)",
+      "checked": false
+    },
+    {
+      "text": "Test: Create test user, add progress data, delete user, verify all data gone",
+      "checked": false
+    },
+    {
+      "text": "Test: npx convex run admin:deleteUserAndAllData works from CLI",
+      "checked": false
+    },
+    {
+      "text": "Return deletion counts for each table",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
-  "dependencies": ["US-070", "US-072"],
+  "dependencies": [
+    "US-070",
+    "US-072"
+  ],
   "passes": false
 }

@@ -7,12 +7,34 @@
   "storyPoints": 2,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Create prompts/ directory in ralphtools", "checked": false},
-    {"text": "Create prompts/ralph-prompt.md with full Ralph instructions", "checked": false},
-    {"text": "Include AGENTS.md auto-update section in prompt", "checked": false},
-    {"text": "Include CodeRabbit integration: run cr review, create BUG-xxx if issues", "checked": false},
-    {"text": "Update ralph-simple.zsh to read prompt from file", "checked": false},
-    {"text": "Test: Ralph uses shared prompt correctly", "checked": false}
+    {
+      "text": "Create prompts/ directory in ralphtools",
+      "checked": false
+    },
+    {
+      "text": "Create prompts/ralph-prompt.md with full Ralph instructions",
+      "checked": false
+    },
+    {
+      "text": "Include AGENTS.md auto-update section in prompt",
+      "checked": false
+    },
+    {
+      "text": "Include CodeRabbit integration: run cr review, create BUG-xxx if issues",
+      "checked": false
+    },
+    {
+      "text": "Update ralph-simple.zsh to read prompt from file",
+      "checked": false
+    },
+    {
+      "text": "Test: Ralph uses shared prompt correctly",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
   "dependencies": [],
   "passes": false

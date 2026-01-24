@@ -3,15 +3,46 @@
   "title": "Verify: Modular context injection works end-to-end",
   "description": "Verify that the modular context system works correctly when Ralph spawns Claude instances. Test that contexts are loaded, merged correctly, and cleaned up.",
   "acceptanceCriteria": [
-    {"text": "Run Ralph with verbose mode to see context file path", "checked": false},
-    {"text": "Verify base.md content appears in Claude's context", "checked": false},
-    {"text": "Verify project-specific tech context is detected and loaded", "checked": false},
-    {"text": "Verify workflow/ralph.md content appears in context", "checked": false},
-    {"text": "Verify old injection (brave_skill, ralph_agent_instructions) is removed", "checked": false},
-    {"text": "Verify RALPH GIT RULES appears in loaded context (from workflow/ralph.md)", "checked": false},
-    {"text": "Verify /tmp/ralph-context-*.md is created during iteration", "checked": false},
-    {"text": "Verify temp context file is cleaned up after iteration", "checked": false},
-    {"text": "Test with different story types (US, BUG, V) to ensure contexts load", "checked": false}
+    {
+      "text": "Run Ralph with verbose mode to see context file path",
+      "checked": false
+    },
+    {
+      "text": "Verify base.md content appears in Claude's context",
+      "checked": false
+    },
+    {
+      "text": "Verify project-specific tech context is detected and loaded",
+      "checked": false
+    },
+    {
+      "text": "Verify workflow/ralph.md content appears in context",
+      "checked": false
+    },
+    {
+      "text": "Verify old injection (brave_skill, ralph_agent_instructions) is removed",
+      "checked": false
+    },
+    {
+      "text": "Verify RALPH GIT RULES appears in loaded context (from workflow/ralph.md)",
+      "checked": false
+    },
+    {
+      "text": "Verify /tmp/ralph-context-*.md is created during iteration",
+      "checked": false
+    },
+    {
+      "text": "Verify temp context file is cleaned up after iteration",
+      "checked": false
+    },
+    {
+      "text": "Test with different story types (US, BUG, V) to ensure contexts load",
+      "checked": false
+    },
+    {
+      "text": "Commit changes with message: feat/fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
   "storyType": "V",
   "priority": "high",
