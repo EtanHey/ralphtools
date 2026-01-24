@@ -789,3 +789,24 @@ Changes:
 - useApp().exit() triggers the exit, but process.exit(0) may be needed for clean shutdown
 - Raw mode support depends on terminal context - non-interactive shells don't support it
 - PRD index.json may not have a stats object - compute from pending/blocked arrays as fallback
+
+## Iteration 38
+Story: US-107 - Make Ink UI the default runtime
+Status: COMPLETED (opus)
+Changes:
+- Changed default runtime from 'bash' to 'bun' in bun/core/config.ts (DEFAULT_CONFIG)
+- Updated all default config templates in ralph.zsh to use runtime: 'bun'
+- Updated jq fallback to default to 'bun' instead of 'bash'
+- Updated ralph-config wizard: bun shown as recommended option, bash as fallback
+- Added --ui-bash flag to force traditional zsh-based UI
+- Updated README with Terminal UI section documenting Ink UI as default
+- Updated header comment and ralph-help with new flags
+- Added 3 US-107 tests verifying fresh install defaults and bash config support
+- Updated existing test (test_config_runtime_defaults_to_bash → test_config_runtime_defaults_to_bun)
+- All 83 ZSH + 16 skills + 83 Bun tests pass (182 total)
+
+### Learnings
+- When changing defaults, multiple locations need updating: TypeScript constants, shell templates, jq fallbacks
+- UI wizard defaults should match code defaults for consistency
+- Tests that verify defaults need updating when defaults change
+- Adding fallback flags (--ui-bash) provides escape hatch for users who prefer the old behavior

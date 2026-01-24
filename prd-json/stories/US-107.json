@@ -14,8 +14,8 @@
     {"text": "Test: Fresh install uses Ink UI by default", "checked": true},
     {"text": "Test: ralph-config can switch back to bash", "checked": true},
     {"text": "Test: Existing configs with runtime=bash still work", "checked": true},
-    {"text": "Commit: feat: US-107 make Ink UI the default runtime", "checked": false}
+    {"text": "Commit: feat: US-107 make Ink UI the default runtime", "checked": true}
   ],
   "dependencies": ["BUG-024"],
-  "passes": false
+  "passes": true
 }
