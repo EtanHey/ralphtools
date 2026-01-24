@@ -88,5 +88,5 @@
   "priority": "critical",
   "createdAt": "2026-01-24T05:15:00.000Z",
   "passes": false,
-  "blockedBy": "1Password requires biometric authentication - cannot create secrets autonomously"
+  "blockedBy": ""
 }

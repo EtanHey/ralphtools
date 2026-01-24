@@ -6,16 +6,42 @@
   "priority": "high",
   "storyPoints": 2,
   "status": "blocked",
-  "blockedBy": "V-011 - Cannot verify until directory rename and symlink update complete",
+  "blockedBy": "",
   "acceptanceCriteria": [
-    {"text": "Run grep -r 'ralphtools' in home directory - should find minimal/no results", "checked": false},
-    {"text": "Test /github skill invocation works", "checked": false},
-    {"text": "Test /linear skill invocation works", "checked": false},
-    {"text": "Test /convex skill invocation works", "checked": false},
-    {"text": "Verify prd-json/ stories are accessible from new location", "checked": false},
-    {"text": "Run ralph on a test story to confirm full loop works", "checked": false},
-    {"text": "Document any remaining 'ralphtools' references that are acceptable (e.g., git history)", "checked": false},
-    {"text": "Create docs.local/rename-complete.md confirming migration success", "checked": false}
+    {
+      "text": "Run grep -r 'ralphtools' in home directory - should find minimal/no results",
+      "checked": false
+    },
+    {
+      "text": "Test /github skill invocation works",
+      "checked": false
+    },
+    {
+      "text": "Test /linear skill invocation works",
+      "checked": false
+    },
+    {
+      "text": "Test /convex skill invocation works",
+      "checked": false
+    },
+    {
+      "text": "Verify prd-json/ stories are accessible from new location",
+      "checked": false
+    },
+    {
+      "text": "Run ralph on a test story to confirm full loop works",
+      "checked": false
+    },
+    {
+      "text": "Document any remaining 'ralphtools' references that are acceptable (e.g., git history)",
+      "checked": false
+    },
+    {
+      "text": "Create docs.local/rename-complete.md confirming migration success",
+      "checked": false
+    }
   ],
-  "dependencies": ["V-011"]
+  "dependencies": [
+    "V-011"
+  ]
 }
