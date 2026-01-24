@@ -1,0 +1,21 @@
+{
+  "id": "BUG-027",
+  "title": "Replace all ~/.config/ralph/ references with ~/.config/ralphtools/",
+  "description": "The codebase has 50+ references to the old path ~/.config/ralph/ but the actual install path is ~/.config/ralphtools/. This causes confusion and broken commands.\n\nFiles affected: README.md, SETUP.md, AGENTS.md, ralph.zsh, docs/*.md, skills/**/*.md, tests/*.sh",
+  "type": "bug",
+  "priority": "low",
+  "storyPoints": 2,
+  "status": "pending",
+  "acceptanceCriteria": [
+    {"text": "Find all references to ~/.config/ralph/ (not ralphtools)", "checked": false},
+    {"text": "Replace with ~/.config/ralphtools/ in all docs", "checked": false},
+    {"text": "Replace in ralph.zsh and related scripts", "checked": false},
+    {"text": "Replace in skills/**/*.md files", "checked": false},
+    {"text": "Replace in test files", "checked": false},
+    {"text": "Verify no broken paths remain: grep -r 'config/ralph[^t]'", "checked": false},
+    {"text": "Run CodeRabbit review", "checked": false},
+    {"text": "Commit: fix: BUG-027 update all paths to ~/.config/ralphtools/", "checked": false}
+  ],
+  "dependencies": [],
+  "passes": false
+}
