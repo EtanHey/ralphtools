@@ -810,3 +810,23 @@ Changes:
 - UI wizard defaults should match code defaults for consistency
 - Tests that verify defaults need updating when defaults change
 - Adding fallback flags (--ui-bash) provides escape hatch for users who prefer the old behavior
+
+## Iteration 39
+Story: US-102 - Refactor context architecture: extract interactive rules from base.md
+Status: COMPLETED (opus)
+Changes:
+- Created ~/.claude/contexts/workflow/interactive.md with CLAUDE_COUNTER and git safety rules
+- Removed CLAUDE_COUNTER and Git Safety sections from base.md (now in interactive.md)
+- Updated base.md description to clarify it applies to ALL execution modes
+- Removed OVERRIDE comment from ralph.md (no longer needed since base.md has no conflicting rules)
+- Updated README.md in contexts with:
+  - New workflow/interactive entry in available contexts table
+  - Updated file tree structure showing interactive.md
+  - Updated migration example showing CLAUDE_COUNTER/Git Safety → workflow/interactive
+- All 83 ZSH + 16 skills + 83 Bun tests pass (182 total)
+
+### Learnings
+- Context architecture should separate mode-specific rules from truly universal rules
+- base.md should only contain rules that apply to ALL modes (interactive AND Ralph)
+- Ralph doesn't need CLAUDE_COUNTER (runs once per iteration) or interactive git safety (commits autonomously)
+- OVERRIDE comments become unnecessary when conflicting rules are extracted to mode-specific contexts
