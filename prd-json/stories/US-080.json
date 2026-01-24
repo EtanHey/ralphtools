@@ -9,67 +9,67 @@
   "acceptanceCriteria": [
     {
       "text": "Create directory: skills/golem-powers/test-plan/",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create SKILL.md with frontmatter: name: test-plan, execute: scripts/generate.sh",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create scripts/generate.sh:",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Takes arguments: --base (default: main)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Runs git diff --name-only against base",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Categorizes changes by type (UI, API, DB, Config, etc.)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Outputs Markdown checklist for manual testing",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - chmod +x",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Checklist format:",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - [ ] Test: <description based on file changed>",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Group by feature/component",
-      "checked": false
+      "checked": true
     },
     {
       "text": "  - Include regression tests for related areas",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Reference Union's .claude/skills/generate-test-plan/SKILL.md",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Symlink via parent golem-powers symlink",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run shellcheck - must pass",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Make changes, run skill, verify sensible test plan generated",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit changes with message: feat/fix: [STORY-ID] description",
