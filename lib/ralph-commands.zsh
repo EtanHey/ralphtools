@@ -425,3 +425,60 @@ ralph-watch() {
   # Tail the file with follow
   tail -f "$latest" 2>/dev/null
 }
+
+# ═══════════════════════════════════════════════════════════════════
+# jqf - Run jq with filter from stdin (avoids shell escaping issues)
+# ═══════════════════════════════════════════════════════════════════
+# Usage: jqf 'filter' file.json           # prints result
+#        jqf 'filter' file.json -i        # in-place edit
+#        echo 'filter' | jqf - file.json  # filter from stdin
+#
+# Examples:
+#   jqf '.pending | map(select(. != "FOO"))' index.json
+#   jqf '.passes = true' story.json -i
+#
+# Why: Shell escapes != to \!= breaking jq. This writes filter to
+#      temp file, avoiding escaping issues entirely.
+jqf() {
+  local filter="$1"
+  local file="$2"
+  local inplace=false
+  [[ "$3" == "-i" ]] && inplace=true
+
+  # Handle filter from stdin
+  if [[ "$filter" == "-" ]]; then
+    filter=$(cat)
+  fi
+
+  # Validate
+  if [[ -z "$filter" || -z "$file" ]]; then
+    echo "Usage: jqf 'filter' file.json [-i]" >&2
+    return 1
+  fi
+
+  if [[ ! -f "$file" ]]; then
+    echo "Error: File not found: $file" >&2
+    return 1
+  fi
+
+  # Write filter to temp file (avoids shell escaping)
+  local tmp_filter=$(mktemp)
+  local tmp_output=$(mktemp)
+  echo "$filter" > "$tmp_filter"
+
+  # Run jq
+  if jq -f "$tmp_filter" "$file" > "$tmp_output" 2>&1; then
+    if $inplace; then
+      mv "$tmp_output" "$file"
+    else
+      cat "$tmp_output"
+      rm -f "$tmp_output"
+    fi
+    rm -f "$tmp_filter"
+    return 0
+  else
+    cat "$tmp_output" >&2
+    rm -f "$tmp_filter" "$tmp_output"
+    return 1
+  fi
+}
