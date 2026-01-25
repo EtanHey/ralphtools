@@ -320,41 +320,61 @@ describe("Output Parsing", () => {
   });
 
   it("should detect completion signal in output", () => {
+    // AIDEV-NOTE: Patterns must be specific to avoid false positives
+    // e.g., "I'll complete this" or "iteration complete" should NOT trigger PRD completion
     const completionPatterns = [
-      /COMPLETE/i,
-      /all\s+criteria\s+(are\s+)?checked/i,
-      /story\s+(is\s+)?complete/i,
-      /passes.*true/i,
+      /\bPRD_COMPLETE\b/i,                    // PRD_COMPLETE keyword (preferred)
+      /<PRD_COMPLETE>/i,                      // <PRD_COMPLETE> tag format
+      /all\s+stories\s+(are\s+)?complete/i,   // "all stories complete"
+      /prd\s+(is\s+)?complete/i,              // "PRD is complete"
+      /"passes"\s*:\s*true/i,                 // JSON "passes": true (final story)
     ];
 
     function hasCompletionSignal(output: string): boolean {
       return completionPatterns.some(pattern => pattern.test(output));
     }
 
-    expect(hasCompletionSignal("<promise>COMPLETE</promise>")).toBe(true);
-    expect(hasCompletionSignal("All criteria are checked")).toBe(true);
-    expect(hasCompletionSignal("The story is complete")).toBe(true);
+    // Should match
+    expect(hasCompletionSignal("PRD_COMPLETE")).toBe(true);
+    expect(hasCompletionSignal("<PRD_COMPLETE>")).toBe(true);
+    expect(hasCompletionSignal("All stories are complete")).toBe(true);
+    expect(hasCompletionSignal("The PRD is complete")).toBe(true);
     expect(hasCompletionSignal('{"passes": true}')).toBe(true);
+    // Should NOT match (false positives we're avoiding)
     expect(hasCompletionSignal("Working on criterion 1")).toBe(false);
+    expect(hasCompletionSignal("I'll complete this task")).toBe(false);
+    expect(hasCompletionSignal("autocomplete")).toBe(false);
+    expect(hasCompletionSignal("The story is complete")).toBe(false);
+    expect(hasCompletionSignal("COMPLETE")).toBe(false); // too vague without PRD_
+    expect(hasCompletionSignal("iteration complete")).toBe(false);
   });
 
   it("should detect blocked signal in output", () => {
+    // AIDEV-NOTE: Patterns must be specific to avoid false positives
     const blockedPatterns = [
-      /BLOCKED/i,
-      /cannot\s+proceed/i,
-      /blocked\s+by/i,
-      /manual\s+intervention/i,
+      /^\s*BLOCKED\s*$/m,                     // BLOCKED on its own line
+      /<BLOCKED>/i,                           // <BLOCKED> tag format
+      /\bALL_BLOCKED\b/i,                     // ALL_BLOCKED keyword
+      /all\s+stories\s+(are\s+)?blocked/i,    // "all stories blocked"
+      /story\s+is\s+blocked\s+by/i,           // "story is blocked by"
+      /manual\s+intervention\s+required/i,    // "manual intervention required"
     ];
 
     function hasBlockedSignal(output: string): boolean {
       return blockedPatterns.some(pattern => pattern.test(output));
     }
 
-    expect(hasBlockedSignal("<promise>ALL_BLOCKED</promise>")).toBe(true);
-    expect(hasBlockedSignal("Cannot proceed without user input")).toBe(true);
-    expect(hasBlockedSignal("Task blocked by: API unavailable")).toBe(true);
-    expect(hasBlockedSignal("Needs manual intervention")).toBe(true);
+    // Should match
+    expect(hasBlockedSignal("<BLOCKED>")).toBe(true);
+    expect(hasBlockedSignal("BLOCKED")).toBe(true);
+    expect(hasBlockedSignal("ALL_BLOCKED")).toBe(true);
+    expect(hasBlockedSignal("All stories are blocked")).toBe(true);
+    expect(hasBlockedSignal("Story is blocked by: missing dependency")).toBe(true);
+    expect(hasBlockedSignal("Manual intervention required")).toBe(true);
+    // Should NOT match (false positives we're avoiding)
     expect(hasBlockedSignal("Working on story")).toBe(false);
+    expect(hasBlockedSignal("The blocker was removed")).toBe(false);
+    expect(hasBlockedSignal("Cannot proceed without user input")).toBe(false); // too vague
   });
 });
 

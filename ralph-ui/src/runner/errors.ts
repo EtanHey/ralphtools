@@ -67,11 +67,14 @@ export function getMaxRetries(errorType: ErrorType): number {
 }
 
 // Completion signal detection
+// AIDEV-NOTE: Patterns must be specific to avoid false positives
+// e.g., "I'll complete this" or "iteration complete" should NOT trigger PRD completion
 const COMPLETION_PATTERNS = [
-  /COMPLETE/i,
-  /all\s+criteria\s+(are\s+)?checked/i,
-  /story\s+(is\s+)?complete/i,
-  /passes.*true/i,
+  /\bPRD_COMPLETE\b/i,                    // PRD_COMPLETE keyword (preferred)
+  /<PRD_COMPLETE>/i,                      // <PRD_COMPLETE> tag format
+  /all\s+stories\s+(are\s+)?complete/i,   // "all stories complete"
+  /prd\s+(is\s+)?complete/i,              // "PRD is complete"
+  /"passes"\s*:\s*true/i,                 // JSON "passes": true (final story)
 ];
 
 export function hasCompletionSignal(output: string): boolean {
@@ -79,11 +82,14 @@ export function hasCompletionSignal(output: string): boolean {
 }
 
 // Blocked signal detection
+// AIDEV-NOTE: Patterns must be specific to avoid false positives
 const BLOCKED_PATTERNS = [
-  /BLOCKED/i,
-  /cannot\s+proceed/i,
-  /blocked\s+by/i,
-  /manual\s+intervention/i,
+  /^\s*BLOCKED\s*$/m,                     // BLOCKED on its own line
+  /<BLOCKED>/i,                           // <BLOCKED> tag format
+  /\bALL_BLOCKED\b/i,                     // ALL_BLOCKED keyword
+  /all\s+stories\s+(are\s+)?blocked/i,    // "all stories blocked"
+  /story\s+is\s+blocked\s+by/i,           // "story is blocked by"
+  /manual\s+intervention\s+required/i,    // "manual intervention required"
 ];
 
 export function hasBlockedSignal(output: string): boolean {
@@ -92,7 +98,7 @@ export function hasBlockedSignal(output: string): boolean {
 
 // Promise tag detection (output from Claude)
 export function hasCompletePromise(output: string): boolean {
-  return /<promise>COMPLETE<\/promise>/i.test(output);
+  return /<promise>PRD_COMPLETE<\/promise>/i.test(output);
 }
 
 export function hasAllBlockedPromise(output: string): boolean {
