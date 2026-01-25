@@ -1,7 +1,7 @@
 {
   "$schema": "https://ralph.dev/schemas/prd-index.schema.json",
   "generatedAt": "2026-01-25T06:10:00Z",
-  "nextStory": "MP-006",
+  "nextStory": "V-020",
   "storyOrder": [
     "V-012",
     "V-015",
@@ -25,7 +25,6 @@
     "US-065"
   ],
   "pending": [
-    "MP-006",
     "V-020",
     "BUG-030",
     "AUDIT-003",
@@ -73,7 +72,8 @@
     "BUG-025",
     "V-019",
     "AUDIT-002",
-    "TEST-004"
+    "TEST-004",
+    "MP-006"
   ],
   "newStories": []
 }
