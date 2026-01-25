@@ -774,6 +774,13 @@ function repoGolem() {
           claude_args+=(\"--append-system-prompt\" \"\$(cat \"\$ctx_file\")\")
         fi
       done
+
+      # Check if Chrome should be disabled for this project
+      local disable_chrome
+      disable_chrome=\$(jq -r --arg proj \"$lowercase_name\" '.projects[\$proj].disableChrome // false' \"\$registry\" 2>/dev/null)
+      if [[ \"\$disable_chrome\" == \"true\" ]]; then
+        claude_args+=(\"--no-chrome\")
+      fi
     fi
 
     claude \"\${claude_args[@]}\"
