@@ -574,3 +574,21 @@ Started: Sun Jan 25 05:24:03 IST 2026
   * Error: "authorization timeout" then "account is not signed in"
 - Created comprehensive audit document: docs.local/audits/AUDIT-005-secrets.md
 - AUDIT-005 BLOCKED - Waiting for user to sign into 1Password
+
+## Iteration 28 - US-065: Cleanup: Update Documentation and README
+- Model: opus
+- Updated all documentation to reflect the claude-golem rename:
+  * README.md: Updated repo name, clone URLs, config paths, documentation links
+  * CLAUDE.md: Updated project title and config path references
+  * SETUP.md: Updated all ~/.config/ralphtools to ~/.config/claude-golem
+  * docs/*.md and docs-site/docs/*.md: Updated all config paths
+  * skills/golem-powers/ralph-install/: Updated SKILL.md and all workflow files
+  * Added "Renamed from ralphtools" note to v2.0.0 changelog
+- Files updated (28 total):
+  * Core docs: README.md, CLAUDE.md, SETUP.md
+  * docs/: configuration.md, notifications.md, prd-format.md, session-isolation.md, skills.md, plans/
+  * docs-site/docs/: intro.md, configuration.md, skills.md, etc.
+  * ralph-install skill: SKILL.md, scripts/, workflows/
+- All 205 zsh tests pass, all 188 TypeScript tests pass
+- Pre-commit and pre-push hooks passed
+- US-065 COMPLETE - Documentation updated to reflect claude-golem name

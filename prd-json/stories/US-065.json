@@ -5,13 +5,16 @@
   "type": "feature",
   "priority": "medium",
   "storyPoints": 1,
-  "status": "pending",
+  "status": "completed",
   "acceptanceCriteria": [
     {"text": "Update README.md with new repo name and description", "checked": true},
     {"text": "Update CLAUDE.md project instructions", "checked": true},
     {"text": "Update any installation instructions referencing ralphtools", "checked": true},
     {"text": "Add 'Renamed from ralphtools' note in changelog", "checked": true},
-    {"text": "Commit and push all documentation updates", "checked": false}
+    {"text": "Commit and push all documentation updates", "checked": true}
   ],
-  "dependencies": ["V-012"]
+  "dependencies": ["V-012"],
+  "passes": true,
+  "completedAt": "2026-01-25T15:35:00.000Z",
+  "completedBy": "opus"
 }
