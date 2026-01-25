@@ -274,3 +274,22 @@ Started: Sun Jan 25 20:00:00 IST 2026
 - CodeRabbit: Rate limited, skipped (tests pass comprehensively)
 - Learning: The summary action completes the TDD cycle started in US-124.
   Tests written first, implementation verified by tests passing.
+
+## Iteration 16 - US-126: Make README.md AI-friendly
+- Model: opus
+- Added "For AI Assistants" section at the top of README.md with:
+  - Clear explanation that this is a self-improving toolkit for Claude Code
+  - Skills library overview (/golem-powers:*)
+  - Quick-start for setup: /golem-powers:ralph-install
+  - Context verification command: /golem-powers:context-audit
+  - Key directories table with links to skills/, contexts/, prompts/, lib/
+  - Self-improvement loop explanation: find gap → create PRD → Ralph fixes
+  - Link to contexts/README.md for full context system documentation
+- Goal: Any AI given the repo link can immediately understand:
+  - What the toolkit does
+  - How to help users set it up
+  - How to verify setup is correct
+  - Where to find skills and contexts
+- CodeRabbit: Rate limited, skipped (205 zsh tests, 274 TypeScript tests all pass)
+- Tests: All tests pass
+- Learning: An AI-friendly README section makes onboarding faster for both AIs and humans.

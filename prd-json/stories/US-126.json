@@ -11,8 +11,10 @@
     {"text": "Include link to contexts/README.md for understanding the context system", "checked": true},
     {"text": "Include link to skills/ directory for available skills", "checked": true},
     {"text": "Test: Give Claude the repo link and ask 'how do I use this?' - should give clear answer", "checked": true},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: docs: US-126 AI-friendly README", "checked": false}
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
+    {"text": "Commit: docs: US-126 AI-friendly README", "checked": true}
   ],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T20:04:00.000Z",
+  "completedBy": "opus"
 }
