@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { watch, existsSync } from 'fs';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import type { PRDStats } from '../types.js';
 import { createStatsLoader } from './usePRDStats.js';
@@ -7,80 +7,50 @@ import { createStatsLoader } from './usePRDStats.js';
 interface UseFileWatchOptions {
   prdPath: string;
   enabled?: boolean;
-  debounceMs?: number;
 }
 
-export function useFileWatch({
+interface UsePollingWatchOptions extends UseFileWatchOptions {
+  intervalMs?: number;
+}
+
+/**
+ * Poll for file changes (fs.watch is unreliable on macOS)
+ * Default interval: 1000ms
+ */
+export function usePollingWatch({
   prdPath,
   enabled = true,
-  debounceMs = 100,
-}: UseFileWatchOptions): PRDStats | null {
+  intervalMs = 1000,
+}: UsePollingWatchOptions): PRDStats | null {
   const [stats, setStats] = useState<PRDStats | null>(null);
 
   // Memoize the loader so it doesn't change on every render
   const loadStats = useMemo(() => createStatsLoader(prdPath), [prdPath]);
 
-  const reload = useCallback(() => {
+  useEffect(() => {
+    // Initial load
     const newStats = loadStats();
     if (newStats) {
       setStats(newStats);
     }
-  }, [loadStats]);
-
-  useEffect(() => {
-    // Initial load
-    reload();
 
     if (!enabled) {
       return;
     }
 
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-    const handleChange = () => {
-      // Debounce rapid changes
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+    // Poll at regular intervals
+    const interval = setInterval(() => {
+      const newStats = loadStats();
+      if (newStats) {
+        setStats(newStats);
       }
-      timeoutId = setTimeout(() => {
-        reload();
-        timeoutId = null;
-      }, debounceMs);
-    };
+    }, intervalMs);
 
-    const watchers: ReturnType<typeof watch>[] = [];
-
-    // Watch index.json
-    const indexPath = join(prdPath, 'index.json');
-    if (existsSync(indexPath)) {
-      try {
-        const watcher = watch(indexPath, handleChange);
-        watchers.push(watcher);
-      } catch {
-        // Ignore watch errors
-      }
-    }
-
-    // Watch stories directory
-    const storiesPath = join(prdPath, 'stories');
-    if (existsSync(storiesPath)) {
-      try {
-        const watcher = watch(storiesPath, { recursive: true }, handleChange);
-        watchers.push(watcher);
-      } catch {
-        // Ignore watch errors
-      }
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      for (const watcher of watchers) {
-        watcher.close();
-      }
-    };
-  }, [prdPath, enabled, debounceMs, reload]);
+    return () => clearInterval(interval);
+  }, [prdPath, enabled, intervalMs, loadStats]);
 
   return stats;
 }
+
+// Alias for backwards compatibility
+export const useFileWatch = usePollingWatch;

@@ -70,11 +70,11 @@ export function Dashboard({
     }
   }, [isLiveMode, handleExit]);
 
-  // Watch for file changes ONLY in live mode
+  // Poll for file changes ONLY in live mode (fs.watch unreliable on macOS)
   const liveStats = useFileWatch({
     prdPath,
-    enabled: isLiveMode, // Only watch in live mode
-    debounceMs: 100,
+    enabled: isLiveMode, // Only poll in live mode
+    intervalMs: 1000,
   });
 
   // Watch ralph status file for live state updates
