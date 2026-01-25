@@ -36,8 +36,34 @@ Everything important lives in files:
 - **Progress** → `progress.txt`
 - **Learnings** → `docs.local/learnings/`
 - **Context** → `CLAUDE.md` + `contexts/`
+- **Deferred actions** → `~/.claude/farther-steps.json`
 
 Claude's internal context is ephemeral. Files are permanent.
+
+#### Farther-Steps (Deferred Actions Queue)
+
+When you identify work that needs human review or later sync, add to `~/.claude/farther-steps.json`:
+
+```json
+{
+  "id": "step-XXX",
+  "type": "sync",
+  "source": "path/to/source",
+  "target": "path/to/target",
+  "reason": "Detailed explanation",
+  "story": "US-XXX",
+  "criteria": "Related criteria",
+  "status": "pending",
+  "priority": "high|medium|low"
+}
+```
+
+**Use cases:**
+- Syncing files between `~/.claude/` and repo (bidirectional)
+- Config changes that need review before applying
+- Quality improvements to track even if not used immediately
+
+**CLI:** `scripts/farther-steps.sh [pending|apply|done|skip|clean]`
 
 ### 3. Incremental Progress
 

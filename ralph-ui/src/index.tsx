@@ -67,20 +67,9 @@ const watchdogInterval = setInterval(() => {
   } catch {}
 }, 500);
 
-// AIDEV-NOTE: Keyboard exit handler - ONLY catches Ctrl+C at process level.
-// Let Ink handle 'q', 'c', arrows etc. via useInput in components.
-// This avoids conflicts with ConfigMenu navigation.
-function setupKeyboardExit() {
-  if (process.stdin.isTTY) {
-    process.stdin.on('data', (data: Buffer) => {
-      const code = data[0];
-      // ONLY Ctrl+C (0x03) - let Ink handle everything else
-      if (code === 0x03) {
-        forceExit();
-      }
-    });
-  }
-}
+// AIDEV-NOTE: Removed process-level stdin handler - it interfered with Ink's useInput.
+// Ctrl+C is already handled by process.on('SIGINT', forceExit) above.
+// All other keyboard input is handled by Ink's useInput in Dashboard and ConfigMenu.
 
 // CLI configuration interface
 interface CLIConfig {
@@ -386,11 +375,24 @@ async function runInRunnerMode(config: CLIConfig) {
       );
     };
 
-    // Use the global inkInstance so cleanup can access it
-    inkInstance = render(<RunnerDashboard />, { exitOnCtrlC: false });
+    // AIDEV-NOTE: CRITICAL - Ink keyboard input setup (DO NOT REMOVE)
+    // Without this, useInput() in Dashboard/ConfigMenu won't receive any keystrokes.
+    // Both setRawMode(true) AND resume() are required BEFORE render().
+    // See: docs.local/learnings/ralph-ui-keyboard-fix.md
+    // See: ~/.claude/learnings/ink-stdin-keyboard-handling.md
+    if (process.stdin.isTTY && process.stdin.setRawMode) {
+      process.stdin.setRawMode(true);
+      process.stdin.resume();
+    }
 
-    // Set up keyboard exit handler after Ink has initialized raw mode
-    setupKeyboardExit();
+    // AIDEV-NOTE: Pass stdin/stdout explicitly - Ink may not read stdin otherwise.
+    // exitOnCtrlC: false because we handle Ctrl+C via SIGINT (line ~55).
+    // DO NOT add process.stdin.on('data', ...) handlers - they conflict with Ink's useInput.
+    inkInstance = render(<RunnerDashboard />, {
+      exitOnCtrlC: false,
+      stdin: process.stdin,
+      stdout: process.stdout,
+    });
 
     // Also listen for Ink's exit event to set exitRequested
     inkInstance.waitUntilExit().then(() => {
@@ -493,7 +495,17 @@ async function runInRunnerMode(config: CLIConfig) {
 
 // Display-only mode: show dashboard without running iterations
 async function runInDisplayMode(config: CLIConfig) {
-  // Use the global inkInstance so cleanup can access it
+  // AIDEV-NOTE: CRITICAL - Ink keyboard input setup (DO NOT REMOVE)
+  // Without this, useInput() in Dashboard/ConfigMenu won't receive any keystrokes.
+  // Both setRawMode(true) AND resume() are required BEFORE render().
+  // See: docs.local/learnings/ralph-ui-keyboard-fix.md
+  if (process.stdin.isTTY && process.stdin.setRawMode) {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+  }
+
+  // AIDEV-NOTE: Pass stdin/stdout explicitly - Ink may not read stdin otherwise.
+  // exitOnCtrlC: false because we handle Ctrl+C via SIGINT (line ~55).
   inkInstance = render(
     <Dashboard
       mode={config.mode}
@@ -503,11 +515,12 @@ async function runInDisplayMode(config: CLIConfig) {
       startTime={config.startTime}
       ntfyTopic={config.ntfyTopic}
     />,
-    { exitOnCtrlC: false }
+    {
+      exitOnCtrlC: false,
+      stdin: process.stdin,
+      stdout: process.stdout,
+    }
   );
-
-  // Set up keyboard exit handler after Ink has initialized raw mode
-  setupKeyboardExit();
 
   // Wait for the app to exit, then cleanup
   await inkInstance.waitUntilExit();

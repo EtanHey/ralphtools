@@ -36,9 +36,10 @@ function useLiveClock(enabled: boolean): string {
 
 // Component that uses Ink's useInput - only rendered when raw mode IS supported
 function RawModeKeyboardHandler({ onExit, onConfig, configActive }: { onExit: () => void; onConfig: () => void; configActive: boolean }) {
+  // AIDEV-NOTE: Ctrl+C is handled by SIGINT handler in index.tsx, not here.
   // Disabled when config menu is active (ConfigMenu handles its own input)
   useInput((input, key) => {
-    if (input === 'q' || (key.ctrl && input === 'c') || key.escape) {
+    if (input === 'q' || key.escape) {
       onExit();
     } else if (input === 'c') {
       onConfig();
@@ -49,13 +50,14 @@ function RawModeKeyboardHandler({ onExit, onConfig, configActive }: { onExit: ()
 }
 
 // Component that uses manual stdin handling - only rendered when raw mode is NOT supported
+// AIDEV-NOTE: Ctrl+C is handled by SIGINT handler in index.tsx, not here.
 function FallbackKeyboardHandler({ onExit, onConfig, configActive }: { onExit: () => void; onConfig: () => void; configActive: boolean }) {
   useEffect(() => {
     if (configActive) return; // Config menu handles its own input
 
     const stdinHandler = (data: Buffer) => {
       const char = data.toString();
-      if (char === 'q' || char === '\x03' || char === '\x1b') { // q, Ctrl+C, Escape
+      if (char === 'q' || char === '\x1b') { // q, Escape
         onExit();
       } else if (char === 'c') {
         onConfig();
@@ -265,7 +267,7 @@ export function Dashboard({
       <Box marginTop={1}>
         <Text dimColor>
           {(isLiveMode || isIterationMode)
-            ? (isRawModeSupported ? "'q' quit • 'c' config" : 'Ctrl+C to quit')
+            ? (isRawModeSupported ? "'q' quit • 'c' config" : 'Ctrl+C to quit (no raw mode)')
             : `Mode: ${mode}`} • Terminal width: {terminalWidth}
         </Text>
       </Box>

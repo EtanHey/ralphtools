@@ -99,6 +99,7 @@ export function detectTechStack(workingDir: string): string[] {
       };
 
       // Map dependencies to tech names
+      // AIDEV-NOTE: Add new tech contexts here when creating ~/.claude/contexts/tech/{tech}.md
       const depMap: Record<string, string> = {
         react: "react",
         next: "nextjs",
@@ -118,6 +119,7 @@ export function detectTechStack(workingDir: string): string[] {
         vitest: "vitest",
         jest: "jest",
         playwright: "playwright",
+        ink: "ink", // React CLI framework - see contexts/tech/ink.md for critical stdin setup
       };
 
       for (const [dep, tech] of Object.entries(depMap)) {

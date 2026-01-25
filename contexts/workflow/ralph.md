@@ -202,6 +202,33 @@ grep -r "#tag" docs.local/learnings/
 3. Re-read CLAUDE.md only every 20+ tool uses
 4. Focus on current story's acceptance criteria
 5. Update progress and mark criteria as checked
+6. Use farther-steps for deferred actions (see below)
+
+### Farther-Steps (Deferred Actions for Ralph)
+
+When you identify work that can't be done now but needs tracking, add to `~/.claude/farther-steps.json`:
+
+```json
+{
+  "id": "step-XXX",
+  "type": "sync",
+  "source": "path/to/source",
+  "target": "path/to/target",
+  "reason": "Detailed explanation of what and why",
+  "story": "CURRENT-STORY-ID",
+  "criteria": "Which criteria triggered this",
+  "status": "pending",
+  "priority": "high|medium|low"
+}
+```
+
+**When to use (Ralph context):**
+- Syncing files between `~/.claude/` and repo that need human review
+- Config changes discovered but not in current story scope
+- Quality improvements that shouldn't block current iteration
+- Cross-project learnings that should also go to global `~/.claude/learnings/`
+
+**Unlike learnings:** Farther-steps are *actionable* - they have a source, target, and status. Human reviews and applies them later with `fs pending` / `fs apply`.
 
 ---
 

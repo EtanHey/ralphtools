@@ -206,6 +206,10 @@ function ralph-version() {
 # Alias for the -V flag
 alias ralph-V='ralph --version'
 
+# Farther-steps: deferred actions queue
+alias fsteps='$RALPH_HOME/scripts/farther-steps.sh'
+alias fs='fsteps'  # Short alias
+
 function ralph-ui() {
   local prd_path="${1:-$(pwd)/prd-json}"
   if [[ ! -f "$RALPH_UI_PATH" ]]; then
