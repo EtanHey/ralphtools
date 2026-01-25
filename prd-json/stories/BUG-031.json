@@ -1,0 +1,15 @@
+{
+  "id": "BUG-031",
+  "title": "skill-index.md uses short names but Skill tool needs full names",
+  "description": "skill-index.md lists skills as /prd but Skill tool expects golem-powers:prd. Claude tries short name first, fails, then tries full name. Fix generate-skill-index.sh to output full names.",
+  "priority": "medium",
+  "acceptanceCriteria": [
+    {"text": "Update ~/.claude/scripts/generate-skill-index.sh to output full names (e.g., /golem-powers:prd not /prd)", "checked": false},
+    {"text": "Regenerate skill-index.md with full names", "checked": false},
+    {"text": "Test: Claude invokes skill on first try with full name", "checked": false},
+    {"text": "Update any CLAUDE.md files that reference short names", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-031 skill-index uses full golem-powers:xxx names", "checked": false}
+  ],
+  "passes": false
+}

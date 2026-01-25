@@ -42,8 +42,10 @@
     },
     {
       "text": "Commit: feat: US-128 1password environments documentation",
-      "checked": false
+      "checked": true
     }
   ],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T20:24:00.000Z",
+  "completedBy": "opus"
 }

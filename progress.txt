@@ -323,3 +323,30 @@ Started: Sun Jan 25 20:00:00 IST 2026
 - Tests: All tests pass
 - Learning: The golem-system context provides comprehensive documentation of the system
   philosophy and architecture, helping new contributors understand the "why" behind design decisions.
+
+## Iteration 18 - US-128: Research 1Password Environments + document CLI integration patterns
+- Model: opus
+- Researched 1Password Environments (Beta) feature from official documentation
+- Key insight: Environments are created in the 1Password desktop app UI (not automatable via CLI),
+  but once created, CLI can access secrets via:
+  - Named pipe mounts (local .env file destination)
+  - op run (environment variables)
+  - op inject (config file templating)
+- Created workflows/use-environment.md with:
+  - Named pipe architecture diagram showing how secrets flow from 1Password to apps
+  - Step-by-step setup instructions (one-time in desktop app)
+  - Comparison tables: Environments vs CLI, mounted .env vs op inject
+  - ralphtools configuration example
+  - Troubleshooting section
+- Updated SKILL.md with enhanced Environments section:
+  - ASCII diagram showing UI creation + CLI access workflow
+  - When to use Environments vs CLI decision table
+  - Code examples for mounted .env, op inject, and op run
+  - Updated limitations table (Mac/Linux only, 10 max mounts, etc.)
+- Added use-environment workflow to Quick Actions table
+- Updated Decision Tree to prioritize Environments for project setup
+- CodeRabbit: Rate limited, skipped (205 zsh tests, 17 skills tests, 274 TypeScript tests all pass)
+- Tests: All tests pass
+- Learning: 1Password Environments is the preferred method for local development secrets because
+  secrets never touch disk (named pipe), but CLI (op run/inject) is still needed for CI/CD pipelines
+  where environments cannot be created programmatically.
