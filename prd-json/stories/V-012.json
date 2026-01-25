@@ -5,47 +5,54 @@
   "type": "verification",
   "priority": "high",
   "storyPoints": 2,
-  "status": "blocked",
+  "status": "completed",
   "blockedBy": "",
   "acceptanceCriteria": [
     {
       "text": "Run grep -r 'ralphtools' in home directory - should find minimal/no results",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test /github skill invocation works",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test /linear skill invocation works",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test /convex skill invocation works",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify prd-json/ stories are accessible from new location",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run ralph on a test story to confirm full loop works",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Document any remaining 'ralphtools' references that are acceptable (e.g., git history)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Create docs.local/rename-complete.md confirming migration success",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": true
+    },
+    {
+      "text": "Commit: test: V-012 verify full system audit post-rename",
       "checked": false
     }
   ],
   "dependencies": [
     "V-011"
-  ]
+  ],
+  "passes": true,
+  "completedAt": "2026-01-25T03:38:00Z",
+  "completedBy": "haiku"
 }
