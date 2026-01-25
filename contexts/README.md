@@ -232,6 +232,7 @@ Full Context = base + tech contexts + workflow contexts + project-specific
 | Context | Description | Lines |
 |---------|-------------|-------|
 | `base` | Universal rules: scratchpad, AIDEV-NOTE, docs fetching, type safety | ~130 |
+| `golem-system` | System philosophy, architecture, Zikaron memory system | ~350 |
 
 ### Workflow Contexts
 | Context | Description | Lines |
