@@ -5,46 +5,46 @@
   "acceptanceCriteria": [
     {
       "text": "Run Ralph with verbose mode to see context file path",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify base.md content appears in Claude's context",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify project-specific tech context is detected and loaded",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify workflow/ralph.md content appears in context",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify old injection (brave_skill, ralph_agent_instructions) is removed",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify RALPH GIT RULES appears in loaded context (from workflow/ralph.md)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify /tmp/ralph-context-*.md is created during iteration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify temp context file is cleaned up after iteration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test with different story types (US, BUG, V) to ensure contexts load",
-      "checked": false
-    },
-    {
-      "text": "Commit: test: [STORY-ID] description",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": true
+    },
+    {
+      "text": "Commit: test: V-015 verify modular context injection works end-to-end",
       "checked": false
     }
   ],
@@ -52,5 +52,7 @@
   "priority": "high",
   "createdAt": "2026-01-24T01:30:00.000Z",
   "passes": false,
-  "blockedBy": null
+  "blockedBy": null,
+  "completedAt": "2026-01-25T05:50:00Z",
+  "completedBy": "haiku"
 }
