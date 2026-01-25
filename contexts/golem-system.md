@@ -141,11 +141,11 @@ Key principle: **One fix, many benefits** - improving a context helps all projec
 ### Skills (skills/golem-powers/)
 
 Reusable capabilities Claude can invoke:
-- **/prd** - Create/manage PRDs
-- **/coderabbit** - AI code review
-- **/ralph-commit** - Atomic commit with verification
-- **/github** - Git and GitHub operations
-- **/1password** - Secrets management
+- **/golem-powers:prd** - Create/manage PRDs
+- **/golem-powers:coderabbit** - AI code review
+- **/golem-powers:ralph-commit** - Atomic commit with verification
+- **/golem-powers:github** - Git and GitHub operations
+- **/golem-powers:1password** - Secrets management
 - And many more...
 
 Skills are invoked via the `Skill` tool, not by reading files directly.

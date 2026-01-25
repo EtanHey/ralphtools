@@ -387,3 +387,19 @@ Started: Sun Jan 25 20:00:00 IST 2026
 - Tests: All tests pass
 - Learning: The Skill tool uses namespace:name format for skill identification. When generating
   references for Claude, always use the full format to avoid unnecessary retries.
+
+## Iteration 21 - BUG-031: Update remaining docs with full skill names (continued)
+- Model: opus
+- Continued from previous iteration - updated additional files with short skill name references:
+  - contexts/workflow/ralph.md: Updated /prd reference and full "Available Skills" section
+  - contexts/golem-system.md: Updated skill list in "Skills" section
+- Regenerated skill-descriptions.md with full names
+- CodeRabbit: Rate limited, skipped (documentation-only changes, all 205 tests pass)
+- Tests: All tests pass
+- All 20 PRD stories now complete
+
+---
+
+## PRD COMPLETE
+
+All 20 stories completed successfully.

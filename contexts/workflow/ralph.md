@@ -33,7 +33,7 @@ ralph admin 300        # Run on apps/admin/PRD.md
 
 ## Critical Rule: After Creating a PRD
 
-**When the `/prd` command creates `PRD.md` and `progress.txt`:**
+**When the `/golem-powers:prd` command creates `PRD.md` and `progress.txt`:**
 
 1. **DO NOT implement the stories**
 2. **DO NOT spawn subagents**
@@ -245,17 +245,17 @@ Mark a story as blocked when you CANNOT fix the issue yourself:
 **Read `prd-json/AGENTS.md` for this project's available skills.**
 
 The PRD creator discovers relevant skills and includes them in AGENTS.md with descriptions of when to use each one. Skills vary by project:
-- UI projects may have `/brave` for browser automation
-- Linear users have `/linear` for issue tracking
-- Convex projects have `/convex` for backend operations
+- UI projects may have `/golem-powers:brave` for browser automation
+- Linear users have `/golem-powers:linear` for issue tracking
+- Convex projects have `/golem-powers:convex` for backend operations
 
 **Universal skills (always available):**
-- `/ralph-commit` - For "Commit:" criteria
-- `/coderabbit` - Code review (iterate until clean)
-- `/context7` - Look up library docs when unsure about APIs
-- `/github` - Git operations, PRs, issues
-- `/create-pr` - Push and create PRs
-- `/catchup` - Context recovery after long breaks
+- `/golem-powers:ralph-commit` - For "Commit:" criteria
+- `/golem-powers:coderabbit` - Code review (iterate until clean)
+- `/golem-powers:context7` - Look up library docs when unsure about APIs
+- `/golem-powers:github` - Git operations, PRs, issues
+- `/golem-powers:create-pr` - Push and create PRs
+- `/golem-powers:catchup` - Context recovery after long breaks
 
 **Invoke via `/golem-powers:skill-name` or read `~/.claude/commands/golem-powers/skill-name/SKILL.md`.**
 
