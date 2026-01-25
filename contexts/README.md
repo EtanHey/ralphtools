@@ -4,6 +4,184 @@ A modular context system for sharing common CLAUDE.md rules across projects.
 
 ---
 
+## Dogfooding Requirement
+
+> **Rule:** Projects that DEFINE contexts MUST also USE them.
+
+The claude-golem repo is the canonical home of the context system. It defines all shared contexts in `contexts/` and MUST reference those same contexts in its own CLAUDE.md.
+
+### Why This Matters
+
+1. **Eat your own cooking** - If we define rules, we should follow them
+2. **Catch bugs early** - Using contexts reveals issues before other projects do
+3. **Stay honest** - Forces us to write contexts that actually work
+
+### How claude-golem Dogfoods
+
+```markdown
+# claude-golem/CLAUDE.md
+
+## SETUP (AI: Read This First)
+...
+
+## Contexts
+@context: base
+@context: skill-index
+@context: workflow/interactive
+@context: workflow/ralph
+```
+
+Any project that contributes to the contexts system MUST use the contexts it defines.
+
+---
+
+## Cross-Project Improvement
+
+When you fix or improve a context, ALL projects using that context benefit automatically.
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    claude-golem repo                         │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  contexts/                                           │    │
+│  │    base.md        ←── Fix discovered in Project A    │    │
+│  │    tech/nextjs.md                                    │    │
+│  │    workflow/rtl.md                                   │    │
+│  └─────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          ▼                   ▼                   ▼
+   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+   │  Project A   │   │  Project B   │   │  Project C   │
+   │ @context:base│   │ @context:base│   │ @context:base│
+   │              │   │              │   │              │
+   │ Benefits     │   │ Benefits     │   │ Benefits     │
+   │ immediately! │   │ immediately! │   │ immediately! │
+   └──────────────┘   └──────────────┘   └──────────────┘
+```
+
+### Example: Discovering a Gap
+
+```bash
+# Working on domica project, realize RTL flex rules are incomplete
+
+# 1. Fix it in the shared context
+edit ~/.claude/contexts/workflow/rtl.md
+
+# 2. Commit to claude-golem
+cd ~/Gits/claude-golem
+git add contexts/workflow/rtl.md
+git commit -m "fix: improve RTL flex container rules"
+git push
+
+# 3. All RTL projects benefit - domica, portfolio-hebrew, etc.
+```
+
+### One Fix, Many Benefits
+
+| Fix Location | Projects Improved |
+|--------------|-------------------|
+| `base.md` | ALL projects |
+| `tech/nextjs.md` | All Next.js projects |
+| `workflow/rtl.md` | All Hebrew/Arabic projects |
+| `skill-index.md` | All interactive Claude sessions |
+
+---
+
+## Self-Improvement Loop
+
+The context system has a built-in feedback loop: find gaps → create story → Ralph fixes → all projects benefit.
+
+### The Loop
+
+```
+   ┌──────────────────┐
+   │  Claude works on │
+   │  any project     │
+   └────────┬─────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │  Discovers gap   │
+   │  or improvement  │
+   └────────┬─────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │  Ask user about  │     User says "not now"
+   │  fixing it       │────────────────────────┐
+   └────────┬─────────┘                        │
+            │ User approves                    │
+            ▼                                  ▼
+   ┌──────────────────┐              ┌──────────────────┐
+   │  Create PRD      │              │  Log in learnings│
+   │  story via /prd  │              │  for later       │
+   └────────┬─────────┘              └──────────────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │  User runs Ralph │
+   │  on claude-golem │
+   └────────┬─────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │  Context fixed,  │
+   │  all projects    │
+   │  benefit         │
+   └──────────────────┘
+```
+
+### Using /context-audit to Find Gaps
+
+Run the context audit skill to discover what contexts a project SHOULD have:
+
+```bash
+# In any project
+/context-audit
+```
+
+This produces:
+
+```
+=== CONTEXT AUDIT ===
+
+AVAILABLE CONTEXTS:
+  base.md
+  skill-index.md
+  tech/nextjs.md
+  ...
+
+DETECTED TECH STACK:
+  [x] Next.js (found next in package.json)
+  [x] RTL (found Hebrew text)
+  [ ] Convex (no convex/ dir)
+
+CURRENT CLAUDE.md CONTEXTS:
+  @context: base
+
+GAP SUMMARY:
+  Missing: tech/nextjs, workflow/rtl
+
+RECOMMENDED ADDITIONS:
+  @context: tech/nextjs
+  @context: workflow/rtl
+```
+
+### What to Do With Gaps
+
+| Gap Type | Action |
+|----------|--------|
+| Missing context ref | Add `@context:` line to project CLAUDE.md |
+| Context exists but incomplete | Fix context in claude-golem → create story |
+| Context doesn't exist | Create new context → use `/prd` for story |
+| Project-specific need | Keep in project CLAUDE.md (not shared) |
+
+---
+
 ## How It Works
 
 Instead of duplicating rules in every project's CLAUDE.md, reference shared contexts:
@@ -76,23 +254,47 @@ Full Context = base + tech contexts + workflow contexts + project-specific
 
 ## How to Reference Contexts
 
-### Method 1: Comment Syntax
-```markdown
-<!-- @context: base, tech/nextjs, workflow/rtl -->
-```
+### Standard Syntax (Preferred)
 
-### Method 2: Section List
+Use `@context:` followed by the context name. Place these in your CLAUDE.md:
+
 ```markdown
 ## Contexts
-- base.md (universal rules)
-- tech/nextjs.md (Next.js patterns)
-- workflow/rtl.md (RTL guidelines)
+@context: base
+@context: skill-index
+@context: tech/nextjs
+@context: workflow/rtl
+@context: workflow/interactive
 ```
 
-### Method 3: Import Syntax
+### With Inline Descriptions
+
+You can add descriptions after the context reference for clarity:
+
 ```markdown
-@import ~/.claude/contexts/base.md
-@import ~/.claude/contexts/tech/nextjs.md
+## Contexts
+@context: base - Universal rules (scratchpad, AIDEV-NOTE, type safety)
+@context: skill-index - Available skills reference
+@context: tech/nextjs - Next.js App Router patterns
+@context: workflow/rtl - RTL layout guidelines
+```
+
+### Context Naming
+
+| Pattern | Example | Description |
+|---------|---------|-------------|
+| Base | `@context: base` | Universal rules for all projects |
+| Tech | `@context: tech/nextjs` | Framework/library-specific |
+| Workflow | `@context: workflow/rtl` | Process/pattern-specific |
+
+### Legacy Syntax (Deprecated)
+
+These formats still work but are not recommended:
+
+```markdown
+<!-- @context: base, tech/nextjs -->       # Comment syntax
+- base.md (universal rules)                 # Bullet list
+@import ~/.claude/contexts/base.md         # Import syntax
 ```
 
 ---

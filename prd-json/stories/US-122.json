@@ -5,12 +5,12 @@
   "priority": "medium",
   "dependsOn": ["US-116"],
   "acceptanceCriteria": [
-    {"text": "Add 'Dogfooding Requirement' section - projects defining contexts MUST use them", "checked": false},
-    {"text": "Add 'Cross-Project Improvement' section explaining how one fix benefits all projects", "checked": false},
-    {"text": "Add 'Self-Improvement Loop' section: find gap -> ask user -> create story -> Ralph fixes", "checked": false},
-    {"text": "Add example of context-audit workflow for discovering gaps", "checked": false},
-    {"text": "Update 'How to Reference Contexts' with current @context: syntax", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Add 'Dogfooding Requirement' section - projects defining contexts MUST use them", "checked": true},
+    {"text": "Add 'Cross-Project Improvement' section explaining how one fix benefits all projects", "checked": true},
+    {"text": "Add 'Self-Improvement Loop' section: find gap -> ask user -> create story -> Ralph fixes", "checked": true},
+    {"text": "Add example of context-audit workflow for discovering gaps", "checked": true},
+    {"text": "Update 'How to Reference Contexts' with current @context: syntax", "checked": true},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
     {"text": "Commit: docs: US-122 contexts README dogfooding docs", "checked": false}
   ],
   "passes": false
