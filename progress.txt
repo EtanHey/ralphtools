@@ -10,3 +10,11 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - All criteria passed successfully
 - Story marked as complete
 
+## Iteration 2 - V-141: Mock test 2 - long sleep test
+- Model: opus
+- Completed all 10 sleep test criteria (steps 1-10)
+- Each step involved running `sleep 20 && echo 'Step N'`
+- Final step echoed 'V-141 complete'
+- All criteria passed successfully
+- Story marked as complete
+

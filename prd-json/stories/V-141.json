@@ -5,16 +5,18 @@
   "priority": "low",
   "model": "gemini-flash",
   "acceptanceCriteria": [
-    {"text": "Run: sleep 20 && echo 'Step 1'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 2'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 3'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 4'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 5'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 6'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 7'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 8'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'Step 9'", "checked": false},
-    {"text": "Run: sleep 20 && echo 'V-141 complete'", "checked": false}
+    {"text": "Run: sleep 20 && echo 'Step 1'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 2'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 3'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 4'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 5'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 6'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 7'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 8'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'Step 9'", "checked": true},
+    {"text": "Run: sleep 20 && echo 'V-141 complete'", "checked": true}
   ],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-26T00:30:00Z",
+  "completedBy": "opus"
 }
