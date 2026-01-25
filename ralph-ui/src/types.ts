@@ -40,6 +40,8 @@ export interface DashboardProps {
   iteration?: number;
   model?: string;
   startTime?: number;
+  ntfyTopic?: string;
+  onExitRequest?: () => void;  // Called when user requests exit (q key or Ctrl+C)
 }
 
 export interface PRDStats {

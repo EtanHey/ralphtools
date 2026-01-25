@@ -67,7 +67,12 @@ export function useStatusFile({
       try {
         const content = readFileSync(statusFile, 'utf-8');
         const parsed = JSON.parse(content) as RalphStatus;
-        setStatus(parsed);
+        // Only update if changed
+        setStatus(prev => {
+          if (!prev) return parsed;
+          if (JSON.stringify(prev) === JSON.stringify(parsed)) return prev;
+          return parsed;
+        });
       } catch {
         // Invalid JSON or read error - status might be mid-write
         // Keep previous status

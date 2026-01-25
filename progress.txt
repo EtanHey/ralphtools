@@ -155,3 +155,25 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - All 205 zsh tests still pass (./tests/test-ralph.zsh)
 - TypeScript typecheck passes (bun run typecheck)
 - Phase 2-4 remaining for next iteration(s)
+
+## Iteration 9 - MP-006: Move iteration loop from zsh to TypeScript (Part 3)
+- Model: opus
+- Completed PHASE 2: CLI Integration:
+  - Added --run flag to ralph-ui/src/index.tsx enabling iteration runner mode
+  - Added all CLI flags: --iterations, --gap, --model, --quiet, --verbose, --notify
+  - Without --run flag, display-only mode preserved (current behavior)
+  - Help text updated with all new options and examples
+- Completed PHASE 3: UI Takes Over:
+  - UI displays live progress while runner executes (via status file watching)
+  - Ctrl+C cleanly stops both runner and UI (forceExit handler + exitRequested flag)
+  - q key stops gracefully (KeyboardHandler in iteration mode + onExitRequest callback)
+  - Dashboard updated to show quit hints and clock in iteration mode
+- Additional changes:
+  - Added ntfyTopic to DashboardProps for proper typing
+  - Fixed Dashboard to accept onExitRequest callback for graceful shutdown
+  - Added watchdog file mechanism (~/.ralph-stop) for emergency exit
+- CodeRabbit: Minor issues (CLI arg bounds check, reactive iteration) - documented for future fix
+- All 53 ralph-ui tests pass (bun test ralph-ui/tests/)
+- All 205 zsh tests still pass (./tests/test-ralph.zsh)
+- TypeScript typecheck passes (bun run typecheck)
+- Phase 4 (Thin Wrapper) remaining for next iteration(s)

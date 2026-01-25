@@ -91,7 +91,7 @@ export function Dashboard({
   startTime = Date.now(),
   ntfyTopic,
   onExitRequest,
-}: DashboardProps & { ntfyTopic?: string }) {
+}: DashboardProps) {
   const { stdout } = useStdout();
   const { isRawModeSupported } = useStdin();
   const { exit } = useApp();
