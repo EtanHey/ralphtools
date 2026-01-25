@@ -13,8 +13,10 @@
     { "text": "Pressing Escape or 'q' in config menu returns to main UI without saving", "checked": true },
     { "text": "Gum fallback UI supports config editing if capable (nice-to-have)", "checked": true },
     { "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true },
-    { "text": "Commit: feat: US-113 interactive config editing from Ralph UI", "checked": false }
+    { "text": "Commit: feat: US-113 interactive config editing from Ralph UI", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-25T16:14:00.000Z",
+  "completedBy": "opus",
   "failedAttempts": 0
 }
