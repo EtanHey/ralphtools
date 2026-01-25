@@ -62,7 +62,7 @@ export function HangingWarning({
       <Text color="yellowBright">
         No activity for {formatDuration(secondsAgo)}
       </Text>
-      <Text color="gray" dimColor>
+      <Text color="white" dimColor>
         Claude may be processing a large response, or stuck.
       </Text>
     </Box>

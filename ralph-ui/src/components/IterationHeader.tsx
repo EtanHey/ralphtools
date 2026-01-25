@@ -31,12 +31,11 @@ export function IterationHeader({
 }: IterationHeaderProps) {
   return (
     <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
-      <Box justifyContent="space-between">
-        <Box>
+      <Box justifyContent="space-between" gap={2}>
+        <Box gap={1}>
           {isRunning && (
             <Text color="green">
               <Spinner type="dots" />
-              {' '}
             </Text>
           )}
           <Text bold color="cyan">Iteration {iteration}</Text>
