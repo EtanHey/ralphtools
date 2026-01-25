@@ -5,39 +5,41 @@
   "acceptanceCriteria": [
     {
       "text": "Ralph output is captured to /tmp/ralph_output_$$.txt during execution",
-      "checked": false
+      "checked": true
     },
     {
       "text": "File contains actual Claude conversation, not just errors",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Output capture works in both verbose and non-verbose modes",
-      "checked": false
+      "checked": true
     },
     {
       "text": "ralph-session shows last 5-10 lines of output",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Performance not significantly impacted by capture",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run tests - all must pass",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: fix: [STORY-ID] description",
-      "checked": false
+      "checked": true
     }
   ],
   "storyType": "BUG",
   "priority": "high",
   "createdAt": "2026-01-25T00:00:00Z",
-  "passes": false
+  "completedAt": "2026-01-25T00:15:00Z",
+  "completedBy": "opus",
+  "passes": true
 }

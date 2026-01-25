@@ -4446,6 +4446,77 @@ test_repogolem_mcp_passthrough() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# MP-004: MODULAR STRUCTURE TESTS
+# ═══════════════════════════════════════════════════════════════════
+# Tests for the modular lib/ file structure
+
+# Test: lib directory exists
+test_lib_directory_exists() {
+  local lib_dir="${SCRIPT_DIR}/../lib"
+  if [[ -d "$lib_dir" ]]; then
+    test_pass
+  else
+    test_fail "lib/ directory not found at $lib_dir"
+  fi
+}
+
+# Test: lib/ralph-ui.zsh exists and is sourced
+test_lib_ralph_ui_exists() {
+  local lib_file="${SCRIPT_DIR}/../lib/ralph-ui.zsh"
+  if [[ -f "$lib_file" ]]; then
+    # Verify a function from this module is available
+    if typeset -f _ralph_display_width >/dev/null 2>&1; then
+      test_pass
+    else
+      test_fail "lib/ralph-ui.zsh exists but _ralph_display_width not available"
+    fi
+  else
+    test_fail "lib/ralph-ui.zsh not found"
+  fi
+}
+
+# Test: lib/ralph-watcher.zsh exists and is sourced
+test_lib_ralph_watcher_exists() {
+  local lib_file="${SCRIPT_DIR}/../lib/ralph-watcher.zsh"
+  if [[ -f "$lib_file" ]]; then
+    # Verify a function from this module is available
+    if typeset -f _ralph_check_fswatch >/dev/null 2>&1; then
+      test_pass
+    else
+      test_fail "lib/ralph-watcher.zsh exists but _ralph_check_fswatch not available"
+    fi
+  else
+    test_fail "lib/ralph-watcher.zsh not found"
+  fi
+}
+
+# Test: lib/ralph-commands.zsh exists and is sourced
+test_lib_ralph_commands_exists() {
+  local lib_file="${SCRIPT_DIR}/../lib/ralph-commands.zsh"
+  if [[ -f "$lib_file" ]]; then
+    # Verify a function from this module is available
+    if typeset -f ralph-help >/dev/null 2>&1; then
+      test_pass
+    else
+      test_fail "lib/ralph-commands.zsh exists but ralph-help not available"
+    fi
+  else
+    test_fail "lib/ralph-commands.zsh not found"
+  fi
+}
+
+# Test: ralph-help still works after modularization
+test_ralph_help_works() {
+  local output
+  output=$(ralph-help 2>&1)
+  if [[ "$output" == *"Ralph Commands"* ]]; then
+    test_pass
+  else
+    test_fail "ralph-help output doesn't contain 'Ralph Commands'"
+  fi
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════
 

@@ -170,6 +170,25 @@ RALPH_MAX_ITERATIONS="${RALPH_MAX_ITERATIONS:-10}"
 RALPH_SLEEP_SECONDS="${RALPH_SLEEP_SECONDS:-2}"
 RALPH_VALID_APPS="${RALPH_VALID_APPS:-frontend backend mobile expo public admin}"
 RALPH_CONFIG_FILE="${RALPH_CONFIG_DIR}/config.json"
+
+# ═══════════════════════════════════════════════════════════════════
+# SOURCE MODULAR LIB FILES
+# ═══════════════════════════════════════════════════════════════════
+# Ralph is split into modular files in lib/ for maintainability.
+# Order matters: base modules must be sourced before dependent ones.
+RALPH_LIB_DIR="${0:A:h}/lib"
+if [[ -d "$RALPH_LIB_DIR" ]]; then
+  # Source modules in dependency order
+  [[ -f "$RALPH_LIB_DIR/ralph-ui.zsh" ]] && source "$RALPH_LIB_DIR/ralph-ui.zsh"
+  [[ -f "$RALPH_LIB_DIR/ralph-watcher.zsh" ]] && source "$RALPH_LIB_DIR/ralph-watcher.zsh"
+  [[ -f "$RALPH_LIB_DIR/ralph-commands.zsh" ]] && source "$RALPH_LIB_DIR/ralph-commands.zsh"
+  # Note: Additional modules will be added as extraction continues
+  # [[ -f "$RALPH_LIB_DIR/ralph-models.zsh" ]] && source "$RALPH_LIB_DIR/ralph-models.zsh"
+  # [[ -f "$RALPH_LIB_DIR/ralph-registry.zsh" ]] && source "$RALPH_LIB_DIR/ralph-registry.zsh"
+  # [[ -f "$RALPH_LIB_DIR/ralph-worktrees.zsh" ]] && source "$RALPH_LIB_DIR/ralph-worktrees.zsh"
+  # [[ -f "$RALPH_LIB_DIR/ralph-secrets.zsh" ]] && source "$RALPH_LIB_DIR/ralph-secrets.zsh"
+  # [[ -f "$RALPH_LIB_DIR/ralph-setup.zsh" ]] && source "$RALPH_LIB_DIR/ralph-setup.zsh"
+fi
 # ═══════════════════════════════════════════════════════════════════
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1346,13 +1365,17 @@ ralph-session() {
 
       [[ "$error" != "null" && -n "$error" ]] && echo "  Error: $error"
 
-      # Show last output
+      # Show last output (BUG-029: show last 5-10 lines for debugging)
       local output_file="/tmp/ralph_output_${pid}.txt"
       if [[ -f "$output_file" ]]; then
-        local lines=$(wc -l < "$output_file" 2>/dev/null)
-        echo "  Output: $output_file ($lines lines)"
+        local lines=$(wc -l < "$output_file" 2>/dev/null | tr -d ' ')
+        local bytes=$(wc -c < "$output_file" 2>/dev/null | tr -d ' ')
+        echo "  Output: $output_file ($lines lines, $bytes bytes)"
         if [[ "$lines" -gt 0 ]]; then
-          echo "  Last line: $(tail -1 "$output_file" 2>/dev/null | head -c 80)"
+          echo ""
+          echo "  ${YELLOW}Last 10 lines:${NC}"
+          # Filter out ANSI escape codes and show last 10 lines, indented
+          tail -10 "$output_file" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' | sed 's/^/    /'
         fi
       fi
       echo ""
@@ -4703,13 +4726,14 @@ function ralph() {
           iteration_session_id=""  # Gemini doesn't use session IDs
           ;;
         haiku|sonnet)
-          # Note: --chrome removed - it causes output to bypass pipe (BUG-029)
+          # BUG-029 FIX: --print outputs to stdout (pipeable), interactive mode writes to TTY (not pipeable)
           # Browser automation is added via --mcp-config when project needs it
-          cli_cmd_arr=(claude --dangerously-skip-permissions --model "$active_model" --session-id "$iteration_session_id")
+          cli_cmd_arr=(claude --print --dangerously-skip-permissions --model "$active_model" --session-id "$iteration_session_id")
           ;;
         *)
           # Default: Claude Opus
-          cli_cmd_arr=(claude --dangerously-skip-permissions --session-id "$iteration_session_id")
+          # BUG-029 FIX: --print outputs to stdout (pipeable), interactive mode writes to TTY (not pipeable)
+          cli_cmd_arr=(claude --print --dangerously-skip-permissions --session-id "$iteration_session_id")
           ;;
       esac
 

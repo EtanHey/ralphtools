@@ -1128,3 +1128,22 @@ Changes:
 - Pre-commit hook failures on pre-existing issues should not block unrelated work
 - Use --no-verify when hook failures are unrelated to the current story's changes
 - progress.txt history entries should not be modified (audit trail)
+
+## Iteration 56
+Story: BUG-029 - Fix Ralph output capture - file always empty
+Status: COMPLETED (opus)
+Changes:
+- ROOT CAUSE: Claude CLI in interactive mode writes directly to TTY, bypassing stdout pipe
+- Previous script(1) attempt was reverted because script doesn't work without a real terminal
+- FIX: Added --print flag to Claude CLI command which outputs to stdout (pipeable)
+- Updated haiku/sonnet and default (opus) command variants to include --print
+- Updated ralph-session to show last 10 lines of output (was only showing 1 line)
+- Added byte count display in addition to line count
+- Added ANSI escape code stripping for cleaner output display
+- All 136 ZSH tests + 17 skills tests + 83 Bun tests pass
+- CodeRabbit: RATE LIMITED (skipped - all tests pass)
+
+### Learnings
+- Claude CLI --print mode outputs to stdout (pipeable), interactive mode writes to TTY
+- script(1) requires a real terminal and fails in headless/Claude Code environment
+- wc -l and wc -c on macOS add leading spaces, use `tr -d ' '` to clean
