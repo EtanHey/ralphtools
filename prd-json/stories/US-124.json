@@ -4,17 +4,19 @@
   "description": "Write comprehensive tests for prd-manager skill. Tests should cover all existing actions (list, show, stats, add-criterion, etc.) plus the new summary action.",
   "priority": "medium",
   "acceptanceCriteria": [
-    {"text": "Create tests/test-prd-manager.sh with test framework setup", "checked": false},
-    {"text": "Create tests/fixtures/prd-manager/ with sample index.json and story files", "checked": false},
-    {"text": "Test: --action=list --scope=pending lists pending stories", "checked": false},
-    {"text": "Test: --action=show --story=US-001 displays story details", "checked": false},
-    {"text": "Test: --action=stats returns correct counts", "checked": false},
-    {"text": "Test: --action=check-progress shows progress info", "checked": false},
-    {"text": "Test: --action=add-criterion adds criterion to story", "checked": false},
-    {"text": "Test: --action=summary shows completed stories with titles (will fail - not implemented)", "checked": false},
-    {"text": "Tests run: ./tests/test-prd-manager.sh (summary test expected to fail)", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: test: US-124 prd-manager test suite", "checked": false}
+    {"text": "Create tests/test-prd-manager.sh with test framework setup", "checked": true},
+    {"text": "Create tests/fixtures/prd-manager/ with sample index.json and story files", "checked": true},
+    {"text": "Test: --action=list --scope=pending lists pending stories", "checked": true},
+    {"text": "Test: --action=show --story=US-001 displays story details", "checked": true},
+    {"text": "Test: --action=stats returns correct counts", "checked": true},
+    {"text": "Test: --action=check-progress shows progress info", "checked": true},
+    {"text": "Test: --action=add-criterion adds criterion to story", "checked": true},
+    {"text": "Test: --action=summary shows completed stories with titles (will fail - not implemented)", "checked": true},
+    {"text": "Tests run: ./tests/test-prd-manager.sh (summary test expected to fail)", "checked": true},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
+    {"text": "Commit: test: US-124 prd-manager test suite", "checked": true}
   ],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T19:57:00Z",
+  "completedBy": "opus"
 }

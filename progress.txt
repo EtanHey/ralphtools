@@ -235,3 +235,28 @@ Started: Sun Jan 25 20:00:00 IST 2026
 - Tests: 205 zsh tests passed
 - Learning: The wiring documentation now provides a complete path from install to
   project-specific Claude sessions with appropriate contexts and MCPs.
+
+## Iteration 14 - US-124: TDD: Create test-prd-manager.sh
+- Model: opus
+- Created comprehensive test suite for prd-manager skill:
+  - tests/test-prd-manager.sh with 22 passing tests + 1 expected failure
+  - tests/fixtures/prd-manager/generate-fixtures.sh for scenario generation
+- Test coverage includes:
+  - list action: pending/blocked/all scopes, empty list
+  - show action: story details, missing story error, missing --story error
+  - stats action: correct counts, blocked stories, empty PRD
+  - check-progress: next story, criteria, stats, COMPLETE state
+  - add-criterion: single story, bulk scope, idempotency
+  - add-to-index: adds to index, missing file error
+  - set-next: updates nextStory
+  - summary action (expected failure - not implemented yet)
+  - help/usage output
+- Fixture scenarios: basic, empty, blocked, all-completed
+- Fixed bash portability issues in prd-manager/scripts/run.sh:
+  - Replaced ${SCOPE^^} with $(echo "$SCOPE" | tr '[:lower:]' '[:upper:]')
+  - Replaced mapfile with portable while read loop
+  - Fixed bulk update counting with temp file approach (per CodeRabbit)
+- CodeRabbit: Found counting logic issue - fixed using temp file pattern
+- Tests: 205 zsh tests, 22 prd-manager tests - all passed
+- Learning: The test suite follows TDD pattern from test-context-audit.sh.
+  Summary action test is intentionally expected to fail (US-125 will implement it).

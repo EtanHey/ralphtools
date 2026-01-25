@@ -59,30 +59,39 @@ case "$ACTION" in
       exit 1
     fi
 
+    updated=0
     if [[ -n "$STORY" ]]; then
       # Single story
-      STORIES=("$STORY")
-    else
-      # Bulk by scope
-      mapfile -t STORIES < <(get_stories "$SCOPE")
-    fi
-
-    updated=0
-    for story in "${STORIES[@]}"; do
-      file="$PRD_DIR/stories/${story}.json"
+      file="$PRD_DIR/stories/${STORY}.json"
       if [[ -f "$file" ]]; then
         if ! grep -q "$TEXT" "$file" 2>/dev/null; then
           jq --arg c "$TEXT" '.acceptanceCriteria += [{"text": $c, "checked": false}]' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-          echo "✓ $story"
-          ((updated++))
+          echo "✓ $STORY"
+          updated=$((updated + 1))
         fi
       fi
-    done
+    else
+      # Bulk by scope - use temp file to track actual updates
+      TMP_UPDATED="$(mktemp)"
+      get_stories "$SCOPE" | while read -r story; do
+        file="$PRD_DIR/stories/${story}.json"
+        if [[ -f "$file" ]]; then
+          if ! grep -q "$TEXT" "$file" 2>/dev/null; then
+            jq --arg c "$TEXT" '.acceptanceCriteria += [{"text": $c, "checked": false}]' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+            echo "✓ $story"
+            echo "$story" >> "$TMP_UPDATED"
+          fi
+        fi
+      done
+      updated=$(wc -l < "$TMP_UPDATED" | tr -d ' ')
+      rm -f "$TMP_UPDATED"
+    fi
     echo "Updated $updated stories"
     ;;
 
   list)
-    echo "=== ${SCOPE^^} STORIES ==="
+    scope_upper=$(echo "$SCOPE" | tr '[:lower:]' '[:upper:]')
+    echo "=== ${scope_upper} STORIES ==="
     get_stories "$SCOPE" | while read -r story; do
       title=$(jq -r '.title' "$PRD_DIR/stories/${story}.json" 2>/dev/null || echo "???")
       echo "  $story: $title"
