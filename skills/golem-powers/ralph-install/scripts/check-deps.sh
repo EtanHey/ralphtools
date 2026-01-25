@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/check-deps.sh
-# Purpose: Check all required dependencies for ralphtools
+# Purpose: Check all required dependencies for claude-golem
 # Usage: bash check-deps.sh
 
 set -e
@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo -e "${BLUE}Checking ralphtools dependencies...${NC}"
+echo -e "${BLUE}Checking claude-golem dependencies...${NC}"
 echo ""
 
 # Function to get description for a command

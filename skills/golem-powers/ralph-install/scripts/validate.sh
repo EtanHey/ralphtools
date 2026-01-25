@@ -1,6 +1,6 @@
 #!/bin/bash
 # scripts/validate.sh
-# Purpose: Validate full ralphtools installation
+# Purpose: Validate full claude-golem installation
 # Usage: bash validate.sh
 
 set -e
@@ -41,7 +41,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo -e "${BLUE}Validating ralphtools installation...${NC}"
+echo -e "${BLUE}Validating claude-golem installation...${NC}"
 echo ""
 
 PASS=0
@@ -117,7 +117,7 @@ echo ""
 
 # Section: Directories
 echo "=== Directories ==="
-check "~/.config/ralphtools exists" "test -d ~/.config/ralphtools"
+check "~/.config/claude-golem exists" "test -d ~/.config/claude-golem"
 check "~/.claude/commands exists" "test -d ~/.claude/commands"
 check_warn "~/.claude/CLAUDE.md exists" "test -f ~/.claude/CLAUDE.md"
 check_warn "~/.claude/contexts exists" "test -d ~/.claude/contexts"
@@ -136,8 +136,8 @@ echo ""
 
 # Section: Ralph (optional)
 echo "=== Ralph (Optional) ==="
-if [ -f ~/.config/ralphtools/ralph.zsh ]; then
-    check "ralph.zsh exists" "test -f ~/.config/ralphtools/ralph.zsh"
+if [ -f ~/.config/claude-golem/ralph.zsh ]; then
+    check "ralph.zsh exists" "test -f ~/.config/claude-golem/ralph.zsh"
     # Can't source in subshell effectively, just check file exists
 else
     echo -e "${YELLOW}[SKIP]${NC} ralph.zsh not installed"

@@ -7,10 +7,10 @@
   "storyPoints": 1,
   "status": "pending",
   "acceptanceCriteria": [
-    {"text": "Update README.md with new repo name and description", "checked": false},
-    {"text": "Update CLAUDE.md project instructions", "checked": false},
-    {"text": "Update any installation instructions referencing ralphtools", "checked": false},
-    {"text": "Add 'Renamed from ralphtools' note in changelog", "checked": false},
+    {"text": "Update README.md with new repo name and description", "checked": true},
+    {"text": "Update CLAUDE.md project instructions", "checked": true},
+    {"text": "Update any installation instructions referencing ralphtools", "checked": true},
+    {"text": "Add 'Renamed from ralphtools' note in changelog", "checked": true},
     {"text": "Commit and push all documentation updates", "checked": false}
   ],
   "dependencies": ["V-012"]

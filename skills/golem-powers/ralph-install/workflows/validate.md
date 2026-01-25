@@ -1,6 +1,6 @@
 # Validate Installation Workflow
 
-Verify the full ralphtools installation works end-to-end.
+Verify the full claude-golem installation works end-to-end.
 
 ---
 
@@ -10,7 +10,7 @@ Run this comprehensive check:
 
 ```bash
 #!/bin/bash
-echo "Validating ralphtools installation..."
+echo "Validating claude-golem installation..."
 echo ""
 
 PASS=0
@@ -67,7 +67,7 @@ echo ""
 
 # Directories
 echo "=== Directories ==="
-check "~/.config/ralphtools exists" "test -d ~/.config/ralphtools"
+check "~/.config/claude-golem exists" "test -d ~/.config/claude-golem"
 check "~/.claude/commands exists" "test -d ~/.claude/commands"
 echo ""
 
@@ -164,7 +164,7 @@ ls ~/.claude/commands/golem-powers/
 cat ~/.claude/commands/golem-powers/github/SKILL.md | head -5
 ```
 
-Expected: Shows symlink pointing to ralphtools, lists all skills.
+Expected: Shows symlink pointing to claude-golem, lists all skills.
 
 ### 7. Test Interactive Tools
 
@@ -181,7 +181,7 @@ echo "test" | gum filter
 
 ```bash
 # Source ralph
-source ~/.config/ralphtools/ralph.zsh
+source ~/.config/claude-golem/ralph.zsh
 
 # Check ralph is available
 type ralph
@@ -220,7 +220,7 @@ readlink -f ~/.claude/commands/golem-powers
 
 # Fix it
 rm ~/.claude/commands/golem-powers
-ln -sf /correct/path/to/ralphtools/skills/golem-powers ~/.claude/commands/golem-powers
+ln -sf /correct/path/to/claude-golem/skills/golem-powers ~/.claude/commands/golem-powers
 ```
 
 ### Skills not loading in Claude
@@ -247,6 +247,6 @@ All these should be true:
 - [ ] All 8 CLIs installed (gh, op, gum, fswatch, jq, git, bun, cr)
 - [ ] 1Password signed in with vault access
 - [ ] Context7 and Linear API keys stored in claude-golem item
-- [ ] ~/.config/ralphtools/ exists
+- [ ] ~/.config/claude-golem/ exists
 - [ ] golem-powers symlink created in ~/.claude/commands/
 - [ ] `/golem-powers:skills` command works in Claude Code

@@ -85,7 +85,7 @@ Run `ralph-setup` to configure interactively.
 ### Environment Variables
 
 ```bash
-# In ~/.config/ralphtools/ralph-config.local or shell profile
+# In ~/.config/claude-golem/ralph-config.local or shell profile
 
 # Ralph topic prefix (default: "etanheys-ralph")
 export RALPH_NTFY_PREFIX="etanheys-ralph"

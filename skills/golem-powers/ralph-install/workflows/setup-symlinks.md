@@ -6,7 +6,7 @@ Create symlinks in ~/.claude/commands/ to enable golem-powers skills for Claude 
 
 ## Prerequisites
 
-- ralphtools repository cloned
+- claude-golem repository cloned
 - ~/.claude/commands/ directory exists
 
 ---
@@ -25,7 +25,7 @@ All skills are now under the `golem-powers` namespace. Create a single symlink:
 
 ```bash
 #!/bin/bash
-RALPHTOOLS_DIR="${RALPHTOOLS_DIR:-$HOME/path/to/ralphtools}"
+RALPHTOOLS_DIR="${RALPHTOOLS_DIR:-$HOME/path/to/claude-golem}"
 COMMANDS_DIR="$HOME/.claude/commands"
 
 echo "Creating golem-powers symlink..."
@@ -58,10 +58,10 @@ echo "Example: /golem-powers:1password, /golem-powers:convex, /golem-powers:gith
 
 ## Quick Setup (One-liner)
 
-Replace `/path/to/ralphtools` with your actual path:
+Replace `/path/to/claude-golem` with your actual path:
 
 ```bash
-mkdir -p ~/.claude/commands && ln -sf /path/to/ralphtools/skills/golem-powers ~/.claude/commands/golem-powers
+mkdir -p ~/.claude/commands && ln -sf /path/to/claude-golem/skills/golem-powers ~/.claude/commands/golem-powers
 ```
 
 ---
@@ -76,7 +76,7 @@ ls -la ~/.claude/commands/golem-powers
 
 Expected output:
 ```
-golem-powers -> /Users/.../ralphtools/skills/golem-powers
+golem-powers -> /Users/.../claude-golem/skills/golem-powers
 ```
 
 List available skills:
@@ -146,7 +146,7 @@ echo "Old symlinks cleaned up"
 The source directory was moved. Recreate with correct path:
 ```bash
 rm ~/.claude/commands/golem-powers
-ln -sf /correct/path/to/ralphtools/skills/golem-powers ~/.claude/commands/golem-powers
+ln -sf /correct/path/to/claude-golem/skills/golem-powers ~/.claude/commands/golem-powers
 ```
 
 ### Skills not appearing in Claude

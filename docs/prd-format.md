@@ -61,7 +61,7 @@ The `/prd` command is a Claude Code skill that generates PRDs.
 
 ```bash
 mkdir -p ~/.claude/commands
-cp ~/.config/ralphtools/skills/prd.md ~/.claude/commands/prd.md
+cp ~/.config/claude-golem/skills/prd.md ~/.claude/commands/prd.md
 ```
 
 ### Workflow

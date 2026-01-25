@@ -4,7 +4,7 @@
 
 **Goal:** Single source of truth for project MCPs, secrets, and configuration - used by both interactive Claude sessions and Ralph automation.
 
-**Architecture:** A `~/.config/ralphtools/registry.json` defines all projects, their MCPs, and 1Password secret references. Ralph and `{project}Claude` functions both read from this registry. A gum-based wizard (`ralph setup`) provides interactive configuration.
+**Architecture:** A `~/.config/claude-golem/registry.json` defines all projects, their MCPs, and 1Password secret references. Ralph and `{project}Claude` functions both read from this registry. A gum-based wizard (`ralph setup`) provides interactive configuration.
 
 **Tech Stack:** zsh, jq, gum (interactive CLI), 1Password CLI (op), Claude Code MCP system
 
@@ -13,7 +13,7 @@
 ## Current State Analysis
 
 ### What Exists:
-1. `~/.config/ralphtools/projects.json` - basic project list (name, path, mcps array)
+1. `~/.config/claude-golem/projects.json` - basic project list (name, path, mcps array)
 2. `~/.claude/shared-project-mcps.json` - global MCPs (tempmail, Context7)
 3. Manual `domicaClaude()`, `songClaude()` functions in `.zshrc` with hardcoded MCP logic
 4. `_ralph_setup_mcps()` function in ralph.zsh
@@ -30,7 +30,7 @@
 
 ## Target Architecture
 
-### Registry Schema (`~/.config/ralphtools/registry.json`)
+### Registry Schema (`~/.config/claude-golem/registry.json`)
 
 ```json
 {
@@ -97,7 +97,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    ~/.config/ralphtools/registry.json           │
+│                    ~/.config/claude-golem/registry.json           │
 │                         (Single Source of Truth)                │
 └─────────────────────────────────────────────────────────────────┘
                                     │
@@ -130,7 +130,7 @@
 ### Task 1: Create Registry Schema and Migration
 
 **Files:**
-- Create: `~/.config/ralphtools/registry.json`
+- Create: `~/.config/claude-golem/registry.json`
 - Create: `schemas/registry.schema.json` (for validation)
 - Modify: `ralph.zsh` - add registry loading
 

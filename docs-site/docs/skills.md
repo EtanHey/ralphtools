@@ -101,7 +101,7 @@ For critical verification, use multi-agent consensus. This spawns multiple agent
 ### Setup
 
 ```bash
-ln -s ~/.config/ralphtools/skills/golem-powers ~/.claude/commands/golem-powers
+ln -s ~/.config/claude-golem/skills/golem-powers ~/.claude/commands/golem-powers
 ```
 
 ## Script Template

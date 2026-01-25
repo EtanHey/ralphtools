@@ -1,6 +1,6 @@
 # Setup Tokens Workflow
 
-Configure API tokens in 1Password for use with ralphtools.
+Configure API tokens in 1Password for use with claude-golem.
 
 ---
 
@@ -196,11 +196,11 @@ fi
 
 ## Create Config Directory
 
-Ensure the ralphtools config directory exists:
+Ensure the claude-golem config directory exists:
 
 ```bash
-mkdir -p ~/.config/ralphtools
-chmod 700 ~/.config/ralphtools
+mkdir -p ~/.config/claude-golem
+chmod 700 ~/.config/claude-golem
 ```
 
 ---

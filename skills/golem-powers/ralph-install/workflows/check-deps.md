@@ -10,7 +10,7 @@ Run this script to check all dependencies:
 
 ```bash
 #!/bin/bash
-echo "Checking ralphtools dependencies..."
+echo "Checking claude-golem dependencies..."
 echo ""
 
 MISSING=()

@@ -2,7 +2,7 @@
 
 [![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/EtanHey/claude-golem?utm_source=oss&utm_medium=github&utm_campaign=EtanHey%2Fclaude-golem&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
 
-**[📚 Full Documentation](https://etanheyman.github.io/ralphtools/)** | **[GitHub](https://github.com/etanheyman/ralphtools)**
+**[📚 Full Documentation](https://etanheyman.github.io/claude-golem/)** | **[GitHub](https://github.com/etanheyman/claude-golem)**
 
 > *"Ralph is a Bash loop"* — Geoffrey Huntley
 
@@ -23,8 +23,8 @@ done
 
 ```bash
 # 1. Clone and source
-git clone https://github.com/EtanHey/ralph-tooling.git ~/.config/ralphtools
-echo 'source ~/.config/ralphtools/ralph.zsh' >> ~/.zshrc
+git clone https://github.com/EtanHey/claude-golem.git ~/.config/claude-golem
+echo 'source ~/.config/claude-golem/ralph.zsh' >> ~/.zshrc
 source ~/.zshrc
 
 # 2. Run setup wizard (configures skills, symlinks, preferences)
@@ -100,7 +100,7 @@ Create a `.worktree-sync.json` in your repo root to configure custom worktree sy
 
 ## Configuration
 
-Ralph is **config-driven** - use `ralph-setup` wizard instead of flags. Config is stored in `~/.config/ralphtools/config.json`.
+Ralph is **config-driven** - use `ralph-setup` wizard instead of flags. Config is stored in `~/.config/claude-golem/config.json`.
 
 ```bash
 ralph-setup   # Interactive wizard for all settings
@@ -158,14 +158,14 @@ ralph 10 --ui-bash    # Force bash UI for debugging
 
 ## Skills System
 
-Ralph includes a library of skills that provide workflows for common tasks. Skills are stored in `~/.config/ralphtools/skills/` and made available to Claude via symlinks in `~/.claude/commands/`.
+Ralph includes a library of skills that provide workflows for common tasks. Skills are stored in `~/.config/claude-golem/skills/` and made available to Claude via symlinks in `~/.claude/commands/`.
 
 ### Sourcing Skills in Other Projects
 
 Projects can access Ralph's skills automatically - they're globally available through `~/.claude/commands/`. No per-project configuration needed.
 
 **How it works:**
-1. Ralph's skills are in `~/.config/ralphtools/skills/` (the cloned repo)
+1. Ralph's skills are in `~/.config/claude-golem/skills/` (the cloned repo)
 2. Symlinks in `~/.claude/commands/` point to these skills
 3. Claude Code finds skills via `~/.claude/commands/` automatically
 4. All projects get the same skills without duplication
@@ -219,22 +219,22 @@ Run `/project-context` at session start to auto-detect:
 
 ### Updating Skills
 
-Skills auto-update when you pull ralphtools:
+Skills auto-update when you pull claude-golem:
 
 ```bash
-cd ~/.config/ralphtools && git pull
+cd ~/.config/claude-golem && git pull
 # Skills update immediately - symlinks point to latest files
 ```
 
 ### Adding Skills to a New Machine
 
 ```bash
-# After cloning ralphtools, use the /ralph-install skill
+# After cloning claude-golem, use the /ralph-install skill
 claude
 > /ralph-install   # Follow setup workflow
 
 # Or manually symlink all skills:
-cd ~/.config/ralphtools
+cd ~/.config/claude-golem
 for skill in skills/*.md; do
   ln -sf "$(pwd)/$skill" ~/.claude/commands/
 done
@@ -270,14 +270,14 @@ op read "op://Private/claude-golem/context7/API_KEY" | head -c 10
 
 ```bash
 # Option 1: op inject (creates .env file)
-op inject -i ~/.config/ralphtools/skills/.env.template -o ~/.config/ralphtools/skills/.env
-source ~/.config/ralphtools/skills/.env
+op inject -i ~/.config/claude-golem/skills/.env.template -o ~/.config/claude-golem/skills/.env
+source ~/.config/claude-golem/skills/.env
 
 # Option 2: op run (inject for single command)
-op run --env-file=~/.config/ralphtools/skills/.env.template -- claude
+op run --env-file=~/.config/claude-golem/skills/.env.template -- claude
 
 # Option 3: Shell alias (recommended)
-alias claude-with-keys='op run --env-file=~/.config/ralphtools/skills/.env.template -- claude'
+alias claude-with-keys='op run --env-file=~/.config/claude-golem/skills/.env.template -- claude'
 ```
 
 ### Obsidian MCP
@@ -408,7 +408,7 @@ Ralph scans your project and loads relevant tech contexts:
 
 ### Configuration
 
-Extend context loading in `~/.config/ralphtools/config.json`:
+Extend context loading in `~/.config/claude-golem/config.json`:
 
 ```json
 {
@@ -436,13 +436,13 @@ Ralph uses **layered prompts** that adapt to the story type being worked on.
    - `AUDIT.md` - Comprehensive review checklist
    - `MP.md` - Master plan/architecture guidance
 
-Prompts are stored in `~/.config/ralphtools/prompts/`.
+Prompts are stored in `~/.config/claude-golem/prompts/`.
 
 ### AGENTS.md Auto-Update
 
 Your project's `prd-json/AGENTS.md` is automatically refreshed when:
 - New skills are added to `~/.claude/commands/`
-- Prompts are updated in `~/.config/ralphtools/prompts/`
+- Prompts are updated in `~/.config/claude-golem/prompts/`
 - You run `ralph-setup` context migration
 
 ---
@@ -490,7 +490,7 @@ ralph-setup
 
 ### Configuration
 
-CodeRabbit is **opt-in** per repo. Configure in `~/.config/ralphtools/registry.json`:
+CodeRabbit is **opt-in** per repo. Configure in `~/.config/claude-golem/registry.json`:
 
 ```json
 {
@@ -567,6 +567,8 @@ Detailed docs for AI agents in [`docs/`](docs/):
 ### v2.0.0
 **Major architecture update with React Ink UI, modular codebase, and layered prompts.**
 
+> **Note:** Repository renamed from `ralphtools` to `claude-golem` as part of this release to better reflect the project's scope as a Claude Code extension ecosystem.
+
 - **React Ink UI** is now the default runtime - modern terminal dashboard with live-updating progress
 - **Modular codebase**: `ralph.zsh` split into `lib/*.zsh` modules for maintainability
 - **Layered AGENTS prompt**: Story-type-specific prompts (US.md, BUG.md, V.md, etc.) on top of base.md
@@ -577,7 +579,7 @@ Detailed docs for AI agents in [`docs/`](docs/):
 - **Context injection tests**: Verify modular context system integrity
 - Config-driven approach: `ralph-setup` wizard replaces flag-heavy CLI
 - Orphan process cleanup and crash logging (`ralph-logs`, `ralph-kill-orphans`)
-- Docusaurus documentation site at etanheyman.github.io/ralphtools/
+- Docusaurus documentation site at etanheyman.github.io/claude-golem/
 
 ### v1.5.0
 - **golem-powers skills**: Unified skill namespace with executable pattern (SKILL.md + scripts/)

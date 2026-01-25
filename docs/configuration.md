@@ -5,7 +5,7 @@
 Copy `ralph-config.local.example` to `ralph-config.local` and customize:
 
 ```bash
-cp ~/.config/ralphtools/ralph-config.local.example ~/.config/ralphtools/ralph-config.local
+cp ~/.config/claude-golem/ralph-config.local.example ~/.config/claude-golem/ralph-config.local
 ```
 
 ## Environment Variables
@@ -23,7 +23,7 @@ cp ~/.config/ralphtools/ralph-config.local.example ~/.config/ralphtools/ralph-co
 ## File Structure
 
 ```
-~/.config/ralphtools/
+~/.config/claude-golem/
 ├── ralph.zsh                   # Main script (source this)
 ├── ralph-config.local          # Your personal config (gitignored)
 ├── ralph-config.local.example  # Config template

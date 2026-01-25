@@ -1,4 +1,4 @@
-# Ralph Tooling
+# Claude Golem (Ralph Tooling)
 
 ## File Tree
 
@@ -45,7 +45,7 @@ claude-golem/
 |----------|----------|
 | `~/.claude/skill-index.md` | `contexts/skill-index.md` |
 | `~/.claude/scripts/foo.sh` | `scripts/foo.sh` |
-| `~/.config/ralphtools/new-file.zsh` | `lib/new-file.zsh` |
+| `~/.config/claude-golem/new-file.zsh` | `lib/new-file.zsh` |
 
 **The rule:** If a story says to create/edit files in `~/.claude/`, `~/.config/`, or any global path - STOP and ask:
 > "Should this be in the repo instead?"
@@ -77,7 +77,7 @@ claude-golem/
 
 After editing `ralph.zsh`, reload in current shell:
 ```bash
-source ~/.config/ralphtools/ralph.zsh
+source ~/.config/claude-golem/ralph.zsh
 ```
 
 ---

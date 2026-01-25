@@ -25,7 +25,7 @@ Run this script to install everything:
 
 ```bash
 #!/bin/bash
-echo "Installing ralphtools dependencies..."
+echo "Installing claude-golem dependencies..."
 
 # Update Homebrew
 brew update

@@ -1,11 +1,11 @@
 ---
 name: ralph-install
-description: Use when setting up Ralph/ralphtools for the first time. Checks dependencies, installs CLIs, configures 1Password tokens. Covers install ralph, setup ralph, dependencies. NOT for: daily Ralph usage (skills already installed).
+description: Use when setting up Ralph/claude-golem for the first time. Checks dependencies, installs CLIs, configures 1Password tokens. Covers install ralph, setup ralph, dependencies. NOT for: daily Ralph usage (skills already installed).
 ---
 
 # Ralph Install Wizard
 
-> Guides new users through ralphtools setup. Checks for required CLIs, configures tokens in 1Password, sets up the golem-powers symlink, and validates everything works.
+> Guides new users through claude-golem setup. Checks for required CLIs, configures tokens in 1Password, sets up the golem-powers symlink, and validates everything works.
 
 ## Available Scripts
 
@@ -80,7 +80,7 @@ All skills are under the `golem-powers` namespace. Create a single symlink:
 
 ```bash
 mkdir -p ~/.claude/commands
-ln -sf /path/to/ralphtools/skills/golem-powers ~/.claude/commands/golem-powers
+ln -sf /path/to/claude-golem/skills/golem-powers ~/.claude/commands/golem-powers
 ```
 
 Skills are then available as `/golem-powers:skill-name`:
@@ -98,8 +98,8 @@ Skills are then available as `/golem-powers:skill-name`:
 
 | Path | Purpose |
 |------|---------|
-| `~/.config/ralphtools/` | Main config directory |
-| `~/.config/ralphtools/config.json` | User settings |
+| `~/.config/claude-golem/` | Main config directory |
+| `~/.config/claude-golem/config.json` | User settings |
 | `~/.claude/commands/golem-powers` | Skills symlink |
 | `~/.claude/CLAUDE.md` | Global Claude instructions |
 | `~/.claude/contexts/` | Modular context files |
@@ -134,7 +134,7 @@ Projects reference contexts with `@context:` directives:
 @context: workflow/rtl
 ```
 
-The contexts are in the ralphtools repo at `~/.claude/contexts/` (not symlinked, copied during setup).
+The contexts are in the claude-golem repo at `~/.claude/contexts/` (not symlinked, copied during setup).
 
 ---
 

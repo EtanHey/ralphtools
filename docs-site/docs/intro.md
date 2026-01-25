@@ -22,8 +22,8 @@ Ralph takes a PRD with acceptance criteria and executes each story autonomously:
 
 ```bash
 # Install Ralph
-git clone https://github.com/etanheyman/ralphtools.git ~/.config/ralph
-source ~/.config/ralphtools/ralph.zsh
+git clone https://github.com/etanheyman/claude-golem.git ~/.config/claude-golem
+source ~/.config/claude-golem/ralph.zsh
 
 # Initialize a PRD in your project
 ralph-init
@@ -66,6 +66,6 @@ ralph 50
 
 ## Getting Help
 
-- [GitHub Issues](https://github.com/etanheyman/ralphtools/issues) - Report bugs or request features
+- [GitHub Issues](https://github.com/etanheyman/claude-golem/issues) - Report bugs or request features
 - [Skills Reference](./skills.md) - Learn about available skills
 - [Troubleshooting](./mcp-tools.md#troubleshooting) - Common issues and fixes

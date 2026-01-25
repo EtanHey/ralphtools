@@ -546,3 +546,31 @@ Started: Sun Jan 25 05:24:03 IST 2026
   * 205 zsh tests pass
 - CodeRabbit: Rate limited, code manually reviewed
 - BUG-033 COMPLETE - PTY spawning fixed with Bun auto-fallback
+
+## Iteration 27 - AUDIT-005: Machine-wide hardcoded secrets audit (BLOCKED)
+- Model: opus
+- Completed Discovery Phase:
+  * Scanned ~/.claude/ - CLEAN (settings.json has no secrets, only hook configs)
+  * Scanned ~/.config/ralphtools/registry.json - FOUND 4 hardcoded secrets:
+    - rudy SUPABASE_ACCESS_TOKEN (sbp_1bb193...)
+    - portfolio SUPABASE_ACCESS_TOKEN (sbp_55295e...)
+    - YOUTUBE_API_KEY (AIzaSyDfQ1IG...)
+    - SVGMAKER_API_KEY (svgmaker-io257...)
+  * Scanned ~/Gits/*/.claude.json - FOUND TEMPMAIL_API_KEY in domica and songscript
+  * Scanned ~/Gits/*/.env* files - Found many secrets in:
+    - union/.env.local (20+ secrets including Stripe, Twilio, OpenAI, etc.)
+    - songscript/.env.local (ElevenLabs, Resend, Better Auth)
+    - cantaloupe/* (Cantaloupe API key, Google Maps)
+    - observer, ccusage-leaderboard, etanheyman.com, domica-admin-standalone, etc.
+  * Scanned package.json files - CLEAN (no embedded tokens)
+- Completed Verification Phase:
+  * Checked Development vault - has 5 items (tempmail, ANTHROPIC_API_KEY, etc.)
+  * Checked Cantaloupe vault - has 21 items (most Union secrets already exist)
+  * Checked Domica vault - has 14 items
+  * Many secrets in .env files already exist in 1Password
+- BLOCKED on Migration Phase:
+  * 1Password auth timeout after 3 retry attempts
+  * User not present to authorize Touch ID
+  * Error: "authorization timeout" then "account is not signed in"
+- Created comprehensive audit document: docs.local/audits/AUDIT-005-secrets.md
+- AUDIT-005 BLOCKED - Waiting for user to sign into 1Password

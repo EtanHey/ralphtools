@@ -62,7 +62,7 @@ brew install ralphtools
 
 **User config:**
 ```
-~/.config/ralphtools/
+~/.config/claude-golem/
   ├── config.json                          # User preferences
   └── hooks/
       └── notify.sh                        # Replaceable notification function
@@ -235,7 +235,7 @@ Want notifications when Ralph completes or hits blockers?
 Enter your ntfy.sh topic name:
 > etans-ralph
 
-✅ Configuration saved to ~/.config/ralphtools/config.json
+✅ Configuration saved to ~/.config/claude-golem/config.json
 
 Starting Ralph...
 ```
@@ -332,7 +332,7 @@ curl -s -d "$message" "ntfy.sh/${topic}"
 Notifications go through a function that users can replace:
 
 ```bash
-# ~/.config/ralphtools/hooks/notify.sh
+# ~/.config/claude-golem/hooks/notify.sh
 
 ralph_notify() {
   local event="$1"      # Event type
@@ -340,7 +340,7 @@ ralph_notify() {
   local metadata="$3"   # JSON with details
 
   # Default implementation: ntfy.sh
-  local topic=$(jq -r '.notifications.ntfyTopic' ~/.config/ralphtools/config.json)
+  local topic=$(jq -r '.notifications.ntfyTopic' ~/.config/claude-golem/config.json)
   curl -s -d "$message" "ntfy.sh/${topic}" > /dev/null
 }
 ```
@@ -359,7 +359,7 @@ ralph_notify() {
 ### Custom Hook Example: Slack
 
 ```bash
-# ~/.config/ralphtools/hooks/notify.sh
+# ~/.config/claude-golem/hooks/notify.sh
 
 ralph_notify() {
   local event="$1"
@@ -489,7 +489,7 @@ ralph --help                   # Show help
 
 ### Phase 1: Quick Start + Config System (v0.2.0)
 - Pretty CLI prompts (Node + clack) for setup
-- `~/.config/ralphtools/config.json`
+- `~/.config/claude-golem/config.json`
 - `ralph config` command
 - First-run inline setup with skip option
 - **Success:** Users can configure with arrow keys, or skip to defaults
@@ -593,7 +593,7 @@ jobs:
 
 ## Security: Separating Sensitive Data
 
-**CRITICAL:** Current `~/.config/ralphtools/` contains sensitive tokens that must NOT be open sourced:
+**CRITICAL:** Current `~/.config/claude-golem/` contains sensitive tokens that must NOT be open sourced:
 - Supabase tokens (`sbp_...`)
 - Linear API keys (`lin_api_...`)
 - Tempmail API keys
@@ -608,8 +608,8 @@ jobs:
 - No actual tokens
 
 **Local only (never committed):**
-- `~/.config/ralphtools/config.json` - user's actual config with tokens
-- `~/.config/ralphtools/hooks/` - custom hooks
+- `~/.config/claude-golem/config.json` - user's actual config with tokens
+- `~/.config/claude-golem/hooks/` - custom hooks
 - `.env` files with secrets
 
 ### Files to Exclude
@@ -631,7 +631,7 @@ hooks.example/
 
 The `SUPABASE_TOKENS` and `LINEAR_TOKENS` in `repo-claude-v2.zsh` are **your personal tokens**. For open source:
 
-1. Move token definitions to `~/.config/ralphtools/secrets.local` (gitignored)
+1. Move token definitions to `~/.config/claude-golem/secrets.local` (gitignored)
 2. Source secrets file if it exists
 3. Open source version has empty placeholder arrays
 
@@ -645,7 +645,7 @@ typeset -A LINEAR_TOKENS
 ```
 
 ```zsh
-# ~/.config/ralphtools/secrets.local (gitignored, user creates)
+# ~/.config/claude-golem/secrets.local (gitignored, user creates)
 SUPABASE_TOKENS=(
   [myproject]="sbp_xxx"
 )
@@ -792,7 +792,7 @@ Currently `repo-claude-v2.zsh` has hardcoded project configs with tokens. We wan
 
 ### Project Registry
 
-In `~/.config/ralphtools/projects.json`:
+In `~/.config/claude-golem/projects.json`:
 
 ```json
 {
@@ -833,7 +833,7 @@ In `~/.config/ralphtools/projects.json`:
 Ralph generates shell functions for each project:
 
 ```bash
-# Auto-generated in ~/.config/ralphtools/projects.sh (sourced in .zshrc)
+# Auto-generated in ~/.config/claude-golem/projects.sh (sourced in .zshrc)
 
 runUnion() {
   cd ~/Desktop/Gits/union || return 1

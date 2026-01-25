@@ -1,7 +1,7 @@
 {
   "$schema": "https://ralph.dev/schemas/prd-index.schema.json",
   "generatedAt": "2026-01-25T12:14:30Z",
-  "nextStory": "AUDIT-005",
+  "nextStory": "US-065",
   "storyOrder": [
     "V-012",
     "V-015",
@@ -29,10 +29,11 @@
     "AUDIT-005"
   ],
   "pending": [
-    "AUDIT-005",
     "US-065"
   ],
-  "blocked": [],
+  "blocked": [
+    "AUDIT-005"
+  ],
   "completed": [
     "BUG-012",
     "BUG-017",
