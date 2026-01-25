@@ -25,8 +25,10 @@
     {"text": "Include implementation order recommendation", "checked": true},
     {"text": "Include success criteria from research", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: docs: AUDIT-003 node-pty architecture audit", "checked": false}
+    {"text": "Commit: docs: AUDIT-003 node-pty architecture audit", "checked": true}
   ],
   "dependencies": ["V-020"],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T11:46:00Z",
+  "completedBy": "opus"
 }
