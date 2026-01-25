@@ -3,7 +3,7 @@
  * Read/write operations for prd-json/ directory structure
  */
 
-import { existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 // Story types
@@ -333,4 +333,184 @@ export function getUnsatisfiedDependencies(
   }
 
   return unsatisfied;
+}
+
+// Update queue structure (update.json)
+export interface UpdateQueue {
+  newStories?: (Story | string)[];
+  updateStories?: Partial<Story>[];
+  moveToPending?: string[];
+  moveToBlocked?: [string, string][]; // [storyId, reason][]
+  removeStories?: string[];
+}
+
+// Result of processing update queue
+export interface UpdateQueueResult {
+  newStoriesCount: number;
+  updateStoriesCount: number;
+  moveToPendingCount: number;
+  moveToBlockedCount: number;
+  removeStoriesCount: number;
+  totalChanges: number;
+}
+
+/**
+ * Process update.json queue file
+ * Supports: newStories, updateStories, moveToPending, moveToBlocked, removeStories
+ */
+export function processUpdateQueue(prdJsonDir: string): UpdateQueueResult | null {
+  const updatePath = join(prdJsonDir, "update.json");
+  const indexPath = join(prdJsonDir, "index.json");
+  const storiesDir = join(prdJsonDir, "stories");
+
+  // Early return if no update.json
+  if (!existsSync(updatePath)) {
+    return null;
+  }
+
+  const index = readIndex(prdJsonDir);
+  if (!index) {
+    return null;
+  }
+
+  let update: UpdateQueue;
+  try {
+    update = JSON.parse(readFileSync(updatePath, "utf-8"));
+  } catch {
+    console.error("Failed to parse update.json");
+    return null;
+  }
+
+  const result: UpdateQueueResult = {
+    newStoriesCount: 0,
+    updateStoriesCount: 0,
+    moveToPendingCount: 0,
+    moveToBlockedCount: 0,
+    removeStoriesCount: 0,
+    totalChanges: 0,
+  };
+
+  // 1. Process newStories
+  if (update.newStories && update.newStories.length > 0) {
+    for (const entry of update.newStories) {
+      let storyId: string;
+
+      if (typeof entry === "string") {
+        // String format: just the story ID (file must exist)
+        storyId = entry;
+        const storyPath = join(storiesDir, `${storyId}.json`);
+        if (!existsSync(storyPath)) {
+          console.warn(`Skipping ${storyId}: story file not found`);
+          continue;
+        }
+      } else {
+        // Object format: full story definition
+        storyId = entry.id;
+        writeStory(prdJsonDir, entry as Story);
+      }
+
+      // Add to pending and storyOrder if not already present
+      if (!index.pending.includes(storyId)) {
+        index.pending.push(storyId);
+      }
+      if (!index.storyOrder.includes(storyId)) {
+        index.storyOrder.push(storyId);
+      }
+      result.newStoriesCount++;
+    }
+  }
+
+  // 2. Process updateStories
+  if (update.updateStories && update.updateStories.length > 0) {
+    for (const updateEntry of update.updateStories) {
+      if (!updateEntry.id) continue;
+
+      const existingStory = readStory(prdJsonDir, updateEntry.id);
+      if (!existingStory) continue;
+
+      // Merge the update into the existing story
+      const mergedStory: Story = { ...existingStory, ...updateEntry } as Story;
+      writeStory(prdJsonDir, mergedStory);
+      result.updateStoriesCount++;
+    }
+  }
+
+  // 3. Process moveToPending - move from blocked to pending, clear blockedBy
+  if (update.moveToPending && update.moveToPending.length > 0) {
+    for (const storyId of update.moveToPending) {
+      // Remove from blocked
+      index.blocked = index.blocked.filter(id => id !== storyId);
+
+      // Add to pending if not already there
+      if (!index.pending.includes(storyId)) {
+        index.pending.push(storyId);
+      }
+
+      // Clear blockedBy in story file
+      const story = readStory(prdJsonDir, storyId);
+      if (story) {
+        delete story.blockedBy;
+        writeStory(prdJsonDir, story);
+      }
+      result.moveToPendingCount++;
+    }
+  }
+
+  // 4. Process moveToBlocked - move from pending to blocked, set blockedBy
+  if (update.moveToBlocked && update.moveToBlocked.length > 0) {
+    for (const [storyId, reason] of update.moveToBlocked) {
+      // Remove from pending
+      index.pending = index.pending.filter(id => id !== storyId);
+
+      // Add to blocked if not already there
+      if (!index.blocked.includes(storyId)) {
+        index.blocked.push(storyId);
+      }
+
+      // Set blockedBy in story file
+      const story = readStory(prdJsonDir, storyId);
+      if (story) {
+        story.blockedBy = reason;
+        writeStory(prdJsonDir, story);
+      }
+      result.moveToBlockedCount++;
+    }
+  }
+
+  // 5. Process removeStories - remove from all arrays and delete file
+  if (update.removeStories && update.removeStories.length > 0) {
+    for (const storyId of update.removeStories) {
+      // Remove from all arrays
+      index.pending = index.pending.filter(id => id !== storyId);
+      index.blocked = index.blocked.filter(id => id !== storyId);
+      index.storyOrder = index.storyOrder.filter(id => id !== storyId);
+
+      // Delete story file
+      const storyPath = join(storiesDir, `${storyId}.json`);
+      if (existsSync(storyPath)) {
+        unlinkSync(storyPath);
+      }
+      result.removeStoriesCount++;
+    }
+  }
+
+  // Calculate total changes
+  result.totalChanges =
+    result.newStoriesCount +
+    result.updateStoriesCount +
+    result.moveToPendingCount +
+    result.moveToBlockedCount +
+    result.removeStoriesCount;
+
+  // 6. Update nextStory and write index
+  if (result.totalChanges > 0) {
+    index.nextStory = index.pending.length > 0 ? index.pending[0] : undefined;
+    index.newStories = [];
+    writeIndex(prdJsonDir, index);
+  }
+
+  // 7. Delete update.json
+  unlinkSync(updatePath);
+
+  return result;
 }

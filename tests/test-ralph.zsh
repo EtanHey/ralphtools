@@ -5983,6 +5983,280 @@ test_us110_first_startup_check_exists() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# US-111: Enhanced update.json with index-level operations
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: moveToPending removes from blocked, adds to pending, clears blockedBy
+test_us111_move_to_pending() {
+  test_start "US-111: moveToPending moves from blocked to pending and clears blockedBy"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["BUG-BLOCKED"],
+  "pending": [],
+  "blocked": ["BUG-BLOCKED"],
+  "nextStory": null
+}
+EOF
+
+  # Create story file with blockedBy
+  cat > "$TEST_TMP_DIR/prd-json/stories/BUG-BLOCKED.json" << 'EOF'
+{
+  "id": "BUG-BLOCKED",
+  "title": "Blocked bug",
+  "type": "bug",
+  "blockedBy": "External API unavailable",
+  "acceptanceCriteria": [{"text": "Fix it", "checked": false}]
+}
+EOF
+
+  # Create update.json with moveToPending
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "moveToPending": ["BUG-BLOCKED"]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify story moved from blocked to pending
+  local in_pending=$(jq -r '.pending | index("BUG-BLOCKED") != null' "$TEST_TMP_DIR/prd-json/index.json")
+  local in_blocked=$(jq -r '.blocked | index("BUG-BLOCKED") != null' "$TEST_TMP_DIR/prd-json/index.json")
+
+  assert_equals "true" "$in_pending" "BUG-BLOCKED should be in pending" || { _teardown_test_fixtures; return; }
+  assert_equals "false" "$in_blocked" "BUG-BLOCKED should not be in blocked" || { _teardown_test_fixtures; return; }
+
+  # Verify blockedBy was cleared from story file
+  local blocker=$(jq -r '.blockedBy // "null"' "$TEST_TMP_DIR/prd-json/stories/BUG-BLOCKED.json")
+  assert_equals "null" "$blocker" "blockedBy should be cleared" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: moveToBlocked removes from pending, adds to blocked, sets blockedBy
+test_us111_move_to_blocked() {
+  test_start "US-111: moveToBlocked moves from pending to blocked and sets blockedBy"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-PENDING"],
+  "pending": ["US-PENDING"],
+  "blocked": [],
+  "nextStory": "US-PENDING"
+}
+EOF
+
+  # Create story file without blockedBy
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-PENDING.json" << 'EOF'
+{
+  "id": "US-PENDING",
+  "title": "Pending story",
+  "type": "feature",
+  "acceptanceCriteria": [{"text": "Implement feature", "checked": false}]
+}
+EOF
+
+  # Create update.json with moveToBlocked
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "moveToBlocked": [["US-PENDING", "Waiting for design approval"]]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify story moved from pending to blocked
+  local in_pending=$(jq -r '.pending | index("US-PENDING") != null' "$TEST_TMP_DIR/prd-json/index.json")
+  local in_blocked=$(jq -r '.blocked | index("US-PENDING") != null' "$TEST_TMP_DIR/prd-json/index.json")
+
+  assert_equals "false" "$in_pending" "US-PENDING should not be in pending" || { _teardown_test_fixtures; return; }
+  assert_equals "true" "$in_blocked" "US-PENDING should be in blocked" || { _teardown_test_fixtures; return; }
+
+  # Verify blockedBy was set in story file
+  local blocker=$(jq -r '.blockedBy' "$TEST_TMP_DIR/prd-json/stories/US-PENDING.json")
+  assert_equals "Waiting for design approval" "$blocker" "blockedBy should be set" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: removeStories deletes from all arrays and removes story file
+test_us111_remove_stories() {
+  test_start "US-111: removeStories removes from all arrays and deletes file"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-TO-DELETE", "US-KEEP"],
+  "pending": ["US-TO-DELETE", "US-KEEP"],
+  "blocked": [],
+  "completed": [],
+  "nextStory": "US-TO-DELETE"
+}
+EOF
+
+  # Create story files
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-TO-DELETE.json" << 'EOF'
+{"id": "US-TO-DELETE", "title": "Delete me", "acceptanceCriteria": []}
+EOF
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-KEEP.json" << 'EOF'
+{"id": "US-KEEP", "title": "Keep me", "acceptanceCriteria": []}
+EOF
+
+  # Create update.json with removeStories
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "removeStories": ["US-TO-DELETE"]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify story removed from all arrays
+  local in_pending=$(jq -r '.pending | index("US-TO-DELETE") != null' "$TEST_TMP_DIR/prd-json/index.json")
+  local in_story_order=$(jq -r '.storyOrder | index("US-TO-DELETE") != null' "$TEST_TMP_DIR/prd-json/index.json")
+
+  assert_equals "false" "$in_pending" "US-TO-DELETE should not be in pending" || { _teardown_test_fixtures; return; }
+  assert_equals "false" "$in_story_order" "US-TO-DELETE should not be in storyOrder" || { _teardown_test_fixtures; return; }
+
+  # Verify story file was deleted
+  if [[ -f "$TEST_TMP_DIR/prd-json/stories/US-TO-DELETE.json" ]]; then
+    test_fail "Story file should have been deleted"
+    _teardown_test_fixtures
+    return
+  fi
+
+  # Verify nextStory updated to next available
+  local next_story=$(jq -r '.nextStory' "$TEST_TMP_DIR/prd-json/index.json")
+  assert_equals "US-KEEP" "$next_story" "nextStory should be US-KEEP" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: New operations work alongside existing newStories and updateStories
+test_us111_combined_operations() {
+  test_start "US-111: All operations work in single update.json"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{
+  "storyOrder": ["US-EXISTING"],
+  "pending": ["US-EXISTING"],
+  "blocked": [],
+  "completed": [],
+  "nextStory": "US-EXISTING"
+}
+EOF
+
+  cat > "$TEST_TMP_DIR/prd-json/stories/US-EXISTING.json" << 'EOF'
+{"id": "US-EXISTING", "title": "Existing", "status": "pending", "acceptanceCriteria": []}
+EOF
+
+  # Create update.json with multiple operations
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [
+    {"id": "US-NEW", "title": "New story", "acceptanceCriteria": [{"text": "Test", "checked": false}]}
+  ],
+  "updateStories": [
+    {"id": "US-EXISTING", "priority": "high"}
+  ]
+}
+EOF
+
+  _ralph_apply_update_queue "$TEST_TMP_DIR/prd-json"
+
+  # Verify new story was created
+  if [[ ! -f "$TEST_TMP_DIR/prd-json/stories/US-NEW.json" ]]; then
+    test_fail "New story file should have been created"
+    _teardown_test_fixtures
+    return
+  fi
+
+  # Verify existing story was updated
+  local priority=$(jq -r '.priority' "$TEST_TMP_DIR/prd-json/stories/US-EXISTING.json")
+  assert_equals "high" "$priority" "Existing story priority should be updated" || { _teardown_test_fixtures; return; }
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Valid fields are not warned as ignored
+test_us111_valid_fields_not_warned() {
+  test_start "US-111: Valid update.json fields are not warned as ignored"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{"storyOrder": [], "pending": [], "blocked": [], "nextStory": null}
+EOF
+
+  # Create update.json with all valid fields
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "newStories": [],
+  "updateStories": [],
+  "moveToPending": [],
+  "moveToBlocked": [],
+  "removeStories": []
+}
+EOF
+
+  # Capture output to check for warnings
+  local output=$(_ralph_apply_update_queue "$TEST_TMP_DIR/prd-json" 2>&1)
+
+  # Should not contain warning about ignored fields
+  if [[ "$output" == *"Warning: update.json has ignored fields"* ]]; then
+    test_fail "Should not warn about valid fields"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# Test: Invalid fields are still warned
+test_us111_invalid_fields_warned() {
+  test_start "US-111: Invalid update.json fields are warned"
+  _setup_test_fixtures
+
+  mkdir -p "$TEST_TMP_DIR/prd-json/stories"
+  cat > "$TEST_TMP_DIR/prd-json/index.json" << 'EOF'
+{"storyOrder": [], "pending": [], "blocked": [], "nextStory": null}
+EOF
+
+  # Create update.json with invalid field
+  cat > "$TEST_TMP_DIR/prd-json/update.json" << 'EOF'
+{
+  "invalidField": true,
+  "newStories": []
+}
+EOF
+
+  # Capture output to check for warnings
+  local output=$(_ralph_apply_update_queue "$TEST_TMP_DIR/prd-json" 2>&1)
+
+  # Should contain warning about ignored fields
+  if [[ "$output" != *"Warning: update.json has ignored fields"* ]]; then
+    test_fail "Should warn about invalid fields"
+    _teardown_test_fixtures
+    return
+  fi
+
+  _teardown_test_fixtures
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════
 

@@ -37,27 +37,27 @@
     },
     {
       "text": "Update bun/core/stories.ts processUpdateQueue()",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add tests for each new operation",
-      "checked": false
+      "checked": true
     },
     {
       "text": "=== VERIFICATION ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: moveToPending removes from blocked, adds to pending, clears blockedBy",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: moveToBlocked removes from pending, adds to blocked, sets blockedBy",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: removeStories deletes from all arrays and removes story file",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",

@@ -7193,16 +7193,46 @@ EOF
   rm -f "$prompt_file"
 }
 
-# ralph-live - DEPRECATED: Live updates now built into ralph command
-# The main ralph command now uses file watching for live progress updates
-# Use --no-live flag to disable if needed
+# ralph-ui - Launch React Ink live dashboard
+# Shows live-updating PRD status, current story, and session health
+function ralph-ui() {
+  local prd_path="${1:-$(pwd)/prd-json}"
+
+  # Check for bun
+  if ! command -v bun &>/dev/null; then
+    echo -e "${RALPH_COLOR_RED}Error: bun not installed. Install with: curl -fsSL https://bun.sh/install | bash${RALPH_COLOR_RESET}"
+    return 1
+  fi
+
+  # Check UI exists
+  if [[ ! -f "$RALPH_UI_PATH" ]]; then
+    echo -e "${RALPH_COLOR_RED}Error: UI not found at $RALPH_UI_PATH${RALPH_COLOR_RESET}"
+    return 1
+  fi
+
+  # Auto-cleanup stale sessions (>30 min inactive)
+  local status_file="${RALPH_STATUS_FILE:-$HOME/.ralph-status.json}"
+  if [[ -f "$status_file" ]]; then
+    local last_activity=$(jq -r '.lastActivity // 0' "$status_file" 2>/dev/null)
+    local now=$(date +%s)
+    local inactive=$((now - last_activity))
+    if (( inactive > 1800 )); then  # 30 minutes
+      echo -e "${RALPH_COLOR_YELLOW}Cleaning up stale session (inactive ${inactive}s)...${RALPH_COLOR_RESET}"
+      rm -f "$status_file"
+    fi
+  fi
+
+  # Launch live UI
+  echo -e "${RALPH_COLOR_CYAN}🐺 Launching Ralph UI (live mode)${RALPH_COLOR_RESET}"
+  echo -e "${RALPH_COLOR_GRAY}   Press 'q' to quit${RALPH_COLOR_RESET}"
+  echo ""
+
+  bun "$RALPH_UI_PATH" --mode=live --prd-path="$prd_path"
+}
+
+# ralph-live - Alias for ralph-ui (backwards compatibility)
 function ralph-live() {
-  echo ""
-  echo -e "${RALPH_COLOR_YELLOW}⚠️  ralph-live is deprecated. Live progress updates are now built into 'ralph'.${RALPH_COLOR_RESET}"
-  echo -e "${RALPH_COLOR_GRAY}   The main ralph loop uses file watching (fswatch) to update progress bars in-place.${RALPH_COLOR_RESET}"
-  echo -e "${RALPH_COLOR_GRAY}   Use 'ralph-status' for a one-time status snapshot, or 'ralph --no-live' to disable updates.${RALPH_COLOR_RESET}"
-  echo ""
-  ralph-status "$@"
+  ralph-ui "$@"
 }
 
 # ralph-status - Show detailed status of all Ralph PRDs
