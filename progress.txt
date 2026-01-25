@@ -201,3 +201,17 @@ Started: Sun Jan 25 20:00:00 IST 2026
 - Tests: 205 zsh tests, 20 context-audit tests - all passed
 - Learning: Monorepo detection requires checking nested package.json files,
   not just root. The `find` command is more reliable than glob patterns for this.
+
+## Iteration 12 - US-122: Update contexts/README.md with dogfooding docs
+- Model: opus
+- Updated contexts/README.md with new sections explaining the context system philosophy:
+  - Added "Dogfooding Requirement" section: projects defining contexts MUST use them
+  - Added "Cross-Project Improvement" section with diagram showing how one fix benefits all projects
+  - Added "Self-Improvement Loop" section with workflow diagram: find gap -> create story -> Ralph fixes
+  - Added context-audit workflow example showing expected output
+  - Updated "How to Reference Contexts" with current @context: syntax (standard, with descriptions, naming conventions)
+  - Added "Legacy Syntax (Deprecated)" for backward compatibility info
+- CodeRabbit: Rate limited, skipped (tests pass comprehensively)
+- Tests: 205 zsh tests, 17 skills tests, 83 TypeScript tests - all passed
+- Learning: The ASCII art diagrams help visualize how contexts propagate across projects
+  and the self-improvement feedback loop. Important for onboarding new users.

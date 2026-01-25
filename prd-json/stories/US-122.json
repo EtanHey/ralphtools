@@ -11,7 +11,9 @@
     {"text": "Add example of context-audit workflow for discovering gaps", "checked": true},
     {"text": "Update 'How to Reference Contexts' with current @context: syntax", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: docs: US-122 contexts README dogfooding docs", "checked": false}
+    {"text": "Commit: docs: US-122 contexts README dogfooding docs", "checked": true}
   ],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T19:35:00.000Z",
+  "completedBy": "opus"
 }
