@@ -1,0 +1,16 @@
+{
+  "id": "BUG-030",
+  "title": "Ralph UI keyboard shortcuts not working (q, c, Ctrl+C)",
+  "description": "The Ralph Ink UI shows 'q' quit and 'c' config as options, but pressing them does nothing. Ctrl+C also doesn't exit cleanly. Keyboard input handling is broken.",
+  "priority": "high",
+  "acceptanceCriteria": [
+    {"text": "Investigate keyboard input handling in ralph-ui/src/", "checked": false},
+    {"text": "Fix 'q' to quit Ralph cleanly", "checked": false},
+    {"text": "Fix 'c' to open config (or remove if not implemented)", "checked": false},
+    {"text": "Fix Ctrl+C to exit cleanly without orphan processes", "checked": false},
+    {"text": "Test all keyboard shortcuts work in terminal", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-030 Ralph UI keyboard shortcuts", "checked": false}
+  ],
+  "passes": false
+}

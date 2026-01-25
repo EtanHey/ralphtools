@@ -20,7 +20,8 @@
     "US-125",
     "US-126",
     "MP-127",
-    "US-128"
+    "US-128",
+    "BUG-030"
   ],
   "pending": [
     "US-123",
@@ -28,7 +29,8 @@
     "US-125",
     "US-126",
     "MP-127",
-    "US-128"
+    "US-128",
+    "BUG-030"
   ],
   "blocked": [],
   "completed": [
@@ -46,9 +48,9 @@
     "US-122"
   ],
   "stats": {
-    "total": 18,
+    "total": 19,
     "completed": 12,
-    "pending": 6,
+    "pending": 7,
     "blocked": 0
   }
 }
