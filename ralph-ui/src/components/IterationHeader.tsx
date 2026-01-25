@@ -30,7 +30,7 @@ export function IterationHeader({
   isRunning = true,
 }: IterationHeaderProps) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1}>
+    <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={1} width="100%">
       <Box justifyContent="space-between">
         <Box>
           {isRunning && (
