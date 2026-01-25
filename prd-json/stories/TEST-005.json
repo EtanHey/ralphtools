@@ -27,8 +27,10 @@
     {"text": "Mock node-pty for predictable testing", "checked": true},
     {"text": "All tests pass: bun test ralph-ui/tests/runner/", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: test: TEST-005 integration tests for node-pty runner", "checked": false}
+    {"text": "Commit: test: TEST-005 integration tests for node-pty runner", "checked": true}
   ],
   "dependencies": ["AUDIT-003"],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T11:55:00.000Z",
+  "completedBy": "opus"
 }
