@@ -5,43 +5,43 @@
   "acceptanceCriteria": [
     {
       "text": "Research: How Claude Code's LSP tool works (goToDefinition, findReferences, hover)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Research: What LSP servers are commonly configured (TypeScript, Python, etc.)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Research: How to configure LSP servers for Claude Code",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add LSP usage guidance to workflow/ralph.md context",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Document when Ralph should use LSP vs grep/glob for code exploration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add LSP examples to Ralph's prompt (for complex refactoring stories)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Ralph uses LSP for go-to-definition during refactoring",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Ralph uses findReferences before renaming symbols",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Optional: Create golem-powers:lsp skill for guided LSP usage",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: feat: [STORY-ID] description",
