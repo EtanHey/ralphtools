@@ -11,8 +11,10 @@
     {"text": "ralph-setup --configure re-runs wizard", "checked": true},
     {"text": "Typecheck passes", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: feat: US-112 add setup wizard with user preferences", "checked": false}
+    {"text": "Commit: feat: US-112 add setup wizard with user preferences", "checked": true}
   ],
-  "passes": false,
-  "blockedBy": null
+  "passes": true,
+  "blockedBy": null,
+  "completedAt": "2026-01-25T13:51:00Z",
+  "completedBy": "opus"
 }

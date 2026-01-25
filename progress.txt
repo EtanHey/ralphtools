@@ -472,3 +472,20 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - CodeRabbit: Rate limited (~5 min remaining), code manually verified
 - Tests: All 205 zsh tests pass
 - US-101 COMPLETE - MCP secrets now dynamically resolved from 1Password
+
+## Iteration 23 - US-112: Ralph setup wizard with user preferences
+- Model: opus
+- Implemented interactive setup wizard for user preferences:
+  * Added _ralph_setup_user_preferences() wizard function to lib/ralph-setup.zsh
+  * Wizard prompts for default UI mode (live/iteration/startup) with gum/fallback
+  * Wizard prompts for default model preference (opus/sonnet/haiku)
+  * Wizard prompts for optional ntfy topic for notifications
+  * Preferences saved to ~/.config/ralphtools/user-prefs.json as JSON
+  * ralph.zsh reads user-prefs.json at startup and applies defaults
+  * Added --configure/-c flag to ralph-setup to re-run wizard directly
+  * Added "Configure user preferences" option to main setup menu
+  * Added _ralph_load_user_preferences() function that loads on source
+  * View configuration now shows user preferences in output
+- CodeRabbit: Passed (no issues)
+- Tests: All 205 zsh tests pass, all 188 TypeScript tests pass
+- US-112 COMPLETE - Setup wizard with user preferences fully implemented
