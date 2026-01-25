@@ -265,6 +265,15 @@ The PRD creator discovers relevant skills and includes them in AGENTS.md with de
 
 **CR reads CLAUDE.md automatically.** Project rules are already there.
 
+### ⚠️ MANDATORY STORY STRUCTURE (EVERY STORY)
+
+**The last two acceptance criteria of EVERY story MUST be, in this exact order:**
+
+1. `"Run CodeRabbit review - must pass (or create BUG if unfixable)"`
+2. `"Commit: {type}: {STORY-ID} {description}"`
+
+**CodeRabbit ALWAYS comes BEFORE commit. No exceptions.**
+
 ### 🔄 CR Iteration Rule (CRITICAL)
 
 **For "Run CodeRabbit review" criteria, iterate until clean:**

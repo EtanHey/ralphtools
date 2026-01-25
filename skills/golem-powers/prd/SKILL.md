@@ -107,7 +107,12 @@ Each story must complete in ONE context window (~10 min of AI work).
 - Must be verifiable (not vague)
 - Include "Typecheck passes"
 - Include "Verify in browser" for UI stories
-- Include commit criterion with proper type (see Commit Convention below)
+
+**⚠️ MANDATORY: Last two criteria of EVERY story (in this exact order):**
+1. `"Run CodeRabbit review - must pass (or create BUG if unfixable)"`
+2. `"Commit: {type}: {STORY-ID} {description}"`
+
+**CodeRabbit ALWAYS comes BEFORE commit. No exceptions.**
 
 ### TDD / Test Enforcement (CRITICAL)
 **When to add test criteria:**
