@@ -29,11 +29,10 @@
     "AUDIT-005"
   ],
   "pending": [
-    "AUDIT-005"
-  ],
-  "blocked": [
+    "AUDIT-005",
     "US-065"
   ],
+  "blocked": [],
   "completed": [
     "BUG-012",
     "BUG-017",

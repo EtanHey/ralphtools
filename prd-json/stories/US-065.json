@@ -5,8 +5,7 @@
   "type": "feature",
   "priority": "medium",
   "storyPoints": 1,
-  "status": "blocked",
-  "blockedBy": "V-012 - Cannot update docs until verification confirms rename is complete",
+  "status": "pending",
   "acceptanceCriteria": [
     {"text": "Update README.md with new repo name and description", "checked": false},
     {"text": "Update CLAUDE.md project instructions", "checked": false},
