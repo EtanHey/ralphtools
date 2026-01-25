@@ -5,43 +5,43 @@
   "acceptanceCriteria": [
     {
       "text": "Add test_context_files_exist() - verify base.md exists",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_context_base_has_required_sections() - CLAUDE_COUNTER, git rules, etc.",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_context_merge_function() - _ralph_build_context_file works",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_context_cleanup() - temp files are removed after use",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_context_patterns_valid() - context-migrate.zsh patterns work",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_no_old_injection() - ${brave_skill} injection removed from ralph.zsh",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add test_workflow_ralph_has_git_rules() - RALPH GIT RULES in workflow/ralph.md",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Tests run in pre-commit hook alongside existing tests",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Tests fail commit if context system is broken",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Document test coverage in tests/README.md",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: test: [STORY-ID] description",

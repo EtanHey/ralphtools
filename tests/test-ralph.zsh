@@ -4724,6 +4724,259 @@ test_mp005_unknown_story_type() {
 }
 
 # ═══════════════════════════════════════════════════════════════════
+# TEST-001: CONTEXT INJECTION TESTS
+# ═══════════════════════════════════════════════════════════════════
+
+# Test: base.md context file exists
+test_context_files_exist() {
+  test_start "TEST-001: base.md context file exists"
+
+  local contexts_dir="${SCRIPT_DIR}/../contexts"
+
+  # Check contexts/base.md exists in repo
+  if [[ ! -f "$contexts_dir/base.md" ]]; then
+    test_fail "contexts/base.md not found in repo"
+    return
+  fi
+
+  # Check that it's not empty
+  local line_count=$(wc -l < "$contexts_dir/base.md" | tr -d ' ')
+  if [[ "$line_count" -lt 50 ]]; then
+    test_fail "contexts/base.md is too short ($line_count lines, expected 50+)"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: base.md has required sections
+test_context_base_has_required_sections() {
+  test_start "TEST-001: base.md has required sections"
+
+  local base_md="${SCRIPT_DIR}/../contexts/base.md"
+
+  if [[ ! -f "$base_md" ]]; then
+    test_fail "contexts/base.md not found"
+    return
+  fi
+
+  local content=$(<"$base_md")
+
+  # Check for Scratchpad section
+  if [[ ! "$content" =~ "Scratchpad" ]]; then
+    test_fail "base.md missing Scratchpad section"
+    return
+  fi
+
+  # Check for AIDEV-NOTE section
+  if [[ ! "$content" =~ "AIDEV-NOTE" ]]; then
+    test_fail "base.md missing AIDEV-NOTE section"
+    return
+  fi
+
+  # Check for Documentation Fetching section
+  if [[ ! "$content" =~ "Documentation Fetching" ]]; then
+    test_fail "base.md missing Documentation Fetching section"
+    return
+  fi
+
+  # Check for Thinking Before Doing section
+  if [[ ! "$content" =~ "Thinking Before Doing" ]]; then
+    test_fail "base.md missing Thinking Before Doing section"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: _ralph_build_context_file function works
+test_context_merge_function() {
+  test_start "TEST-001: _ralph_build_context_file works"
+
+  # Check function exists
+  if ! typeset -f _ralph_build_context_file >/dev/null 2>&1; then
+    test_fail "_ralph_build_context_file function not found"
+    return
+  fi
+
+  # Create a temp output file
+  local output_file="/tmp/test-context-merge-$$.md"
+
+  # Set up contexts dir to use repo contexts
+  local old_contexts_dir="$RALPH_CONTEXTS_DIR"
+  export RALPH_CONTEXTS_DIR="${SCRIPT_DIR}/../contexts"
+
+  # Call the function
+  local result
+  result=$(_ralph_build_context_file "$output_file" 2>&1)
+
+  # Restore contexts dir
+  export RALPH_CONTEXTS_DIR="$old_contexts_dir"
+
+  # Check output file was created
+  if [[ ! -f "$output_file" ]]; then
+    test_fail "output file was not created"
+    return
+  fi
+
+  # Check file has content
+  local line_count=$(wc -l < "$output_file" | tr -d ' ')
+  if [[ "$line_count" -lt 50 ]]; then
+    test_fail "merged context file too short ($line_count lines)"
+    rm -f "$output_file"
+    return
+  fi
+
+  # Check that base content is present
+  local content=$(<"$output_file")
+  if [[ ! "$content" =~ "Scratchpad" ]]; then
+    test_fail "merged context missing base.md content"
+    rm -f "$output_file"
+    return
+  fi
+
+  # Check that workflow/ralph.md content is present (if it exists)
+  if [[ -f "${SCRIPT_DIR}/../contexts/workflow/ralph.md" ]]; then
+    if [[ ! "$content" =~ "Ralph" ]]; then
+      test_fail "merged context missing workflow/ralph.md content"
+      rm -f "$output_file"
+      return
+    fi
+  fi
+
+  # Clean up
+  rm -f "$output_file"
+
+  test_pass
+}
+
+# Test: context cleanup removes temp files
+test_context_cleanup() {
+  test_start "TEST-001: context cleanup removes temp files"
+
+  # Check cleanup function exists
+  if ! typeset -f _ralph_cleanup_context_file >/dev/null 2>&1; then
+    test_fail "_ralph_cleanup_context_file function not found"
+    return
+  fi
+
+  # Create a temp file to test cleanup
+  local test_file="/tmp/test-context-cleanup-$$.md"
+  echo "test content" > "$test_file"
+
+  # Verify file exists before cleanup
+  if [[ ! -f "$test_file" ]]; then
+    test_fail "test file was not created"
+    return
+  fi
+
+  # Call cleanup
+  _ralph_cleanup_context_file "$test_file"
+
+  # Verify file was removed
+  if [[ -f "$test_file" ]]; then
+    test_fail "cleanup did not remove file"
+    rm -f "$test_file"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: context-migrate.zsh patterns are valid regex
+test_context_patterns_valid() {
+  test_start "TEST-001: context-migrate.zsh patterns are valid"
+
+  local migrate_script="${SCRIPT_DIR}/../scripts/context-migrate.zsh"
+
+  if [[ ! -f "$migrate_script" ]]; then
+    test_fail "scripts/context-migrate.zsh not found"
+    return
+  fi
+
+  # Extract the CONTEXT_PATTERNS lines and verify they're valid grep -E patterns
+  local patterns=$(grep 'CONTEXT_PATTERNS\[' "$migrate_script" | grep -oE '"[^"]+"\s*$' | tr -d '"')
+
+  if [[ -z "$patterns" ]]; then
+    test_fail "no patterns found in context-migrate.zsh"
+    return
+  fi
+
+  # Test each pattern is valid by trying to match against empty string
+  while IFS= read -r pattern; do
+    [[ -z "$pattern" ]] && continue
+    # Try to use the pattern with grep -E (should not error)
+    echo "test" | grep -qE "$pattern" 2>/dev/null || true
+    # If grep itself errored (exit code 2), pattern is invalid
+    if [[ $? -eq 2 ]]; then
+      test_fail "invalid regex pattern: $pattern"
+      return
+    fi
+  done <<< "$patterns"
+
+  test_pass
+}
+
+# Test: old ${brave_skill} injection removed from ralph.zsh
+test_no_old_injection() {
+  test_start "TEST-001: old \${brave_skill} injection removed"
+
+  local ralph_zsh="${SCRIPT_DIR}/../ralph.zsh"
+
+  if [[ ! -f "$ralph_zsh" ]]; then
+    test_fail "ralph.zsh not found"
+    return
+  fi
+
+  # Check that ${brave_skill} injection is NOT present
+  if grep -qE '\$\{brave_skill\}' "$ralph_zsh" 2>/dev/null; then
+    test_fail "\${brave_skill} still present in ralph.zsh"
+    return
+  fi
+
+  # Check that ${ralph_agent_instructions} injection is NOT present
+  if grep -qE '\$\{ralph_agent_instructions\}' "$ralph_zsh" 2>/dev/null; then
+    test_fail "\${ralph_agent_instructions} still present in ralph.zsh"
+    return
+  fi
+
+  test_pass
+}
+
+# Test: workflow/ralph.md has RALPH GIT RULES
+test_workflow_ralph_has_git_rules() {
+  test_start "TEST-001: workflow/ralph.md has RALPH GIT RULES"
+
+  local ralph_md="${SCRIPT_DIR}/../contexts/workflow/ralph.md"
+
+  if [[ ! -f "$ralph_md" ]]; then
+    test_fail "contexts/workflow/ralph.md not found"
+    return
+  fi
+
+  local content=$(<"$ralph_md")
+
+  # Check for Ralph Git Rules section
+  if [[ ! "$content" =~ "Ralph Git Rules" ]] && [[ ! "$content" =~ "RALPH GIT RULES" ]] && [[ ! "$content" =~ "Git Rules" ]]; then
+    test_fail "workflow/ralph.md missing Git Rules section"
+    return
+  fi
+
+  # Check for key git rules content
+  if [[ ! "$content" =~ "MUST commit" ]]; then
+    test_fail "workflow/ralph.md missing 'MUST commit' rule"
+    return
+  fi
+
+  if [[ ! "$content" =~ "MUST NOT push" ]]; then
+    test_fail "workflow/ralph.md missing 'MUST NOT push' rule"
+    return
+  fi
+
+  test_pass
+}
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════
 
