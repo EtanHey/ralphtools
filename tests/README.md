@@ -14,6 +14,9 @@ This directory contains automated tests for the Ralph tooling system.
 # Run JSON mode tests
 ./tests/test-json-mode.sh
 
+# Run archive scripts tests
+./tests/test-archive.sh
+
 # Run Bun/TypeScript tests
 cd bun && bun test
 ```
@@ -25,6 +28,7 @@ cd bun && bun test
 | `test-ralph.zsh` | Main test suite for Ralph ZSH functions (~150+ tests) |
 | `test-skills.zsh` | Tests for skill structure and compliance |
 | `test-json-mode.sh` | Integration tests for JSON mode PRD processing |
+| `test-archive.sh` | Tests for archive scripts (archive-snapshot, cleanup-completed) |
 
 ## Test Categories
 

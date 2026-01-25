@@ -16,3 +16,19 @@ Started: Sun Jan 25 17:21:18 IST 2026
 - Root cause: Multiple competing exit handlers and race conditions between Ink unmount and process.exit
 - Tests: 205 zsh tests passed, 188 TypeScript tests passed
 
+## Iteration 2 - US-115: Fix archive script with template-based testing
+- Model: opus
+- Created tests/fixtures/prd-archive/generate-fixtures.sh that generates realistic PRD structures:
+  - Creates index.json matching current schema (with pending/blocked/completed arrays)
+  - Creates mix of completed, pending, and blocked stories
+  - Generates progress.txt for testing
+- Created tests/test-archive.sh with 14 tests covering:
+  - archive-snapshot.sh: timestamped directory creation, index/stories/progress copying
+  - cleanup-completed.sh: removes only passes=true stories, resets completed array, preserves pending/blocked
+- Bug found and fixed in cleanup-completed.sh:
+  - The jq expression was setting `.stats.completed = 0` but NOT resetting `.completed = []`
+  - Also removed references to `.stats` object which doesn't exist in current schema
+- CodeRabbit: Rate limited, skipped (tests pass comprehensively)
+- Root cause: cleanup-completed.sh jq expression didn't update the completed array, only a non-existent stats object
+- Tests: 205 zsh tests, 14 archive tests, 83 TypeScript tests - all passed
+

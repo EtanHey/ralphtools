@@ -175,14 +175,12 @@ else
 fi
 
 # Update index.json
+# Reset completed array to empty, update pending/blocked/storyOrder/nextStory
 jq --argjson pending "$NEW_PENDING_JSON" \
    --argjson blocked "$NEW_BLOCKED_JSON" \
    --argjson order "$NEW_ORDER_JSON" \
-   --argjson total "$NEW_TOTAL" \
-   --argjson pendingCount "$NEW_PENDING" \
-   --argjson blockedCount "$NEW_BLOCKED" \
    --arg next "$NEXT_STORY" \
-   '.stats.total = $total | .stats.completed = 0 | .stats.pending = $pendingCount | .stats.blocked = $blockedCount | .pending = $pending | .blocked = $blocked | .storyOrder = $order | .nextStory = $next' \
+   '.pending = $pending | .blocked = $blocked | .completed = [] | .storyOrder = $order | .nextStory = $next' \
    "$PRD_DIR/index.json" > "$PRD_DIR/index.json.tmp" && mv "$PRD_DIR/index.json.tmp" "$PRD_DIR/index.json"
 
 echo -e "${GREEN}[OK]${NC} Stats reset: $NEW_TOTAL total, $NEW_PENDING pending, $NEW_BLOCKED blocked"

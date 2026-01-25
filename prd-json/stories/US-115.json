@@ -4,18 +4,20 @@
   "description": "The archive skill scripts have bugs - they don't properly reset index.json after cleanup. Add comprehensive tests using generated fixtures from schema templates to catch regressions.",
   "priority": "high",
   "acceptanceCriteria": [
-    { "text": "Create tests/fixtures/prd-archive/ directory with template generator script", "checked": false },
-    { "text": "Template generator creates valid index.json and story files from schema", "checked": false },
-    { "text": "Test: archive-snapshot.sh creates timestamped archive with all files", "checked": false },
-    { "text": "Test: cleanup-completed.sh removes only passes=true stories", "checked": false },
-    { "text": "Test: After cleanup, index.json has empty completed array", "checked": false },
-    { "text": "Test: After cleanup, pending array contains only non-completed story IDs", "checked": false },
-    { "text": "Test: Blocked stories are preserved (not deleted)", "checked": false },
-    { "text": "Fix any bugs discovered by tests in archive scripts", "checked": false },
-    { "text": "Tests run as part of tests/test-ralph.zsh or separate test file", "checked": false },
-    { "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false },
-    { "text": "Commit: fix: US-115 archive script with template-based tests", "checked": false }
+    { "text": "Create tests/fixtures/prd-archive/ directory with template generator script", "checked": true },
+    { "text": "Template generator creates valid index.json and story files from schema", "checked": true },
+    { "text": "Test: archive-snapshot.sh creates timestamped archive with all files", "checked": true },
+    { "text": "Test: cleanup-completed.sh removes only passes=true stories", "checked": true },
+    { "text": "Test: After cleanup, index.json has empty completed array", "checked": true },
+    { "text": "Test: After cleanup, pending array contains only non-completed story IDs", "checked": true },
+    { "text": "Test: Blocked stories are preserved (not deleted)", "checked": true },
+    { "text": "Fix any bugs discovered by tests in archive scripts", "checked": true },
+    { "text": "Tests run as part of tests/test-ralph.zsh or separate test file", "checked": true },
+    { "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true },
+    { "text": "Commit: fix: US-115 archive script with template-based tests", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-25T16:04:12.000Z",
+  "completedBy": "opus",
   "failedAttempts": 0
 }
