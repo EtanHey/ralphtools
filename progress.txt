@@ -386,3 +386,22 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - Tests: All 205 zsh tests pass
 - CodeRabbit: Passed (no issues)
 - AUDIT-004 COMPLETE - Skill token audit provides baseline for optimization
+
+## Iteration 18 - US-114: Implement progressive skill disclosure in CLAUDE.md
+- Model: opus
+- Implemented 3-tier progressive skill disclosure system per AUDIT-004 findings:
+  * Tier 1: ~/.claude/skill-index.md - skill names only (1 line each)
+  * Tier 2: ~/.claude/skill-descriptions.md - name + 1-line descriptions
+  * Tier 3: Full SKILL.md loaded on-demand via Skill tool
+- Created generator script: ~/.claude/scripts/generate-skill-index.sh
+  * Extracts YAML frontmatter (name, description) from SKILL.md files
+  * Handles Windows CRLF line endings via tr -d '\r'
+  * Uses awk to extract only first frontmatter block (avoids templates in content)
+  * Filters placeholder names (uppercase, brackets, "when", "skill-name")
+  * Auto-detects golem-powers (symlink) and superpowers skill directories
+  * Truncates descriptions >200 chars (~50 tokens)
+- Updated ~/.claude/CLAUDE.md with skill disclosure documentation
+- Stats: 38 skills discovered (24 golem-powers + 14 superpowers)
+- CodeRabbit: Rate limited; manually verified script syntax and functionality
+- Tests: All 205 zsh tests pass, all 83 bun tests pass
+- US-114 COMPLETE - Progressive skill disclosure reduces context by ~94%

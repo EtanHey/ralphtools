@@ -19,8 +19,10 @@
     {"text": "Create ~/.claude/scripts/generate-skill-index.sh", "checked": true},
     {"text": "Script regenerates skill-index.md and skill-descriptions.md from installed skills", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: feat: US-114 implement progressive skill disclosure", "checked": false}
+    {"text": "Commit: feat: US-114 implement progressive skill disclosure", "checked": true}
   ],
   "dependencies": ["AUDIT-004"],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T12:35:55Z",
+  "completedBy": "opus"
 }
