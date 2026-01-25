@@ -32,10 +32,23 @@ function useLiveClock(enabled: boolean): string {
 // Wrapper component that conditionally uses input (only for live mode)
 function KeyboardHandler({ onExit }: { onExit: () => void }) {
   useInput((input, key) => {
-    if (input === 'q' || (key.ctrl && input === 'c')) {
+    if (input === 'q' || (key.ctrl && input === 'c') || key.escape) {
       onExit();
     }
   });
+
+  // Also handle SIGINT (Ctrl+C at process level)
+  useEffect(() => {
+    const handler = () => {
+      onExit();
+      process.exit(0);
+    };
+    process.on('SIGINT', handler);
+    return () => {
+      process.off('SIGINT', handler);
+    };
+  }, [onExit]);
+
   return null;
 }
 
@@ -111,8 +124,8 @@ export function Dashboard({
 
   return (
     <Box flexDirection="column" width={terminalWidth}>
-      {/* Keyboard handler - only in live mode when raw mode is supported */}
-      {isLiveMode && isRawModeSupported && <KeyboardHandler onExit={handleExit} />}
+      {/* Keyboard handler - in live mode (SIGINT works even without raw mode) */}
+      {isLiveMode && <KeyboardHandler onExit={handleExit} />}
 
       {/* Header */}
       <Box marginBottom={1}>
