@@ -3,16 +3,41 @@
   "title": "Fix Ralph output capture - file always empty",
   "description": "The /tmp/ralph_output_$$.txt file is always empty because Claude in interactive mode (claude --chrome) outputs directly to TTY, bypassing stdout pipe.\n\nCurrent behavior:\n- Claude output goes to terminal (visible to user)\n- RALPH_TMP file stays empty (0 lines)\n- ralph-session shows 0 lines of output\n- Only stderr is captured (errors)\n\nExpected:\n- Output should be captured to file for debugging\n- ralph-session should show last N lines of output\n\nPossible solutions:\n1. Use script(1) to capture terminal output\n2. Use --print mode and stream to terminal manually\n3. Use pty wrapper to capture both TTY and file\n4. Redirect Claude's internal logging",
   "acceptanceCriteria": [
-    {"text": "Ralph output is captured to /tmp/ralph_output_$$.txt during execution", "checked": false},
-    {"text": "File contains actual Claude conversation, not just errors", "checked": false},
-    {"text": "Output capture works in both verbose and non-verbose modes", "checked": false},
-    {"text": "ralph-session shows last 5-10 lines of output", "checked": false},
-    {"text": "Performance not significantly impacted by capture", "checked": false},
-    {"text": "Run tests - all must pass", "checked": false},
-    {"text": "Run CodeRabbit review - must pass", "checked": false},
-    {"text": "Commit: fix: [STORY-ID] description", "checked": false}
+    {
+      "text": "Ralph output is captured to /tmp/ralph_output_$$.txt during execution",
+      "checked": false
+    },
+    {
+      "text": "File contains actual Claude conversation, not just errors",
+      "checked": false
+    },
+    {
+      "text": "Output capture works in both verbose and non-verbose modes",
+      "checked": false
+    },
+    {
+      "text": "ralph-session shows last 5-10 lines of output",
+      "checked": false
+    },
+    {
+      "text": "Performance not significantly impacted by capture",
+      "checked": false
+    },
+    {
+      "text": "Run tests - all must pass",
+      "checked": false
+    },
+    {
+      "text": "Run CodeRabbit review - must pass",
+      "checked": false
+    },
+    {
+      "text": "Commit: fix: [STORY-ID] description",
+      "checked": false
+    }
   ],
   "storyType": "BUG",
   "priority": "high",
-  "createdAt": "2026-01-25T00:00:00Z"
+  "createdAt": "2026-01-25T00:00:00Z",
+  "passes": false
 }
