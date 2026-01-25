@@ -136,6 +136,71 @@ case "$ACTION" in
     echo "}"
     ;;
 
+  summary)
+    # Show completed stories summary (US-125)
+    echo "=== COMPLETED STORIES ==="
+    echo ""
+
+    # Collect completed stories data
+    first_completed=""
+    last_completed=""
+    completed_count=0
+
+    # Print table header
+    printf "%-12s %-35s %-22s %-10s\n" "ID" "TITLE" "COMPLETED" "BY"
+    printf "%-12s %-35s %-22s %-10s\n" "------------" "-----------------------------------" "----------------------" "----------"
+
+    for f in "$PRD_DIR/stories"/*.json; do
+      [[ -f "$f" ]] || continue
+      passes=$(jq -r '.passes // false' "$f")
+      if [[ "$passes" == "true" ]]; then
+        story_id=$(jq -r '.id' "$f")
+        title=$(jq -r '.title' "$f")
+        completed_at=$(jq -r '.completedAt // "N/A"' "$f")
+        completed_by=$(jq -r '.completedBy // "N/A"' "$f")
+
+        # Truncate title if too long
+        if [[ ${#title} -gt 35 ]]; then
+          title="${title:0:32}..."
+        fi
+
+        # Format the completed_at date (show shorter format if ISO)
+        if [[ "$completed_at" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]]; then
+          # ISO format - show date and time without seconds
+          completed_display="${completed_at:0:16}"
+          completed_display=$(echo "$completed_display" | tr 'T' ' ')
+        else
+          completed_display="$completed_at"
+        fi
+
+        printf "%-12s %-35s %-22s %-10s\n" "$story_id" "$title" "$completed_display" "$completed_by"
+        ((completed_count++))
+
+        # Track time range
+        if [[ "$completed_at" != "N/A" ]]; then
+          if [[ -z "$first_completed" ]] || [[ "$completed_at" < "$first_completed" ]]; then
+            first_completed="$completed_at"
+          fi
+          if [[ -z "$last_completed" ]] || [[ "$completed_at" > "$last_completed" ]]; then
+            last_completed="$completed_at"
+          fi
+        fi
+      fi
+    done
+
+    echo ""
+    echo "=== SUMMARY ==="
+    echo "Total Completed: $completed_count"
+    if [[ -n "$first_completed" && -n "$last_completed" ]]; then
+      # Format time range
+      first_display="${first_completed:0:16}"
+      first_display=$(echo "$first_display" | tr 'T' ' ')
+      last_display="${last_completed:0:16}"
+      last_display=$(echo "$last_display" | tr 'T' ' ')
+      echo "Time Range: $first_display to $last_display"
+    fi
+    ;;
+
   check-progress)
     # Show current PRD progress (US-106)
     echo "=== PRD PROGRESS ==="
@@ -207,6 +272,7 @@ case "$ACTION" in
     echo "  --action=show --story=ID            Show story details"
     echo "  --action=set-next --story=ID        Set next story"
     echo "  --action=stats                      Show stats (derived)"
+    echo "  --action=summary                    Show completed stories summary"
     echo "  --action=check-progress             Show full progress with status"
     echo ""
     echo "Scopes: pending, blocked, all"

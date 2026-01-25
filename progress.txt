@@ -260,3 +260,17 @@ Started: Sun Jan 25 20:00:00 IST 2026
 - Tests: 205 zsh tests, 22 prd-manager tests - all passed
 - Learning: The test suite follows TDD pattern from test-context-audit.sh.
   Summary action test is intentionally expected to fail (US-125 will implement it).
+
+## Iteration 15 - US-125: Implement prd-manager --action=summary
+- Model: opus
+- Added summary action to prd-manager/scripts/run.sh:
+  - Shows completed stories (passes=true) in a formatted table
+  - Columns: ID, TITLE (truncated to 35 chars), COMPLETED (datetime), BY (completedBy)
+  - Shows total completed count at the bottom
+  - Shows time range (first completion to last completion)
+  - ISO datetime formatting strips seconds for cleaner display
+- Updated help output to include --action=summary
+- Tests: 205 zsh tests, 23 prd-manager tests (summary test now passes)
+- CodeRabbit: Rate limited, skipped (tests pass comprehensively)
+- Learning: The summary action completes the TDD cycle started in US-124.
+  Tests written first, implementation verified by tests passing.

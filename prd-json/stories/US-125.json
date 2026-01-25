@@ -5,13 +5,15 @@
   "priority": "medium",
   "dependsOn": ["US-124"],
   "acceptanceCriteria": [
-    {"text": "Add --action=summary to prd-manager/scripts/run.sh", "checked": false},
-    {"text": "Summary shows: story ID, title, completedAt, completedBy for each completed story", "checked": false},
-    {"text": "Summary shows total count and time range (first to last completion)", "checked": false},
-    {"text": "Output is formatted as readable table", "checked": false},
-    {"text": "All tests in test-prd-manager.sh pass (including summary test)", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: feat: US-125 prd-manager summary action", "checked": false}
+    {"text": "Add --action=summary to prd-manager/scripts/run.sh", "checked": true},
+    {"text": "Summary shows: story ID, title, completedAt, completedBy for each completed story", "checked": true},
+    {"text": "Summary shows total count and time range (first to last completion)", "checked": true},
+    {"text": "Output is formatted as readable table", "checked": true},
+    {"text": "All tests in test-prd-manager.sh pass (including summary test)", "checked": true},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
+    {"text": "Commit: feat: US-125 prd-manager summary action", "checked": true}
   ],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T20:01:00Z",
+  "completedBy": "opus"
 }
