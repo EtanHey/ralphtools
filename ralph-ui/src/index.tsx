@@ -1,6 +1,9 @@
 #!/usr/bin/env bun
 import React from 'react';
 import { render } from 'ink';
+import { existsSync, unlinkSync } from 'fs';
+import { homedir } from 'os';
+import { join } from 'path';
 import { Dashboard } from './components/Dashboard.js';
 import { runIterations, createConfig } from './runner/index.js';
 import { cleanupStatus } from './runner/status.js';
@@ -13,24 +16,45 @@ import { isPTYSupported, getPTYUnsupportedReason } from './runner/pty/index.js';
 
 // Immediate process-level exit handlers (before Ink takes over)
 let exitRequested = false;
+let inkInstance: ReturnType<typeof render> | undefined;
+
+// Cleanup files on exit - use os.homedir() for cross-platform compatibility
+const stopFile = join(homedir(), '.ralph-stop');
+
+function cleanupAndExit(code: number = 0): void {
+  exitRequested = true;
+
+  // Cleanup status file
+  try { cleanupStatus(); } catch {}
+
+  // Cleanup stop file if it exists
+  try {
+    if (existsSync(stopFile)) {
+      unlinkSync(stopFile);
+    }
+  } catch {}
+
+  // Unmount Ink UI gracefully before exit
+  if (inkInstance) {
+    try { inkInstance.unmount(); } catch {}
+    inkInstance = undefined;
+  }
+
+  process.exit(code);
+}
 
 // Force exit on any signal
-const forceExit = () => {
-  exitRequested = true;
-  try { cleanupStatus(); } catch {}
-  process.exit(0);
-};
+const forceExit = () => cleanupAndExit(0);
 process.on('SIGINT', forceExit);
 process.on('SIGTERM', forceExit);
 process.on('SIGHUP', forceExit);
 
 // Watchdog: check for ~/.ralph-stop file every 500ms
 // Touch this file to force exit: touch ~/.ralph-stop
-const stopFile = `${process.env.HOME}/.ralph-stop`;
-setInterval(() => {
+const watchdogInterval = setInterval(() => {
   try {
-    if (require('fs').existsSync(stopFile)) {
-      require('fs').unlinkSync(stopFile);
+    if (existsSync(stopFile)) {
+      unlinkSync(stopFile);
       forceExit();
     }
   } catch {}
@@ -252,6 +276,56 @@ async function main() {
   }
 }
 
+// Format elapsed time from milliseconds to human-readable
+function formatElapsed(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${mins}m ${secs}s`;
+  } else if (mins > 0) {
+    return `${mins}m ${secs}s`;
+  } else {
+    return `${secs}s`;
+  }
+}
+
+// Wait for any keypress (or timeout)
+async function waitForKeypress(timeoutMs: number = 30000): Promise<void> {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      cleanup();
+      resolve();
+    }, timeoutMs);
+
+    const cleanup = () => {
+      clearTimeout(timeout);
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode?.(false);
+        process.stdin.pause();
+        process.stdin.removeListener('data', handler);
+      }
+    };
+
+    const handler = () => {
+      cleanup();
+      resolve();
+    };
+
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode?.(true);
+      process.stdin.resume();
+      process.stdin.once('data', handler);
+      console.log('\nPress any key to exit (or wait 30s)...');
+    } else {
+      // Non-TTY: just wait a short time for messages to be read
+      setTimeout(resolve, 2000);
+    }
+  });
+}
+
 // Runner mode: executes iterations with optional UI
 async function runInRunnerMode(config: CLIConfig) {
   const runnerConfig = createConfig({
@@ -267,8 +341,9 @@ async function runInRunnerMode(config: CLIConfig) {
     usePty: config.usePty,
   });
 
-  // Start UI if not quiet
-  let inkInstance: ReturnType<typeof render> | undefined;
+  const runStartTime = Date.now();
+
+  // Start UI if not quiet - use the global inkInstance
   if (!config.quiet) {
     // Create a wrapper component that handles exit callback
     const RunnerDashboard = () => {
@@ -289,7 +364,8 @@ async function runInRunnerMode(config: CLIConfig) {
       );
     };
 
-    inkInstance = render(<RunnerDashboard />, { exitOnCtrlC: true });
+    // Use the global inkInstance so cleanup can access it
+    inkInstance = render(<RunnerDashboard />, { exitOnCtrlC: false });
 
     // Also listen for Ink's exit event to set exitRequested
     inkInstance.waitUntilExit().then(() => {
@@ -297,48 +373,103 @@ async function runInRunnerMode(config: CLIConfig) {
     });
   }
 
+  // Track stats for summary
+  let storiesCompleted = 0;
+  let iterationsRun = 0;
+  let hasErrors = false;
+  let exitReason: 'complete' | 'blocked' | 'interrupted' | 'iterations' = 'iterations';
+
   try {
     // Run iterations
-    let currentIteration = 1;
     for await (const result of runIterations(runnerConfig)) {
-      currentIteration = result.iteration;
+      iterationsRun = result.iteration;
+
+      // Track successful story completions
+      if (result.success && result.storyId) {
+        storiesCompleted++;
+      }
+
+      // Track errors
+      if (result.error) {
+        hasErrors = true;
+      }
 
       // Check for exit request
       if (exitRequested) {
+        exitReason = 'interrupted';
         break;
       }
 
       // Handle completion
       if (result.hasComplete) {
-        if (!config.quiet) {
-          console.log('\n✅ All stories complete!');
-        }
+        exitReason = 'complete';
         break;
       }
 
       // Handle all blocked
       if (result.hasBlocked && !result.storyId) {
-        if (!config.quiet) {
-          console.log('\n⚠️ All remaining stories are blocked');
-        }
+        exitReason = 'blocked';
         break;
       }
     }
   } finally {
-    // Cleanup
+    // Clear watchdog interval before cleanup
+    clearInterval(watchdogInterval);
+
+    // Cleanup status file
     cleanupStatus();
 
+    // Unmount UI before showing summary
     if (inkInstance) {
       inkInstance.unmount();
+      inkInstance = undefined;
     }
   }
 
-  process.exit(0);
+  // Show completion summary (unless quiet)
+  if (!config.quiet) {
+    const elapsedMs = Date.now() - runStartTime;
+    const elapsed = formatElapsed(elapsedMs);
+
+    console.log('\n' + '═'.repeat(60));
+    console.log('📋 RALPH SESSION SUMMARY');
+    console.log('═'.repeat(60));
+
+    // Status emoji and message based on exit reason
+    switch (exitReason) {
+      case 'complete':
+        console.log('✅ Status: All stories complete!');
+        break;
+      case 'blocked':
+        console.log('⚠️  Status: All remaining stories are blocked');
+        break;
+      case 'interrupted':
+        console.log('🛑 Status: Interrupted by user');
+        break;
+      case 'iterations':
+        console.log(`📊 Status: Completed ${config.iterations} iterations`);
+        break;
+    }
+
+    console.log(`📈 Iterations run: ${iterationsRun}`);
+    console.log(`📚 Stories completed: ${storiesCompleted}`);
+    console.log(`⏱  Elapsed time: ${elapsed}`);
+    if (hasErrors) {
+      console.log('⚠️  Some iterations had errors (check progress.txt)');
+    }
+    console.log('═'.repeat(60));
+
+    // Wait for keypress before exiting
+    await waitForKeypress();
+  }
+
+  cleanupAndExit(0);
 }
 
 // Display-only mode: show dashboard without running iterations
 async function runInDisplayMode(config: CLIConfig) {
-  const { waitUntilExit } = render(
+  // Use the global inkInstance so cleanup can access it
+  inkInstance = render(
     <Dashboard
       mode={config.mode}
       prdPath={config.prdPath}
@@ -347,17 +478,16 @@ async function runInDisplayMode(config: CLIConfig) {
       startTime={config.startTime}
       ntfyTopic={config.ntfyTopic}
     />,
-    { exitOnCtrlC: true }
+    { exitOnCtrlC: false }
   );
 
-  // Wait for the app to exit, then exit the process
-  await waitUntilExit();
-  process.exit(0);
+  // Wait for the app to exit, then cleanup
+  await inkInstance.waitUntilExit();
+  cleanupAndExit(0);
 }
 
 // Run main
 main().catch((error) => {
   console.error('Error:', error);
-  cleanupStatus();
-  process.exit(1);
+  cleanupAndExit(1);
 });

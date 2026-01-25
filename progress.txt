@@ -3,3 +3,16 @@ Started: Sun Jan 25 17:21:18 IST 2026
 
 (Previous progress archived to docs.local/prd-archive/)
 
+## Iteration 1 - BUG-013: Ralph UI doesn't exit properly and ignores keyboard input
+- Model: opus
+- Fixed exit handling in ralph-ui:
+  - Added centralized `cleanupAndExit()` function that handles cleanup and graceful unmount
+  - Fixed stop file path to use `os.homedir()` instead of `process.env.HOME` for cross-platform compatibility
+  - Added proper completion summary showing stories completed, time elapsed, and errors
+  - Implemented `waitForKeypress()` function to wait for user input before exiting (with 30s timeout)
+  - Removed duplicate SIGINT handlers from Dashboard KeyboardHandler (now handled by global handler)
+  - Fixed inkInstance usage to use global variable for proper cleanup from signal handlers
+- CodeRabbit: Passed after fixing stopFile path issue
+- Root cause: Multiple competing exit handlers and race conditions between Ink unmount and process.exit
+- Tests: 205 zsh tests passed, 188 TypeScript tests passed
+

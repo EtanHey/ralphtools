@@ -30,6 +30,9 @@ function useLiveClock(enabled: boolean): string {
 }
 
 // Wrapper component that conditionally uses input (only for live mode)
+// AIDEV-NOTE: This component handles keyboard input for the dashboard.
+// It calls onExit() which signals the parent to exit gracefully.
+// The actual process.exit() is handled by the global signal handlers in index.tsx.
 function KeyboardHandler({ onExit }: { onExit: () => void }) {
   const { isRawModeSupported } = useStdin();
 
@@ -40,24 +43,7 @@ function KeyboardHandler({ onExit }: { onExit: () => void }) {
     }
   }, { isActive: isRawModeSupported });
 
-  // Handle SIGINT (Ctrl+C) at process level - works even without raw mode
-  useEffect(() => {
-    const sigintHandler = () => {
-      onExit();
-      process.exit(0);
-    };
-    process.on('SIGINT', sigintHandler);
-
-    // Also handle SIGTERM for graceful shutdown
-    process.on('SIGTERM', sigintHandler);
-
-    return () => {
-      process.off('SIGINT', sigintHandler);
-      process.off('SIGTERM', sigintHandler);
-    };
-  }, [onExit]);
-
-  // Fallback: direct stdin handler when raw mode not available
+  // Fallback: direct stdin handler when raw mode not available but TTY is present
   useEffect(() => {
     if (isRawModeSupported) return; // useInput handles it
 
