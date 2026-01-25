@@ -1,0 +1,32 @@
+{
+  "id": "V-021",
+  "title": "Verify node-pty runner integration complete",
+  "description": "Post-implementation verification. Confirm node-pty runner works, UI displays cleanly, all features from research are implemented, success criteria from docs.local/live-ui-research/ are met.",
+  "acceptanceCriteria": [
+    {"text": "=== FUNCTIONALITY ===", "checked": false},
+    {"text": "ralph 5 - runs 5 iterations with live UI output", "checked": false},
+    {"text": "ralph-ui --run - spawns Claude correctly", "checked": false},
+    {"text": "ralph-ui (no --run) - display-only mode works", "checked": false},
+    {"text": "Ctrl+C stops cleanly, no zombie processes", "checked": false},
+    {"text": "=== OUTPUT QUALITY ===", "checked": false},
+    {"text": "Colors and ANSI codes display correctly in UI", "checked": false},
+    {"text": "Progress bars from npm/other tools render properly", "checked": false},
+    {"text": "No UI flickering during output", "checked": false},
+    {"text": "Terminal resize handled gracefully", "checked": false},
+    {"text": "=== LOG FILES ===", "checked": false},
+    {"text": "Log file created in ~/.config/ralphtools/runs/", "checked": false},
+    {"text": "Log file contains clean ANSI-stripped output", "checked": false},
+    {"text": "Log file searchable/parseable", "checked": false},
+    {"text": "=== RESEARCH SUCCESS CRITERIA ===", "checked": false},
+    {"text": "Per synthesis: Live output displays with colors preserved", "checked": false},
+    {"text": "Per synthesis: 10K+ line outputs render in <500ms", "checked": false},
+    {"text": "Per synthesis: No memory leaks after long runs", "checked": false},
+    {"text": "=== TESTS ===", "checked": false},
+    {"text": "bun test ralph-ui/tests/ - all pass", "checked": false},
+    {"text": "Manual test: run ralph overnight, check stability", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: test: V-021 verify node-pty runner integration", "checked": false}
+  ],
+  "dependencies": ["MP-007"],
+  "passes": false
+}

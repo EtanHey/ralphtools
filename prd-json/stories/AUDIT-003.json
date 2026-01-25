@@ -1,0 +1,32 @@
+{
+  "id": "AUDIT-003",
+  "title": "Audit node-pty architecture before UI integration",
+  "description": "Research audit before MP-007. Review docs.local/live-ui-research/ findings, understand node-pty patterns, document what needs to be built. Output: docs.local/audit-node-pty.md",
+  "acceptanceCriteria": [
+    {"text": "=== READ RESEARCH ===", "checked": false},
+    {"text": "Read docs.local/live-ui-research/round-3-agent-9-synthesis.md", "checked": false},
+    {"text": "Read docs.local/live-ui-research/tracker.md for wave summaries", "checked": false},
+    {"text": "Read docs.local/live-ui-research/round-1-agent-1.md (node-pty deep dive)", "checked": false},
+    {"text": "=== CATALOG ===", "checked": false},
+    {"text": "List all components needed: pty-wrapper, dual-output, event-emitter", "checked": false},
+    {"text": "Document file structure per research recommendation", "checked": false},
+    {"text": "Identify existing ralph-ui code that needs modification", "checked": false},
+    {"text": "=== ANALYSIS ===", "checked": false},
+    {"text": "Document PTYProcess interface requirements", "checked": false},
+    {"text": "Document event format (type, timestamp, data, ansi, exitCode)", "checked": false},
+    {"text": "Document dual-stream architecture (display vs file path)", "checked": false},
+    {"text": "Identify signal handling requirements (Ctrl+C, resize)", "checked": false},
+    {"text": "=== RISKS ===", "checked": false},
+    {"text": "List node-pty native compilation concerns", "checked": false},
+    {"text": "Document TTY detection edge cases (CI, non-TTY)", "checked": false},
+    {"text": "List potential breaking changes to current ralph-ui", "checked": false},
+    {"text": "=== OUTPUT ===", "checked": false},
+    {"text": "Create docs.local/audit-node-pty.md with all findings", "checked": false},
+    {"text": "Include implementation order recommendation", "checked": false},
+    {"text": "Include success criteria from research", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: docs: AUDIT-003 node-pty architecture audit", "checked": false}
+  ],
+  "dependencies": ["V-020"],
+  "passes": false
+}
