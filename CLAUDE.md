@@ -1,5 +1,35 @@
 # Claude Golem (Ralph Tooling)
 
+## SETUP (AI: Read This First)
+
+**Purpose:** This is the ralph-golem monorepo - Ralph autonomous execution tooling (zsh scripts, Bun/TypeScript UI, shared contexts, and skills for Claude).
+
+**Quick Start:**
+1. Read the file tree below to understand the repo structure
+2. Check `lib/README.md` for modular library documentation
+3. Run `./tests/test-ralph.zsh` before committing
+
+**Skills Available:** Use `/skills` to discover all skills. Key ones for this project:
+- `/prd` - Create/manage PRDs for Ralph to execute
+- `/coderabbit` - Code review before commits
+- `/ralph-commit` - Atomic commit with pre-commit hooks
+- `/context-audit` - Verify context references are valid
+- `/writing-skills` - Create new skills in this repo
+
+**Self-Improvement Loop:** When working on this repo, you ARE dogfooding the tools you build:
+- Skills you create in `skills/golem-powers/` → used by future Claude sessions
+- Contexts you write in `contexts/` → loaded into future CLAUDE.md files
+- Bugs you find → should become PRD stories via `/prd`
+- Test failures → fix before committing, never bypass hooks
+
+**Contexts:** This CLAUDE.md inherits rules from:
+- `@context: base` - Universal rules (scratchpad, AIDEV-NOTE, type safety)
+- `@context: skill-index` - Available skills reference
+- `@context: workflow/interactive` - CLAUDE_COUNTER, git safety (for interactive sessions)
+- `@context: workflow/ralph` - Ralph execution rules (when running as Ralph)
+
+---
+
 ## File Tree
 
 ```

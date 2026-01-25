@@ -4,12 +4,12 @@
   "description": "Claude-golem should dogfood its own context system. Everything else is already wired via symlinks (skills, MCPs, secrets) - only CONTEXTS are missing from the registry. Create a setup header template and add @context: refs to CLAUDE.md.",
   "priority": "high",
   "acceptanceCriteria": [
-    {"text": "Create contexts/templates/project-setup-header.md with '## SETUP (AI: Read This First)' template", "checked": false},
-    {"text": "Template includes: purpose of repo, how to use skills, self-improvement loop instructions", "checked": false},
-    {"text": "Add @context: refs to claude-golem/CLAUDE.md: base, skill-index, workflow/interactive", "checked": false},
-    {"text": "Add setup header to claude-golem/CLAUDE.md using the template", "checked": false},
-    {"text": "Run /golem-powers:context-audit - must show 0 missing contexts", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Create contexts/templates/project-setup-header.md with '## SETUP (AI: Read This First)' template", "checked": true},
+    {"text": "Template includes: purpose of repo, how to use skills, self-improvement loop instructions", "checked": true},
+    {"text": "Add @context: refs to claude-golem/CLAUDE.md: base, skill-index, workflow/interactive", "checked": true},
+    {"text": "Add setup header to claude-golem/CLAUDE.md using the template", "checked": true},
+    {"text": "Run /golem-powers:context-audit - must show 0 missing contexts", "checked": true},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
     {"text": "Commit: feat: US-116 dogfood contexts in claude-golem", "checked": false}
   ],
   "passes": false
