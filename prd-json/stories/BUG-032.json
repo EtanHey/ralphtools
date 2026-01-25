@@ -11,8 +11,10 @@
     {"text": "Update function completeness check - remove ralph-archive (now archive subcommand)", "checked": true},
     {"text": "Verify pre-push hook runs without errors", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: fix: BUG-032 fix pre-push hook errors", "checked": false}
+    {"text": "Commit: fix: BUG-032 fix pre-push hook errors", "checked": true}
   ],
   "dependencies": [],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T14:00:00.000Z",
+  "completedBy": "opus"
 }

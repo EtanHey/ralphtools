@@ -506,3 +506,17 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - CodeRabbit: Rate limited (~13 min remaining), only JSON changes to PRD files
 - Tests: All 205 zsh tests pass, all 188 TypeScript tests pass
 - BUG-031 COMPLETE - V-020 criterion now reflects actual MP-006 design
+
+## Iteration 25 - BUG-032: Fix pre-push hook errors
+- Model: opus
+- Root cause: Two issues in .githooks/pre-push:
+  1. Line 105 "bad math expression": `grep -c` with `|| echo 0` creates "0\n0" when grep finds 0 matches (outputs "0" with exit code 1, then `|| echo 0` adds another "0")
+  2. Lines 69-78: EXPECTED_FUNCTIONS array checks for `ralph-init` and `ralph-archive` only in ralph.zsh, but MP-006 moved functions to lib modules
+- Fixes applied:
+  * Changed `|| echo 0` to `|| VAR=0` pattern to avoid double output
+  * Updated EXPECTED_FUNCTIONS to use `func:file` mapping format (e.g., "ralph-setup:lib/ralph-setup.zsh")
+  * Updated dry run test script to stub ralph-setup instead of ralph-init
+- All 205 zsh tests pass
+- All 83 bun tests pass
+- CodeRabbit: Rate limited (~8 min remaining), changes manually reviewed
+- BUG-032 COMPLETE - Pre-push hook now runs without errors
