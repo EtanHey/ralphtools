@@ -19,8 +19,10 @@
     {"text": "Update docs.local/audit-skill-tokens.md with after metrics", "checked": true},
     {"text": "Note: before tokens, after tokens, % reduction", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: test: V-022 verify progressive skill disclosure", "checked": false}
+    {"text": "Commit: test: V-022 verify progressive skill disclosure", "checked": true}
   ],
   "dependencies": ["US-115"],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T13:06:30Z",
+  "completedBy": "opus"
 }

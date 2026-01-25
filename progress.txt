@@ -425,3 +425,25 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - CodeRabbit: Found 5 issues, fixed 4 (descriptions); 1 (pipe delimiter in generate-skill-index.sh) is from US-114 scope
 - Tests: All 205 zsh tests pass
 - US-115 COMPLETE - Skill descriptions now have clear when/not-for guidance
+
+## Iteration 20 - V-022: Verify progressive skill disclosure reduces context
+- Model: opus
+- Verification of US-114/US-115 progressive skill disclosure implementation:
+  * === MEASURE NEW BASELINE ===
+  * skill-descriptions.md: 7,735 chars (~1,934 tokens)
+  * skill-index.md: 831 chars (~208 tokens)
+  * Full SKILL.md files (all 38): 175,434 chars (~43,858 tokens)
+  * Reduction: 95.6% (from ~43,858 to ~1,934 tokens)
+  * Target was 40%+ reduction - EXCEEDED by 2.4x
+  * === VERIFY DISCOVERY WORKS ===
+  * Skills listed in Skill tool description with "Use when..." hints
+  * 38 skills available (24 golem-powers + 14 superpowers)
+  * "Use when..." patterns enable task-based matching
+  * === VERIFY ON-DEMAND LOADING ===
+  * Full SKILL.md only loads when Skill tool is invoked
+  * 3-tier system confirmed: names only → descriptions → full content
+  * === DOCUMENT RESULTS ===
+  * Updated docs.local/audit-skill-tokens.md with Section 9 verification results
+- CodeRabbit: N/A (only PRD JSON changes, no code)
+- Tests: All 205 zsh tests pass, all 83 bun tests pass
+- V-022 COMPLETE - Progressive skill disclosure verified: 95.6% token reduction achieved
