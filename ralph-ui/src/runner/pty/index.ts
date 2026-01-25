@@ -18,7 +18,7 @@ export type {
 } from "./types";
 
 // PTY Wrapper
-export { PTYWrapper, spawnPTY } from "./pty-wrapper";
+export { PTYWrapper, spawnPTY, isPTYSupported, getPTYUnsupportedReason } from "./pty-wrapper";
 
 // ANSI Utilities
 export { stripAnsi, hasAnsiCodes } from "./ansi";

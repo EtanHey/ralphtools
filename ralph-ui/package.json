@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "bun src/index.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "chmod +x node_modules/node-pty/prebuilds/*/spawn-helper 2>/dev/null || true"
   },
   "dependencies": {
     "ink": "^5.2.0",

@@ -5,6 +5,7 @@ import { Dashboard } from './components/Dashboard.js';
 import { runIterations, createConfig } from './runner/index.js';
 import { cleanupStatus } from './runner/status.js';
 import type { Model } from './runner/types.js';
+import { isPTYSupported, getPTYUnsupportedReason } from './runner/pty/index.js';
 
 // AIDEV-NOTE: This is the main entry point for ralph-ui
 // Phase 2 of MP-006 adds --run flag for iteration execution mode
@@ -64,6 +65,9 @@ interface CLIConfig {
 function parseArgs(): CLIConfig {
   const args = process.argv.slice(2);
 
+  // Check if PTY is supported (not supported on Bun)
+  const ptySupported = isPTYSupported();
+
   // Defaults
   const config: CLIConfig = {
     run: false,
@@ -74,7 +78,7 @@ function parseArgs(): CLIConfig {
     quiet: false,
     verbose: false,
     notify: !!process.env.RALPH_NOTIFY,
-    usePty: true, // Default to PTY mode (MP-007)
+    usePty: ptySupported, // Default to PTY mode only if supported
     prdPath: process.cwd() + '/prd-json',
     workingDir: process.cwd(),
     iteration: 1,
@@ -128,7 +132,12 @@ function parseArgs(): CLIConfig {
     }
     // --pty / --no-pty (PTY mode toggle)
     else if (arg === '--pty') {
-      config.usePty = true;
+      if (!ptySupported) {
+        const reason = getPTYUnsupportedReason();
+        console.warn(`Warning: --pty requested but PTY is not supported: ${reason}`);
+        console.warn('Falling back to non-PTY mode.');
+      }
+      config.usePty = ptySupported; // Only enable if supported
     }
     else if (arg === '--no-pty') {
       config.usePty = false;
