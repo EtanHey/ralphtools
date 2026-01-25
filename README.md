@@ -1,8 +1,8 @@
-# Ralph - The Original AI Coding Loop
+# Ralph v2.0 - The Original AI Coding Loop
 
 [![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/EtanHey/claude-golem?utm_source=oss&utm_medium=github&utm_campaign=EtanHey%2Fclaude-golem&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)](https://coderabbit.ai)
 
-**[📚 Documentation](https://etanheyman.github.io/ralphtools/)** | **[GitHub](https://github.com/etanheyman/ralphtools)**
+**[📚 Full Documentation](https://etanheyman.github.io/ralphtools/)** | **[GitHub](https://github.com/etanheyman/ralphtools)**
 
 > *"Ralph is a Bash loop"* — Geoffrey Huntley
 
@@ -10,9 +10,9 @@ Run Claude (or any LLM) in an autonomous loop to execute PRD stories. Each itera
 
 ```
 while stories remain:
-  1. Spawn fresh Claude
+  1. Spawn fresh Claude with story-type-specific prompt
   2. Claude reads prd-json/, finds next story
-  3. Claude implements ONE story, commits
+  3. Claude implements ONE story, runs CodeRabbit, commits
   4. Loop
 done
 ```
@@ -22,20 +22,21 @@ done
 ## Quick Start
 
 ```bash
-# Install
+# 1. Clone and source
 git clone https://github.com/EtanHey/ralph-tooling.git ~/.config/ralphtools
 echo 'source ~/.config/ralphtools/ralph.zsh' >> ~/.zshrc
 source ~/.zshrc
 
-# Setup skills
-mkdir -p ~/.claude/commands
-ln -sf ~/.config/ralphtools/skills/prd.md ~/.claude/commands/prd.md
+# 2. Run setup wizard (configures skills, symlinks, preferences)
+ralph-setup
 
-# Use
-claude                        # Open Claude Code
-> /prd Add user authentication  # Generate PRD
-ralph 20                      # Execute 20 iterations
+# 3. Use
+claude                           # Open Claude Code
+> /prd Add user authentication   # Generate PRD
+ralph 20                         # Execute 20 iterations
 ```
+
+**That's it!** Ralph auto-detects your project stack and loads the right contexts.
 
 ---
 
@@ -95,47 +96,62 @@ Create a `.worktree-sync.json` in your repo root to configure custom worktree sy
 - **symlinks**: Files/directories to symlink instead of copy
 - **commands**: Post-setup commands to run in the worktree
 
-### Flags
+---
 
-| Flag | Description |
-|------|-------------|
-| `-QN` | Enable [ntfy](https://ntfy.sh) notifications |
-| `--ui-bash` | Force traditional zsh-based UI (fallback) |
+## Configuration
 
-### Terminal UI
-
-Ralph uses the **React Ink UI** by default, providing a modern terminal dashboard with live-updating progress. If you prefer the classic zsh-based output, you can switch back:
+Ralph is **config-driven** - use `ralph-setup` wizard instead of flags. Config is stored in `~/.config/ralphtools/config.json`.
 
 ```bash
-# Use bash UI for this session
-ralph 20 --ui-bash
-
-# Or change the default via config
-ralph-config  # Select "bash" for runtime
+ralph-setup   # Interactive wizard for all settings
 ```
 
-The Ink UI requires **Bun** to be installed. If Bun is not available, Ralph automatically falls back to the bash UI.
+### Runtime Mode: Bun vs Bash
 
-### Model Flags
+Ralph v2.0 defaults to **Bun/React Ink UI** for a modern terminal dashboard with live-updating progress.
 
-Model selection is handled automatically by **smart routing**:
-- AUDIT-* stories → Opus (thorough analysis)
-- US-* stories → Sonnet (balanced)
-- V-* stories → Haiku (fast verification)
-- Story-level override via `"model": "opus"` in JSON
+| Runtime | Description | When to Use |
+|---------|-------------|-------------|
+| **bun** (default) | React Ink dashboard, live updates | Standard use |
+| **bash** | Traditional zsh output | No Bun installed, debugging |
 
-| Flag | Model | Browser Automation |
-|------|-------|-------------------|
-| `-O` | Claude Opus | Claude-in-Chrome MCP |
-| `-S` | Claude Sonnet | Claude-in-Chrome MCP |
+```bash
+# Override for one session
+ralph 20 --ui-bash
 
-Use `ralph-setup` to configure your default model preferences.
+# Change default via wizard
+ralph-setup   # Select runtime preference
+```
+
+### Smart Model Routing
+
+Models are assigned automatically based on story type:
+
+| Story Type | Model | Rationale |
+|------------|-------|-----------|
+| `AUDIT-*` | Opus | Thorough analysis |
+| `MP-*` | Opus | Master plans, architecture |
+| `US-*` | Sonnet | Feature implementation |
+| `BUG-*` | Sonnet | Bug fixes |
+| `V-*` | Haiku | Fast verification |
+| `TEST-*` | Haiku | Test creation |
+
+Override per-story: add `"model": "opus"` to story JSON.
+
+### Notifications
+
+Enable push notifications via [ntfy](https://ntfy.sh):
+
+```bash
+ralph 20 -QN   # Notify on completion/failure
+```
 
 ### Examples
 
 ```bash
 ralph 50              # Run 50 iterations with smart routing
 ralph myapp 20        # Run on apps/myapp/ (monorepo)
+ralph 10 --ui-bash    # Force bash UI for debugging
 ```
 
 ---
@@ -405,16 +421,60 @@ Extend context loading in `~/.config/ralphtools/config.json`:
 
 ---
 
+## Story-Type Prompts (AGENTS.md)
+
+Ralph uses **layered prompts** that adapt to the story type being worked on.
+
+### How It Works
+
+1. Each iteration loads a **base prompt** with universal rules
+2. Then layers a **story-type-specific prompt** on top:
+   - `US.md` - Feature implementation guidance
+   - `BUG.md` - Debugging workflow, root cause analysis
+   - `V.md` - TDD verification approach
+   - `TEST.md` - Test creation best practices
+   - `AUDIT.md` - Comprehensive review checklist
+   - `MP.md` - Master plan/architecture guidance
+
+Prompts are stored in `~/.config/ralphtools/prompts/`.
+
+### AGENTS.md Auto-Update
+
+Your project's `prd-json/AGENTS.md` is automatically refreshed when:
+- New skills are added to `~/.claude/commands/`
+- Prompts are updated in `~/.config/ralphtools/prompts/`
+- You run `ralph-setup` context migration
+
+---
+
 ## CodeRabbit Integration
 
 Ralph integrates with [CodeRabbit](https://coderabbit.ai) for free AI-powered code reviews before commits.
 
 ### How It Works
 
-1. After Claude finishes implementing a story, Ralph instructs it to run `cr review`
-2. If issues (CRITICAL/HIGH/MEDIUM) are found, Claude fixes them
-3. Re-runs CodeRabbit until clean
-4. Only then commits the changes
+1. After Claude finishes implementing a story, it runs `cr review --prompt-only`
+2. If issues are found, Claude fixes them and re-reviews
+3. **Maximum 3 iterations** - if issues persist, they become BUG stories
+4. Only commits after passing CodeRabbit review
+
+### CodeRabbit → BUG Story Pattern
+
+When CodeRabbit finds issues that can't be fixed in the current iteration:
+
+```json
+// prd-json/update.json is created automatically
+{
+  "newStories": [{
+    "id": "BUG-XXX",
+    "title": "Fix CodeRabbit finding: [issue]",
+    "type": "bug",
+    "priority": "medium"
+  }]
+}
+```
+
+This ensures no issues are silently ignored while allowing forward progress.
 
 ### Setup
 
@@ -449,16 +509,6 @@ Or use `*` for all repos:
     "repos": ["*"]
   }
 }
-```
-
-### Adding More Repos
-
-```bash
-# Via wizard
-ralph-setup → Configure CodeRabbit
-
-# Or manually edit ~/.config/ralphtools/registry.json
-# Add repo names to coderabbit.repos array
 ```
 
 ---
@@ -514,11 +564,24 @@ Detailed docs for AI agents in [`docs/`](docs/):
 
 ## Changelog
 
-### v1.5.0 (In Progress)
+### v2.0.0
+**Major architecture update with React Ink UI, modular codebase, and layered prompts.**
+
+- **React Ink UI** is now the default runtime - modern terminal dashboard with live-updating progress
+- **Modular codebase**: `ralph.zsh` split into `lib/*.zsh` modules for maintainability
+- **Layered AGENTS prompt**: Story-type-specific prompts (US.md, BUG.md, V.md, etc.) on top of base.md
+- **AGENTS.md auto-update**: Prompts automatically refresh when skills are added/modified
+- **CodeRabbit → BUG integration**: CR findings automatically become BUG stories if unfixable
+- **MP story type**: Master Plan stories for infrastructure/architecture work
+- **Comprehensive test suite**: 156+ ZSH tests + 83 Bun tests run on pre-commit
+- **Context injection tests**: Verify modular context system integrity
+- Config-driven approach: `ralph-setup` wizard replaces flag-heavy CLI
+- Orphan process cleanup and crash logging (`ralph-logs`, `ralph-kill-orphans`)
+- Docusaurus documentation site at etanheyman.github.io/ralphtools/
+
+### v1.5.0
 - **golem-powers skills**: Unified skill namespace with executable pattern (SKILL.md + scripts/)
-- **React Ink UI**: Modern terminal dashboard, now the default (US-085/US-093/US-107)
-- **Modular context system**: Layered CLAUDE.md with `@context:` directives (MP-002)
-- **Kiro model variants**: kiro-haiku, kiro-sonnet, kiro-opus routing
+- **Modular context system**: Layered CLAUDE.md with auto-detection (MP-002)
 - **prd-manager skill**: Atomic PRD operations (add-to-index, add-criterion, etc.)
 - **1Password vault organization**: development vault for global tools, project vaults
 - **Commit conventions**: Story-type based (feat/fix/test/refactor)
@@ -530,64 +593,28 @@ Detailed docs for AI agents in [`docs/`](docs/):
 - **Smart Model Routing**: AUDIT→opus, US→sonnet, V→haiku, story-level `"model"` override
 - **Live criteria sync**: fswatch file watching, ANSI cursor updates (no flash)
 - **1Password Environments**: `op run --env-file` integration, `ralph-secrets` command
-- **Progressive disclosure skills**: GitHub + 1Password skills (SKILL.md → workflows/)
-- **Box drawing alignment**: emoji width calculation, variation selector handling
-- **ANSI color fixes**: full escape sequences, semantic color schemes
 - **ralph-setup wizard**: gum-based first-run experience
-- **Multi-agent audit**: AUDIT-001 pattern with parallel verification
 - **Test framework**: zsh test suite with unit tests for config, cost tracking, notifications
-- **GitHub Actions CI**: automated testing workflow (TEST-005)
-- **Brave Browser Manager**: internal fallback for browser automation
 - Per-iteration cost tracking with model-aware pricing
-- Per-project MCP configuration (`ralph-projects`)
-- Project launcher auto-generation (US-009)
-- Parallel verification infrastructure (US-006, US-007)
-- `ralph --version` flag
-- Compact ntfy notifications with emoji labels (3-line format)
-- Error handling for 'No messages returned' Claude CLI error (BUG-002)
-- .env to 1Password migration (US-012)
-- Progress bars and compact output mode (US-015, US-016)
-- AGENTS.md auto-sync to all AI tools (US-017)
-- Enhanced iteration status with gum interactivity (US-021)
+- Progress bars and compact output mode
 
 ### v1.3.0
 - **JSON-based PRD format** (`prd-json/` replaces markdown PRD)
 - **Smart model routing** for story types (auto-select appropriate model)
 - **Configuration system** (`ralph-config.local` for project settings)
-- **Per-iteration cost tracking**: costs.json with token estimates
 - **Archive skill** (`/archive` command pointing to `ralph-archive`)
-- `completedAt` timestamp tracking
-- `ralph-live` enhanced status mode
-- `ralph-auto` auto-restart wrapper
-- Incremental criteria checking with robust retry logic
-- Dev server self-start + end iteration on infrastructure blockers
-- Update queue for criteria count display
-- Fail-safe when Claude output is unclear
-- Smarter error detection to avoid false positives
 
 ### v1.2.0
 - **Comprehensive documentation** rewrite for open source release
 - **Skills documentation** with /prd, /archive commands
 - **docs.local convention** for project-specific learnings
-- Enhanced helper commands with better UX
-- Real-time output capture with `script` command
-- Proper Ctrl+C handling
-- Line-buffered output with `tee`
 
 ### v1.1.0
 - **Browser tab checking** for MCP verification stories
 - **Learnings directory** support (`docs.local/learnings/`)
 - **Pre-commit/pre-push hooks** with Claude Haiku validation
-- Improved retry logic and command execution
-- Sonnet model flag (`-S`)
-- Use pipestatus to capture claude exit code
-- Quote all variables in conditionals for safer evaluation
 
 ### v1.0.0
 - Initial Ralph tooling release
 - Core loop: spawn fresh Claude, read PRD, implement story, commit
-- `ralph [N]` command for N iterations
-- `ralph-init`, `ralph-status`, `ralph-stop` commands
 - ntfy notification support (`-QN` flag)
-- Real-time output with `ralph-watch`
-- CLAUDE.md with commit/push instructions

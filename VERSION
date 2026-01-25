@@ -1,9 +1,10 @@
-1.5.0
+2.0.0
 
 # Changelog
 # Format: VERSION|feature1|feature2|...
 
-1.5.0|repoGolem dynamic launcher generator|ralph-session command|Centralized VERSION file|1Password Environments support
+2.0.0|React Ink UI default|Modular codebase (lib/*.zsh)|Layered AGENTS prompts|CodeRabbit BUG integration|MP story type|156+ tests
+1.5.0|golem-powers skills namespace|Modular context system|prd-manager skill|TDD verification stories
 1.4.0|Live criteria sync with file watching (fswatch/inotifywait)|No-flash progress updates using ANSI cursor positioning|--no-live flag to disable live updates|Debounced updates (500ms) for smooth display
 1.3.0|Per-iteration cost tracking (actual tokens from JSONL)|Enhanced ntfy notifications with titles & priorities|Session IDs passed to Claude for precise tracking|ralph-costs shows ✓ actual vs ~ estimated data
 1.2.0|Smart model routing (US→Sonnet, V→Haiku, etc.)|Config-based model assignment via config.json|Cost tracking infrastructure

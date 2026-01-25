@@ -9,67 +9,67 @@
   "acceptanceCriteria": [
     {
       "text": "=== DISCOVERY ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Scan docs/ for content to reference or consolidate",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Scan docs.local/ for learnings and audit results to incorporate",
-      "checked": false
+      "checked": true
     },
     {
       "text": "List all features from git log --oneline | head -100",
-      "checked": false
+      "checked": true
     },
     {
       "text": "=== README UPDATES ===",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Update version to 2.0.0",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Simplify Quick Start to just: brew install ralph && ralph",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Document config-driven approach (no flags)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add bash vs bun mode explanation",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Update changelog with v1.5 and v2.0 changes",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add MP story type to model routing docs",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Document AGENTS.md auto-update feature",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Document CodeRabbit → BUG story integration",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add link to Docusaurus site for detailed docs",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Remove outdated flag documentation",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: feat: [STORY-ID] description",
