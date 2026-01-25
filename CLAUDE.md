@@ -37,6 +37,28 @@ claude-golem/
 
 ---
 
+## 🚨 CRITICAL: ALL Work Stays In This Repo
+
+**This is a DEVELOPMENT repo for Ralph tooling. ALL artifacts belong HERE, not in ~/.claude/ or other global locations.**
+
+| WRONG ❌ | RIGHT ✅ |
+|----------|----------|
+| `~/.claude/skill-index.md` | `contexts/skill-index.md` |
+| `~/.claude/scripts/foo.sh` | `scripts/foo.sh` |
+| `~/.config/ralphtools/new-file.zsh` | `lib/new-file.zsh` |
+
+**The rule:** If a story says to create/edit files in `~/.claude/`, `~/.config/`, or any global path - STOP and ask:
+> "Should this be in the repo instead?"
+
+**Why:**
+- Global files can't be committed, reviewed, or tracked
+- Other developers can't see or use global changes
+- This repo IS the source - global locations are just INSTALL targets
+
+**Exception:** Modifying existing installed files (like user's `~/.claude/CLAUDE.md`) is fine when the story explicitly requires it.
+
+---
+
 ## Files
 
 | File | Purpose |

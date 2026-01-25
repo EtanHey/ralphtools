@@ -1,0 +1,17 @@
+{
+  "id": "BUG-033",
+  "title": "PTY spawning fails silently - Claude never starts",
+  "description": "When running ralph-ui with PTY mode (default from MP-007), Claude subprocess never spawns. Status file shows 'running' but no Claude process exists. Works correctly with --no-pty flag. Need to debug spawnClaudePTY in pty-claude.ts.",
+  "acceptanceCriteria": [
+    {"text": "Reproduce: ralph-ui --run (without --no-pty) - observe no Claude spawns", "checked": false},
+    {"text": "Debug pty-claude.ts spawnClaudePTY function", "checked": false},
+    {"text": "Identify why PTY spawn fails silently (no error thrown)", "checked": false},
+    {"text": "Fix the PTY spawning issue", "checked": false},
+    {"text": "Test: ralph-ui --run spawns Claude correctly with PTY", "checked": false},
+    {"text": "Test: Output streams through PTY to UI", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-033 PTY spawning fails silently", "checked": false}
+  ],
+  "dependencies": ["MP-007"],
+  "passes": false
+}
