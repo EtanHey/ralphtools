@@ -1,0 +1,23 @@
+{
+  "id": "BUG-030",
+  "title": "Fix ralph-ui flickering with Ink Static component",
+  "description": "The live UI flickers badly because the entire component tree re-renders on each poll. Per docs.local/live-ui-research/round-3-agent-9-synthesis.md, we need to use Ink's <Static> component for stable content and batch updates (50 lines or 100ms).",
+  "acceptanceCriteria": [
+    {"text": "=== READ RESEARCH ===", "checked": false},
+    {"text": "Read docs.local/live-ui-research/round-3-agent-9-synthesis.md", "checked": false},
+    {"text": "Understand: Static component, batching pattern, dual-stream", "checked": false},
+    {"text": "=== STATIC COMPONENT ===", "checked": false},
+    {"text": "Wrap stable UI elements (header, borders) in <Static>", "checked": false},
+    {"text": "Only dynamic elements (time, progress, indicators) re-render", "checked": false},
+    {"text": "=== BATCHING ===", "checked": false},
+    {"text": "Batch state updates: 50 lines OR 100ms, whichever first", "checked": false},
+    {"text": "Reduce poll-triggered re-renders", "checked": false},
+    {"text": "=== VERIFICATION ===", "checked": false},
+    {"text": "Run ralph-ui - no visible flicker", "checked": false},
+    {"text": "Test with rapid file changes - still stable", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-030 eliminate UI flickering with Static component", "checked": false}
+  ],
+  "dependencies": ["V-020"],
+  "passes": false
+}
