@@ -4,16 +4,46 @@
   "description": "Research how 1Password Environments (desktop app feature) works with CLI tools. Document the patterns: environments are created in app UI, but CLI can read/inject from them. Update /1password skill with this knowledge.",
   "priority": "medium",
   "acceptanceCriteria": [
-    {"text": "Research 1Password Environments docs - understand desktop app setup flow", "checked": false},
-    {"text": "Research how CLI interacts with Environments (op inject, op run, secret refs)", "checked": false},
-    {"text": "Document: Environments created in app UI (not automatable)", "checked": false},
-    {"text": "Document: CLI can READ from environments once they exist", "checked": false},
-    {"text": "Document: mounting .env files vs using op inject", "checked": false},
-    {"text": "Update skills/golem-powers/1password/SKILL.md with Environments section", "checked": false},
-    {"text": "Add workflow: skills/golem-powers/1password/workflows/use-environment.md", "checked": false},
-    {"text": "Include example: how ralphtools config could use environments", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: feat: US-128 1password environments documentation", "checked": false}
+    {
+      "text": "Research 1Password Environments docs - understand desktop app setup flow",
+      "checked": true
+    },
+    {
+      "text": "Research how CLI interacts with Environments (op inject, op run, secret refs)",
+      "checked": true
+    },
+    {
+      "text": "Document: Environments created in app UI (not automatable)",
+      "checked": true
+    },
+    {
+      "text": "Document: CLI can READ from environments once they exist",
+      "checked": true
+    },
+    {
+      "text": "Document: mounting .env files vs using op inject",
+      "checked": true
+    },
+    {
+      "text": "Update skills/golem-powers/1password/SKILL.md with Environments section",
+      "checked": true
+    },
+    {
+      "text": "Add workflow: skills/golem-powers/1password/workflows/use-environment.md",
+      "checked": true
+    },
+    {
+      "text": "Include example: how ralphtools config could use environments",
+      "checked": true
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": true
+    },
+    {
+      "text": "Commit: feat: US-128 1password environments documentation",
+      "checked": false
+    }
   ],
   "passes": false
 }
