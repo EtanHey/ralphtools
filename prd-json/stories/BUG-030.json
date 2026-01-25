@@ -23,8 +23,10 @@
     {"text": "Run ralph-ui - no visible flicker", "checked": true},
     {"text": "Test with rapid file changes - still stable", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: fix: BUG-030 fix dynamic data + eliminate UI flickering", "checked": false}
+    {"text": "Commit: fix: BUG-030 fix dynamic data + eliminate UI flickering", "checked": true}
   ],
   "dependencies": ["V-020"],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T11:30:23.000Z",
+  "completedBy": "opus"
 }

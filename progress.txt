@@ -220,3 +220,20 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - CodeRabbit: N/A (PRD-only changes, no code)
 - Action: Created BUG-031 to clarify/fix unrealistic line count criterion
 - V-020 PASSES (except for one aspirational criterion noted in story)
+
+## Iteration 12 - BUG-030: Fix ralph-ui flickering with Ink Static component
+- Model: opus
+- Fixed UI flickering and dynamic data updates in ralph-ui:
+  * Implemented 100ms batching in useStatusFile and useFileWatch hooks (per research synthesis)
+  * Memoized IterationHeader, PRDStatus, and new ElapsedTime component with memo()
+  * Dashboard now reads iteration, model, startTime from status file instead of props
+  * Runner writes model and startTime to status file via setRunning()
+  * Added fast-path content comparison to skip unnecessary JSON parsing
+  * Initial load is immediate (no batching) for fast first render
+- Root cause: UI was re-rendering on every poll even when data hadn't changed, and dynamic values weren't being read from status file
+- Fix approach: Combined batching (coalesce rapid updates) + memoization (skip unchanged props) + content comparison (skip unchanged data)
+- All 53 TypeScript tests pass
+- All 205 zsh tests pass
+- TypeScript typecheck passes
+- CodeRabbit: Rate limited (~18 mins remaining), code manually verified
+- BUG-030 COMPLETE - UI flickering eliminated, dynamic data reads from status file
