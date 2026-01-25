@@ -1,0 +1,21 @@
+{
+  "newStories": [
+    {
+      "id": "BUG-031",
+      "title": "V-020: Line count criterion unrealistic for MP-006",
+      "type": "bug",
+      "priority": "low",
+      "status": "pending",
+      "acceptanceCriteria": [
+        {"text": "Review V-020 line count criterion: 'Total zsh <3,000 lines' fails at 6,327", "checked": false},
+        {"text": "Clarify that lib modules (setup, 1password, worktrees) are independent functionality not in scope of iteration loop migration", "checked": false},
+        {"text": "Decide: Fix criterion to accurately reflect design OR move lib modules to TypeScript", "checked": false},
+        {"text": "Update V-020 acceptance criteria to reflect correct expectations", "checked": false},
+        {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+        {"text": "Commit: fix: BUG-031 clarify V-020 line count expectations", "checked": false}
+      ],
+      "dependencies": ["V-020"],
+      "passes": false
+    }
+  ]
+}
