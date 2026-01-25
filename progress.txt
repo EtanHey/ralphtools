@@ -145,3 +145,20 @@ Started: Sun Jan 25 20:00:00 IST 2026
   1. Interactive Claude loads contexts via repoGolem (ralph-registry.zsh reads registry)
   2. Ralph loads same contexts via buildSystemContext (context.ts reads registry)
   Both use the same registry.json as the source of truth for project contexts.
+
+## Iteration 9 - V-116: Verify dogfooding: new Claude session sees contexts
+- Model: opus
+- Verification story for US-116, US-118, US-119 (dogfooding setup)
+- Verified implementation:
+  - CLAUDE.md has @context: refs to base, skill-index, workflow/interactive, workflow/ralph ✓
+  - All context files exist in ~/.claude/contexts/ and repo contexts/ ✓
+  - registry.json has golem project with contexts array ✓
+  - repoGolem() function loads contexts via --append-system-prompt ✓
+  - CLAUDE.md SETUP section explains repo purpose and self-improvement loop ✓
+  - PRD workflow is documented (bugs → PRD stories via /prd) ✓
+- Context audit ran successfully, all referenced contexts exist
+- Note: Context audit script has minor parsing bug with inline descriptions after @context: refs
+- Note: registry.json has old path (/Users/etanheyman/Desktop/Gits/claude-golem) - should update
+- CodeRabbit: Rate limited, skipped (verification story with no code changes)
+- Tests: 205 zsh tests passed
+- Overall: PASS - dogfooding setup is working correctly

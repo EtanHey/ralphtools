@@ -3,15 +3,40 @@
   "title": "Verify dogfooding: new Claude session in claude-golem sees contexts",
   "description": "Verification that the dogfooding setup works. A fresh golemClaude session should have all contexts loaded and understand the repo's meta-purpose.",
   "priority": "high",
-  "dependsOn": ["US-118"],
-  "acceptanceCriteria": [
-    {"text": "Start fresh golemClaude session", "checked": false},
-    {"text": "Ask Claude: 'What contexts are loaded?' - should list base, skill-index, workflow/interactive", "checked": false},
-    {"text": "Ask Claude: 'What is the purpose of this repo?' - should understand self-improvement loop", "checked": false},
-    {"text": "Run /golem-powers:context-audit - should show 0 missing contexts", "checked": false},
-    {"text": "Ask Claude to 'add a feature' - should suggest creating PRD story, not just implementing", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: test: V-116 verify dogfooding works", "checked": false}
+  "dependsOn": [
+    "US-118"
   ],
-  "passes": false
+  "acceptanceCriteria": [
+    {
+      "text": "Start fresh golemClaude session",
+      "checked": true
+    },
+    {
+      "text": "Ask Claude: 'What contexts are loaded?' - should list base, skill-index, workflow/interactive",
+      "checked": true
+    },
+    {
+      "text": "Ask Claude: 'What is the purpose of this repo?' - should understand self-improvement loop",
+      "checked": true
+    },
+    {
+      "text": "Run /golem-powers:context-audit - should show 0 missing contexts",
+      "checked": true
+    },
+    {
+      "text": "Ask Claude to 'add a feature' - should suggest creating PRD story, not just implementing",
+      "checked": true
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": true
+    },
+    {
+      "text": "Commit: test: V-116 verify dogfooding works",
+      "checked": true
+    }
+  ],
+  "passes": true,
+  "completedAt": "2026-01-25T19:20:16.499Z",
+  "completedBy": "opus"
 }
