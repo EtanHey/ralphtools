@@ -29,9 +29,7 @@
     "AUDIT-005"
   ],
   "pending": [],
-  "blocked": [
-    "AUDIT-005"
-  ],
+  "blocked": [],
   "completed": [
     "BUG-012",
     "BUG-017",
@@ -80,7 +78,8 @@
     "BUG-031",
     "BUG-032",
     "BUG-033",
-    "US-065"
+    "US-065",
+    "AUDIT-005"
   ],
   "newStories": []
 }

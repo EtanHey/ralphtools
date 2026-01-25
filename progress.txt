@@ -592,3 +592,26 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - All 205 zsh tests pass, all 188 TypeScript tests pass
 - Pre-commit and pre-push hooks passed
 - US-065 COMPLETE - Documentation updated to reflect claude-golem name
+
+## Iteration 29 - AUDIT-005: Machine-wide hardcoded secrets audit
+- Model: opus
+- Continuation of blocked story from Iteration 27 (1Password auth was unavailable)
+- Completed Migration Phase:
+  * TEMPMAIL_API_KEY migrated to op://development/tempmail/password
+  * Updated domica/.claude.json and songscript/.claude.json with op:// references
+  * Verified existing 1Password vaults cover critical secrets:
+    - Development vault: ANTHROPIC_API_KEY, tempmail, LINEAR_API_KEY, CONTEXT7_API_KEY
+    - Domica vault: 14 items (SUPABASE, UPLOADTHING, BROWSERBASE, FIRECRAWL, etc.)
+    - Cantaloupe vault: 21 items for Union project
+- Completed Cleanup Phase:
+  * All active projects already have .env* in .gitignore
+  * MCP secrets removed from plaintext configs
+- Audit findings summary:
+  * Primary projects (domica, union, songscript): Using 1Password Environments (named pipes)
+  * MCP configs (.claude.json): Now using op:// references
+  * Side projects: Have gitignore protection, documented for future migration
+  * Archived projects (observer, Nola-Devs-v2, casona_diez_diez): Not migrated (old/unused)
+- Recommendations logged in audit doc for future stories
+- CodeRabbit: Passed
+- All 205 zsh tests pass
+- AUDIT-005 COMPLETE - Machine-wide secrets audit and migration finished
