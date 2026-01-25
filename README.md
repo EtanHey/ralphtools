@@ -4,6 +4,56 @@
 
 **[📚 Full Documentation](https://etanheyman.github.io/claude-golem/)** | **[GitHub](https://github.com/etanheyman/claude-golem)**
 
+---
+
+## 🤖 For AI Assistants
+
+**If a user gave you this repo link:** This is a self-improving toolkit for Claude Code that provides skills, contexts, and autonomous execution capabilities.
+
+### What This Is
+
+- **A toolkit that improves itself** - Bugs and gaps found by Claude → PRD stories → Ralph fixes → all users benefit
+- **Skills library** via `/golem-powers:*` - Workflows for commits, PRs, PRDs, 1Password, Linear, Convex, and more
+- **Modular context system** - Shared CLAUDE.md rules that auto-detect project tech stacks
+
+### To Help a User Set Up
+
+```
+/golem-powers:ralph-install
+```
+
+This walks through installation, skill symlinks, and project wiring.
+
+### To Check if Setup is Correct
+
+```
+/golem-powers:context-audit
+```
+
+This detects the project's tech stack and shows which contexts are missing.
+
+### Key Directories
+
+| Path | Purpose |
+|------|---------|
+| [`skills/golem-powers/`](skills/golem-powers/) | All available skills (use via `/golem-powers:skill-name`) |
+| [`contexts/`](contexts/) | Shared CLAUDE.md contexts ([README](contexts/README.md)) |
+| [`prompts/`](prompts/) | Story-type prompts for Ralph (US.md, BUG.md, etc.) |
+| [`lib/`](lib/) | Modular zsh library ([README](lib/README.md)) |
+
+### Self-Improvement Loop
+
+```
+Find gap in Claude session → Create PRD story → Ralph executes → Fix committed → All projects benefit
+```
+
+To create stories: `/golem-powers:prd`
+To run stories: User runs `ralph N` in terminal
+
+**Read more:** [contexts/README.md](contexts/README.md) explains the full context system and improvement workflow.
+
+---
+
 > *"Ralph is a Bash loop"* — Geoffrey Huntley
 
 Run Claude (or any LLM) in an autonomous loop to execute PRD stories. Each iteration spawns a **fresh Claude instance** with clean context.
