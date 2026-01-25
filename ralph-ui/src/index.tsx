@@ -48,6 +48,7 @@ interface CLIConfig {
   quiet: boolean;
   verbose: boolean;
   notify: boolean;
+  usePty: boolean;  // Use PTY for live output (MP-007)
 
   // Path options
   prdPath: string;
@@ -73,6 +74,7 @@ function parseArgs(): CLIConfig {
     quiet: false,
     verbose: false,
     notify: !!process.env.RALPH_NOTIFY,
+    usePty: true, // Default to PTY mode (MP-007)
     prdPath: process.cwd() + '/prd-json',
     workingDir: process.cwd(),
     iteration: 1,
@@ -123,6 +125,13 @@ function parseArgs(): CLIConfig {
     // --notify
     else if (arg === '--notify') {
       config.notify = true;
+    }
+    // --pty / --no-pty (PTY mode toggle)
+    else if (arg === '--pty') {
+      config.usePty = true;
+    }
+    else if (arg === '--no-pty') {
+      config.usePty = false;
     }
     // --mode (display mode)
     else if (arg === '--mode' || arg === '-m') {
@@ -182,6 +191,8 @@ Runner Mode (--run):
   --quiet, -q             Suppress UI output (runner only)
   --verbose, -v           Enable verbose logging
   --notify                Send ntfy notifications (env: RALPH_NOTIFY)
+  --pty                   Use PTY for live output (default, enables streaming)
+  --no-pty                Use child_process spawning (legacy mode)
 
 Display Mode (without --run):
   --mode, -m <mode>       Mode: startup, iteration, or live (default: live)
@@ -241,8 +252,10 @@ async function runInRunnerMode(config: CLIConfig) {
     gapSeconds: config.gap,
     model: config.model,
     notify: config.notify,
+    ntfyTopic: config.ntfyTopic,
     quiet: config.quiet,
     verbose: config.verbose,
+    usePty: config.usePty,
   });
 
   // Start UI if not quiet

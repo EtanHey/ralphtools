@@ -20,6 +20,7 @@ import {
   getCriteriaProgress,
 } from "./prd";
 import { spawnClaude, analyzeResult } from "./claude";
+import { spawnClaudePTY } from "./pty-claude";
 import {
   writeStatus,
   cleanupStatus,
@@ -39,6 +40,12 @@ import {
   hasAllBlockedPromise,
 } from "./errors";
 import { buildIterationContext } from "./context";
+import {
+  notifyIterationComplete,
+  notifyPRDComplete,
+  notifyError,
+  notifyRetry,
+} from "./ntfy";
 
 // AIDEV-NOTE: This is the main iteration loop that replaces the 943-line loop in ralph.zsh
 // The state machine follows the design in docs.local/mp-006-design.md
@@ -71,6 +78,9 @@ export function createConfig(options: Partial<RunnerConfig>): RunnerConfig {
     notify: options.notify ?? DEFAULT_CONFIG.notify!,
     quiet: options.quiet ?? DEFAULT_CONFIG.quiet!,
     verbose: options.verbose ?? DEFAULT_CONFIG.verbose!,
+    usePty: options.usePty,
+    onOutput: options.onOutput,
+    onStrippedOutput: options.onStrippedOutput,
   };
 }
 
@@ -184,9 +194,15 @@ export async function runSingleIteration(
     timeout: DEFAULT_TIMEOUT_MS,
   };
 
-  verbose(config, `Spawning Claude with model ${config.model}`);
+  verbose(config, `Spawning Claude with model ${config.model}${config.usePty ? " (PTY)" : ""}`);
 
-  const spawnResult = await spawnClaude(spawnOptions);
+  // Use PTY or regular spawning based on config
+  const spawnResult = config.usePty
+    ? await spawnClaudePTY(spawnOptions, {
+        onData: config.onOutput,
+        onStrippedData: config.onStrippedOutput,
+      })
+    : await spawnClaude(spawnOptions);
   const outcome = analyzeResult(spawnResult);
 
   const durationMs = Date.now() - startTime;
@@ -271,6 +287,9 @@ export async function* runIterations(
       if (result.hasComplete) {
         log(config, "All stories complete!");
         setComplete();
+        if (config.notify && config.ntfyTopic) {
+          await notifyPRDComplete(config.ntfyTopic);
+        }
         break;
       }
 
@@ -278,6 +297,9 @@ export async function* runIterations(
       if (result.hasBlocked && !result.storyId) {
         log(config, "All remaining stories are blocked");
         setError("All stories blocked");
+        if (config.notify && config.ntfyTopic) {
+          await notifyError(config.ntfyTopic, "All stories blocked");
+        }
         break;
       }
 
@@ -292,6 +314,9 @@ export async function* runIterations(
 
           log(config, `Retry ${retryCount}: ${result.error}`);
           setRetry(cooldownSecs);
+          if (config.notify && config.ntfyTopic) {
+            await notifyRetry(config.ntfyTopic, retryCount, cooldownSecs);
+          }
 
           await sleep(cooldown);
           continue; // Don't increment iteration for retry
@@ -304,6 +329,9 @@ export async function* runIterations(
       // Reset retry count on success
       if (result.success) {
         retryCount = 0;
+        if (config.notify && config.ntfyTopic) {
+          await notifyIterationComplete(config.ntfyTopic, iteration, result.storyId);
+        }
       }
 
       // Gap between iterations

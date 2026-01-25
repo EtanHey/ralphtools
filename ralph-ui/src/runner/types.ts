@@ -12,8 +12,12 @@ export interface RunnerConfig {
   gapSeconds: number;
   model: Model;
   notify: boolean;
+  ntfyTopic?: string;
   quiet: boolean;
   verbose: boolean;
+  usePty?: boolean; // Use PTY-based spawning (MP-007)
+  onOutput?: (data: string) => void; // Callback for live output (PTY mode)
+  onStrippedOutput?: (data: string) => void; // Callback for stripped output (PTY mode)
 }
 
 export type Model = "haiku" | "sonnet" | "opus";

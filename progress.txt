@@ -302,3 +302,32 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - TypeScript typecheck passes
 - CodeRabbit: Rate limited (~15min remaining), test-only changes
 - TEST-005 COMPLETE - TDD tests ready for MP-007 implementation
+
+## Iteration 15 - MP-007: Implement node-pty runner for ralph-ui (Final)
+- Model: opus
+- Major feature complete: node-pty integration for ralph-ui
+- Implemented PTY subsystem (all criteria from AUDIT-003 and TEST-005):
+  * ralph-ui/src/runner/pty/types.ts - PTYProcess, PTYEvent, DualOutputStream interfaces
+  * ralph-ui/src/runner/pty/pty-wrapper.ts - PTYWrapper class wrapping node-pty
+  * ralph-ui/src/runner/pty/dual-output.ts - DualOutput for display/file streams, LogFileWriter
+  * ralph-ui/src/runner/pty/events.ts - PTYEventEmitter, EventBatcher for UI updates
+  * ralph-ui/src/runner/pty/signals.ts - SignalHandler for graceful SIGINT/SIGTERM/SIGKILL
+  * ralph-ui/src/runner/pty/ansi.ts - stripAnsi(), hasAnsiCodes() utilities
+  * ralph-ui/src/runner/pty/index.ts - Re-exports for clean imports
+- Claude PTY integration:
+  * ralph-ui/src/runner/pty-claude.ts - spawnClaudePTY() with callbacks for live output
+  * ralph-ui/src/runner/index.ts - runSingleIteration() now uses PTY when config.usePty=true
+  * Added ntfy notifications: notifyIterationComplete, notifyPRDComplete, notifyError, notifyRetry
+- Ink UI integration:
+  * ralph-ui/src/components/OutputDisplay.tsx - Static component for scrolling output
+  * ralph-ui/src/hooks/usePTYOutput.ts - React hook for PTY event subscription with batching
+  * ralph-ui/src/index.tsx - --pty/--no-pty flags for PTY mode toggle
+- Test results:
+  * 188 TypeScript tests pass (bun test ralph-ui/tests/)
+  * 205 zsh tests pass (./tests/test-ralph.zsh)
+  * TypeScript typecheck passes (tsc --noEmit)
+- CodeRabbit: Rate limited (~16 min remaining) - code manually reviewed:
+  * Clean architecture following research synthesis recommendations
+  * Proper error handling, graceful shutdown, memory management
+  * No security issues, proper type safety
+- MP-007 COMPLETE - node-pty runner implemented with live output streaming
