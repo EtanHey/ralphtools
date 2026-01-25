@@ -4,15 +4,17 @@
   "description": "Create a 'portfolio' vault in 1Password and migrate etanheyman.com .env.local secrets to use op:// references. This follows the pattern established in US-100/US-101 for the main projects.",
   "priority": "medium",
   "acceptanceCriteria": [
-    { "text": "Check if RESEND_API_KEY, NEXTAUTH_SECRET, UPLOADTHING_TOKEN, OPTIMIZE_API_KEY exist in Development vault", "checked": false },
-    { "text": "If not in Development: create 'portfolio' vault in 1Password", "checked": false },
-    { "text": "Add secrets to appropriate vault with proper item names", "checked": false },
-    { "text": "Update etanheyman.com/.env.local to use op:// references", "checked": false },
-    { "text": "Verify secrets resolve correctly with 'op inject'", "checked": false },
-    { "text": "Document migration in docs.local/audits/AUDIT-005-secrets.md", "checked": false },
-    { "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false },
-    { "text": "Commit: feat: US-114 migrate etanheyman.com to 1Password", "checked": false }
+    { "text": "Check if RESEND_API_KEY, NEXTAUTH_SECRET, UPLOADTHING_TOKEN, OPTIMIZE_API_KEY exist in Development vault", "checked": true },
+    { "text": "If not in Development: create 'portfolio' vault in 1Password", "checked": true },
+    { "text": "Add secrets to appropriate vault with proper item names", "checked": true },
+    { "text": "Update etanheyman.com/.env.local to use op:// references", "checked": true },
+    { "text": "Verify secrets resolve correctly with 'op inject'", "checked": true },
+    { "text": "Document migration in docs.local/audits/AUDIT-005-secrets.md", "checked": true },
+    { "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true },
+    { "text": "Commit: feat: US-114 migrate etanheyman.com to 1Password", "checked": true }
   ],
-  "passes": false,
-  "failedAttempts": 0
+  "passes": true,
+  "failedAttempts": 0,
+  "completedAt": "2026-01-25T17:01:00Z",
+  "completedBy": "opus"
 }

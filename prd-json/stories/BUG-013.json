@@ -11,8 +11,10 @@
     { "text": "Exit cleanup removes ~/.ralph-status and any temp files", "checked": true },
     { "text": "Gum fallback supports exit behavior if capable (nice-to-have)", "checked": true },
     { "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true },
-    { "text": "Commit: fix: BUG-013 Ralph UI exit and keyboard handling", "checked": false }
+    { "text": "Commit: fix: BUG-013 Ralph UI exit and keyboard handling", "checked": true }
   ],
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-25T15:48:02.978Z",
+  "completedBy": "opus",
   "failedAttempts": 0
 }

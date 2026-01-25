@@ -49,3 +49,17 @@ Started: Sun Jan 25 17:21:18 IST 2026
 - Note: Gum fallback marked as "nice-to-have" - Ink UI provides full functionality
 - Tests: 205 zsh tests passed, 83 bun tests passed, 188 ralph-ui tests passed
 
+## Iteration 4 - US-114: Migrate etanheyman.com secrets to 1Password
+- Model: opus
+- Created `portfolio` vault in 1Password for etanheyman.com project secrets
+- Migrated 4 secrets to the portfolio vault:
+  - RESEND_API_KEY - Email sending service
+  - NEXTAUTH_SECRET - NextAuth session encryption
+  - UPLOADTHING_TOKEN - File upload service
+  - OPTIMIZE_API_KEY - Image optimization service
+- Updated ~/Gits/etanheyman.com/.env.local to use op:// references
+- Verified secrets resolve correctly with `op inject`
+- Documented migration in docs.local/audits/AUDIT-005-secrets.md
+- CodeRabbit: Passed
+- Tests: 205 zsh tests passed
+
