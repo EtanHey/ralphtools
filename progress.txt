@@ -99,3 +99,19 @@ Started: Sun Jan 25 20:00:00 IST 2026
 - Learning: The update.json format documentation in /prd skill was misleading - it showed direct
   field overrides but the code expected queue operations. Now the code supports both formats.
 
+## Iteration 6 - US-116: Dogfood contexts in claude-golem
+- Model: opus
+- Created contexts/templates/project-setup-header.md:
+  - Template for "## SETUP (AI: Read This First)" section
+  - Includes guidance for purpose, quick start, skills available, and self-improvement loop awareness
+  - Helps future projects adopt the context system consistently
+- Updated claude-golem/CLAUDE.md:
+  - Added SETUP header section with purpose, quick start, skills, and dogfooding awareness
+  - Added @context: refs (base, skill-index, workflow/interactive, workflow/ralph)
+  - Now dogfoods its own context system like other projects do
+- Context audit: All referenced contexts exist (base.md, skill-index.md, workflow/interactive.md, workflow/ralph.md)
+- CodeRabbit: Passed
+- Tests: 205 zsh tests passed, 83 TypeScript tests passed
+- Learning: The context-audit script's grep pattern doesn't handle inline descriptions after context refs
+  (e.g., "@context: base - Universal rules" shows parsing issues). Consider fixing in a future story.
+

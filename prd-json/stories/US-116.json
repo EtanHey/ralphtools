@@ -10,7 +10,9 @@
     {"text": "Add setup header to claude-golem/CLAUDE.md using the template", "checked": true},
     {"text": "Run /golem-powers:context-audit - must show 0 missing contexts", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: feat: US-116 dogfood contexts in claude-golem", "checked": false}
+    {"text": "Commit: feat: US-116 dogfood contexts in claude-golem", "checked": true}
   ],
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-25T18:57:00.000Z",
+  "completedBy": "opus"
 }
