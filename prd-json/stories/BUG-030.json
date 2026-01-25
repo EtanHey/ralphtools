@@ -1,11 +1,16 @@
 {
   "id": "BUG-030",
   "title": "Fix ralph-ui flickering with Ink Static component",
-  "description": "The live UI flickers badly because the entire component tree re-renders on each poll. Per docs.local/live-ui-research/round-3-agent-9-synthesis.md, we need to use Ink's <Static> component for stable content and batch updates (50 lines or 100ms).",
+  "description": "The live UI flickers badly and some dynamic data (iteration counter) doesn't update. Fix flickering with Ink's <Static> component and ensure ALL dynamic data reads from status file. Per docs.local/live-ui-research/round-3-agent-9-synthesis.md.",
   "acceptanceCriteria": [
     {"text": "=== READ RESEARCH ===", "checked": false},
     {"text": "Read docs.local/live-ui-research/round-3-agent-9-synthesis.md", "checked": false},
     {"text": "Understand: Static component, batching pattern, dual-stream", "checked": false},
+    {"text": "=== DYNAMIC DATA FROM STATUS FILE ===", "checked": false},
+    {"text": "Iteration counter reads from ~/.ralph-status.json (not props)", "checked": false},
+    {"text": "Model name reads from status file", "checked": false},
+    {"text": "Start time reads from status file", "checked": false},
+    {"text": "All dynamic values update when status file changes", "checked": false},
     {"text": "=== STATIC COMPONENT ===", "checked": false},
     {"text": "Wrap stable UI elements (header, borders) in <Static>", "checked": false},
     {"text": "Only dynamic elements (time, progress, indicators) re-render", "checked": false},
@@ -13,10 +18,12 @@
     {"text": "Batch state updates: 50 lines OR 100ms, whichever first", "checked": false},
     {"text": "Reduce poll-triggered re-renders", "checked": false},
     {"text": "=== VERIFICATION ===", "checked": false},
+    {"text": "Run ralph-ui while ralph runs - iteration counter updates", "checked": false},
+    {"text": "Model changes mid-run reflected in UI", "checked": false},
     {"text": "Run ralph-ui - no visible flicker", "checked": false},
     {"text": "Test with rapid file changes - still stable", "checked": false},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: fix: BUG-030 eliminate UI flickering with Static component", "checked": false}
+    {"text": "Commit: fix: BUG-030 fix dynamic data + eliminate UI flickering", "checked": false}
   ],
   "dependencies": ["V-020"],
   "passes": false
