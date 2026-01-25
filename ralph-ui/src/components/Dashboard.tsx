@@ -31,23 +31,54 @@ function useLiveClock(enabled: boolean): string {
 
 // Wrapper component that conditionally uses input (only for live mode)
 function KeyboardHandler({ onExit }: { onExit: () => void }) {
+  const { isRawModeSupported } = useStdin();
+
+  // Use Ink's useInput when raw mode is available
   useInput((input, key) => {
     if (input === 'q' || (key.ctrl && input === 'c') || key.escape) {
       onExit();
     }
-  });
+  }, { isActive: isRawModeSupported });
 
-  // Also handle SIGINT (Ctrl+C at process level)
+  // Handle SIGINT (Ctrl+C) at process level - works even without raw mode
   useEffect(() => {
-    const handler = () => {
+    const sigintHandler = () => {
       onExit();
       process.exit(0);
     };
-    process.on('SIGINT', handler);
+    process.on('SIGINT', sigintHandler);
+
+    // Also handle SIGTERM for graceful shutdown
+    process.on('SIGTERM', sigintHandler);
+
     return () => {
-      process.off('SIGINT', handler);
+      process.off('SIGINT', sigintHandler);
+      process.off('SIGTERM', sigintHandler);
     };
   }, [onExit]);
+
+  // Fallback: direct stdin handler when raw mode not available
+  useEffect(() => {
+    if (isRawModeSupported) return; // useInput handles it
+
+    const stdinHandler = (data: Buffer) => {
+      const char = data.toString();
+      if (char === 'q' || char === '\x03' || char === '\x1b') { // q, Ctrl+C, Escape
+        onExit();
+      }
+    };
+
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode?.(true);
+      process.stdin.resume();
+      process.stdin.on('data', stdinHandler);
+
+      return () => {
+        process.stdin.off('data', stdinHandler);
+        process.stdin.setRawMode?.(false);
+      };
+    }
+  }, [isRawModeSupported, onExit]);
 
   return null;
 }
