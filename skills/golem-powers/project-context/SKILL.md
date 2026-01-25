@@ -1,6 +1,6 @@
 ---
 name: project-context
-description: Auto-detects project tools and loads relevant skill context. Use at session start or when unsure what tools are available. Detects Convex, Linear, Supabase, UI frameworks, and more.
+description: Use at session start or when unsure what tools are available. Auto-detects project stack and shows relevant skills. Covers project detection, what skills, available tools. NOT for: mid-session skill lookup (use /skills), invoking specific skills (call them directly).
 user-invocable: true
 disable-model-invocation: false
 ---

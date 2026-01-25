@@ -1,6 +1,6 @@
 ---
 name: prd
-description: "Generate a Product Requirements Document (PRD) for a new feature. Use when planning a feature, starting a new project, or when asked to create a PRD."
+description: Use when planning a feature, starting a new project, or asked to create a PRD. Generates JSON-based PRD for Ralph. Adding stories uses update.json pattern. Covers PRD, create PRD, plan feature, Ralph stories. NOT for: running Ralph (user runs externally).
 ---
 
 # PRD Generator

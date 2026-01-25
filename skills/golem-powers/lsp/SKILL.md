@@ -1,6 +1,6 @@
 ---
 name: lsp
-description: Guide for using Language Server Protocol (LSP) tools in Claude Code for code intelligence
+description: Use when needing semantic code navigation - find definitions, references, or callers. Covers LSP, go to definition, find references, hover, code intelligence. NOT for: text pattern searches (use grep), file discovery (use glob).
 ---
 
 # LSP Code Intelligence Skill

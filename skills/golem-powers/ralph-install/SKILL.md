@@ -1,6 +1,6 @@
 ---
 name: ralph-install
-description: Install wizard for ralphtools. Checks dependencies, installs missing tools, configures API tokens, and validates installation.
+description: Use when setting up Ralph/ralphtools for the first time. Checks dependencies, installs CLIs, configures 1Password tokens. Covers install ralph, setup ralph, dependencies. NOT for: daily Ralph usage (skills already installed).
 ---
 
 # Ralph Install Wizard

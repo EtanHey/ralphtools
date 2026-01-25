@@ -405,3 +405,23 @@ Started: Sun Jan 25 05:24:03 IST 2026
 - CodeRabbit: Rate limited; manually verified script syntax and functionality
 - Tests: All 205 zsh tests pass, all 83 bun tests pass
 - US-114 COMPLETE - Progressive skill disclosure reduces context by ~94%
+
+## Iteration 19 - US-115: Add skill matching hints to descriptions
+- Model: opus
+- Improved all 24 golem-powers skill descriptions with:
+  * "Use when..." trigger phrases for all skills
+  * Trigger words/keywords (e.g., "Covers catchup, context recovery, long break")
+  * "NOT for:" negative instructions (e.g., "NOT for: runtime debugging")
+  * Consistent pattern: "Use when X. Covers Y. NOT for: Z"
+- Skills updated:
+  * catchup, catchup-recent - context recovery scope clarified
+  * create-pr, critique-waves - added when/not-for
+  * example-bash, example-typescript - marked as demo/template
+  * github, lsp - added negative instructions
+  * prd-manager, ralph-commit, ralph-install - workflow scope clarified
+  * skills, test-plan, worktrees - added triggers and negatives
+  * 1password, archive, brave, coderabbit, convex, context7, linear, prd, project-context, writing-skills - refined descriptions
+- Regenerated skill-descriptions.md with improved content
+- CodeRabbit: Found 5 issues, fixed 4 (descriptions); 1 (pipe delimiter in generate-skill-index.sh) is from US-114 scope
+- Tests: All 205 zsh tests pass
+- US-115 COMPLETE - Skill descriptions now have clear when/not-for guidance

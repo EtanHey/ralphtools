@@ -1,6 +1,6 @@
 ---
 name: 1password
-description: Use when managing secrets, credentials, API keys, or vault operations. Covers 1password, secrets, op, vault, migrate, credentials, mcp config secrets.
+description: Use when managing secrets, credentials, API keys, or vault operations. Supports Environments (Beta) for .env mounting. Covers 1password, secrets, op, vault, migrate, credentials. NOT for: non-secret config (use regular config files).
 ---
 
 # 1Password Operations

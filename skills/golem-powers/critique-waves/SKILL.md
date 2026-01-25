@@ -1,6 +1,6 @@
 ---
 name: critique-waves
-description: Run iterative waves of critique agents until consensus is achieved.
+description: Use when needing multi-agent verification of complex work. Runs parallel critique agents until consensus. Covers verification, consensus, multi-agent review, validate work. NOT for: simple code reviews (use coderabbit), single-reviewer tasks.
 ---
 
 # Critique Waves

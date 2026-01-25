@@ -1,6 +1,6 @@
 ---
 name: worktrees
-description: Git worktree-based task isolation. Create isolated worktrees for features/bugs, integrate with Linear issues. Prevents cross-contamination between tasks.
+description: Use when starting isolated feature work. Creates git worktrees to prevent branch cross-contamination. Covers worktree, isolated development, parallel features, branch isolation. NOT for: simple branch switching (use git checkout), Linear-only operations (use linear).
 ---
 
 # Git Worktrees

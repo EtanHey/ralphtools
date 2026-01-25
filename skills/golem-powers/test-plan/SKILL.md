@@ -1,6 +1,6 @@
 ---
 name: test-plan
-description: Analyze git diff and generate a manual testing checklist for QA before merging PRs
+description: Use when preparing a PR for QA review. Generates manual testing checklist from git diff. Covers test plan, QA checklist, testing before merge. NOT for: automated tests (write those separately), code reviews (use coderabbit).
 execute: scripts/generate.sh
 ---
 

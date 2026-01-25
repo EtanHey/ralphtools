@@ -1,6 +1,6 @@
 ---
 name: brave
-description: Use when managing Brave browser for Kiro and Gemini CLI. Provides navigation, inspection, interaction, and debugging. Claude Code should prefer Claude-in-Chrome MCP first, then use brave-manager as fallback.
+description: Use as fallback browser automation when Claude-in-Chrome MCP is unavailable. Covers browser control, navigation, screenshots, clicking, typing. NOT for: headless testing (use Playwright). Claude Code users should prefer MCP first.
 ---
 
 # Brave Browser Management (v2.2.0)

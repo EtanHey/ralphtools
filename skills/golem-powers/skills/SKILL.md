@@ -1,6 +1,6 @@
 ---
 name: skills
-description: Discover all installed skills with descriptions. Use /skills to list available skills or /skills --search <keyword> to filter.
+description: Use when wanting to see what skills are available. Lists installed skills with descriptions. Covers list skills, search skills, discover skills, what skills. NOT for: using a specific skill (invoke that skill directly).
 ---
 
 # Skills Discovery

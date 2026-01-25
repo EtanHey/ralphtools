@@ -1,6 +1,6 @@
 ---
 name: ralph-commit
-description: Atomic commit + criterion check for Ralph stories. Commits (pre-commit runs tests), then marks criterion checked. If commit fails, neither happens.
+description: Use when reaching a "Commit:" criterion in Ralph stories. Atomically commits and marks criterion checked. Covers ralph commit, atomic commit, commit criterion. NOT for: regular git commits (use git directly), commits outside Ralph workflow.
 ---
 
 # Skill: Ralph Commit (Atomic Commit + Check)

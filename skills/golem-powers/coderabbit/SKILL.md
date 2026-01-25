@@ -1,6 +1,6 @@
 ---
 name: coderabbit
-description: Runs AI code reviews using CodeRabbit CLI. Use when reviewing uncommitted changes, preparing PRs, checking for security issues, scanning for hardcoded secrets, or verifying code quality before committing.
+description: Use when reviewing uncommitted changes, preparing PRs, checking for security issues, or verifying code quality. Runs AI code reviews via CLI. Covers code review, PR review, security scan, secrets scan. NOT for: runtime debugging (use debugger), test execution (run tests directly).
 execute: scripts/review.sh
 ---
 

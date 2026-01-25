@@ -1,6 +1,6 @@
 ---
 name: context7
-description: Looks up library documentation and code examples using Context7 API. Use when needing current API references, function signatures, usage patterns, or learning how to use any programming library.
+description: Use when needing current API references, function signatures, or library usage patterns. Looks up documentation via Context7 API. Covers docs lookup, library documentation, API reference, how to use library. NOT for: web search (use WebSearch), project-specific code (read the codebase).
 execute: scripts/default.sh
 ---
 

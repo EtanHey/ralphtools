@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: Use when creating new golem-powers skills, editing existing skills, or verifying skills work before deployment
+description: Use when creating new golem-powers skills, editing existing skills, or verifying skills work. Covers create skill, write skill, skill template, skill structure. NOT for: using existing skills (invoke them directly), superpowers skills (different structure).
 ---
 
 # Writing Golem-Powers Skills

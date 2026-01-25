@@ -1,6 +1,6 @@
 ---
 name: prd-manager
-description: Manage PRD stories - add, update, bulk operations on prd-json/
+description: Use when modifying PRD stories programmatically - add criteria, update status, bulk operations. Covers PRD management, add story, add criterion, bulk update. NOT for: creating new PRDs (use prd), viewing PRD status (use ralph-status).
 execute: scripts/run.sh
 ---
 

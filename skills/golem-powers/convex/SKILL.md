@@ -1,6 +1,6 @@
 ---
 name: convex
-description: Use when working with Convex backend - dev server, deployment, function execution, data import/export, schema management. Wraps npx convex CLI.
+description: Use when working with Convex backend - dev server, deployment, function execution, data import/export. Wraps npx convex CLI. Covers convex, backend, serverless, functions, schema. NOT for: other databases (Supabase, Firebase, etc.), frontend-only work.
 ---
 
 # Convex Operations

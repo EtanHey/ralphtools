@@ -1,6 +1,6 @@
 ---
 name: linear
-description: Use when working with Linear issues, tasks, or project management. Covers creating, listing, updating issues, and creating git worktrees from Linear issues.
+description: Use when working with Linear issues, tasks, or project management. Covers creating, listing, updating issues, Linear to worktree. NOT for: general git operations (use github), non-Linear issue trackers (GitHub Issues, Jira).
 ---
 
 # Linear Operations

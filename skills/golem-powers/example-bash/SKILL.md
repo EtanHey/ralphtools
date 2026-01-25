@@ -1,6 +1,6 @@
 ---
 name: example-bash
-description: Example bash skill demonstrating Pattern A (simple bash script execution)
+description: Use when learning to write bash-pattern skills. Template for simple CLI wrapper skills. Covers example, template, bash skill, pattern A. NOT for: production use (this is a demo).
 execute: scripts/hello.sh
 ---
 

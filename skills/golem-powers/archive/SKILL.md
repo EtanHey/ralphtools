@@ -1,6 +1,6 @@
 ---
 name: archive
-description: Archive completed PRD stories to docs.local/. Use when planning a sprint transition, archiving completed work, or resetting the PRD for a fresh start.
+description: Use when planning a sprint transition, archiving completed work, or resetting the PRD for a fresh start. Archives completed PRD stories to docs.local/. Covers archive, cleanup, sprint transition, reset PRD. NOT for: deleting stories mid-sprint (use prd-manager), viewing PRD status (use ralph-status).
 ---
 
 # Archive PRD Stories

@@ -1,6 +1,6 @@
 ---
 name: example-typescript
-description: Example TypeScript skill demonstrating Pattern B (Bun runtime with actions)
+description: Use when learning to write TypeScript-pattern skills. Template for complex skills with Bun runtime. Covers example, template, typescript skill, pattern B. NOT for: production use (this is a demo).
 execute: scripts/run.sh --action=default
 ---
 

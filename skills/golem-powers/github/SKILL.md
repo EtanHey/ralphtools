@@ -1,6 +1,6 @@
 ---
 name: github
-description: Git and GitHub CLI operations - commits, PRs, issues, branches. No MCP required.
+description: Use when doing git operations, creating PRs, or managing GitHub issues. Provides gh CLI commands. Covers git, github, commits, PRs, issues, branches, worktrees. NOT for: Linear issues (use linear), code reviews (use coderabbit).
 ---
 
 # Skill: GitHub & Git Operations

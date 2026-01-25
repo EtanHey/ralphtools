@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Push current branch and create a pull request against target branch
+description: Use when ready to submit work for review. Pushes branch and creates PR via gh CLI. Covers create PR, submit PR, push and PR. NOT for: git commits only (use git directly), reviewing PRs (use coderabbit).
 execute: scripts/create-pr.sh
 ---
 

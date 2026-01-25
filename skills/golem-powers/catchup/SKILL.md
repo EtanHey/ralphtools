@@ -1,6 +1,6 @@
 ---
 name: catchup
-description: Recover context for long-running sessions by reading all files changed since diverging from main branch
+description: Use when returning to a session after 48+ hours or context overflow. Reads all files changed in branch vs main. Covers catchup, context recovery, long break, rebuild understanding. NOT for: quick refreshes (use catchup-recent instead).
 ---
 
 # Skill: Catchup (Full Branch Context Recovery)

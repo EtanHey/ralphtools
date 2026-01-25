@@ -1,6 +1,6 @@
 ---
 name: catchup-recent
-description: Quick context recovery by reading only modified/unstaged files from current working directory
+description: Use when taking a short break (hours, not days) and need quick refresh. Reads only uncommitted changes (staged and unstaged). Covers quick catchup, refresh. NOT for: long breaks or full branch review (use catchup instead).
 ---
 
 # Skill: Catchup Recent (Quick Context Recovery)
