@@ -20,6 +20,6 @@
   ],
   "storyType": "infrastructure",
   "blockedBy": "US-129",
-  "notes": "Uses SessionContext from MP-128. Notify reads ctx.notifications.enabled and ctx.notifications.topic.",
+  "notes": "Uses SessionContext from MP-128. Notify reads ctx.notifications.enabled and ctx.notifications.topic. WHY THIS WORKS: In a prior session, Claude naturally used `curl ntfy.sh/etanheys-ralph-claude-golem-notify` to notify the user after completing PRD work - simply because the pattern was discussed and 'top of mind'. This proves: if the notify pattern is visible in CLAUDE.md, agents will naturally use it when appropriate (done, stuck, need input).",
   "passes": false
 }
