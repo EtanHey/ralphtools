@@ -1,0 +1,18 @@
+{
+  "id": "BUG-005",
+  "title": "PRD stats should be computed, not hardcoded",
+  "description": "index.json stats (total, pending, blocked, completed) are manually maintained. They get out of sync when arrays are updated. Stats should be computed from array lengths.",
+  "acceptanceCriteria": [
+    {"text": "Find where stats are written in prd.ts", "checked": false},
+    {"text": "Replace hardcoded stats with computed values: stats.total = storyOrder.length", "checked": false},
+    {"text": "Compute: stats.pending = pending.length, stats.blocked = blocked.length", "checked": false},
+    {"text": "Compute: stats.completed = completed?.length || 0", "checked": false},
+    {"text": "Remove stats from writeIndex parameters - always compute fresh", "checked": false},
+    {"text": "Test: Modify pending array, verify stats auto-update on next writeIndex", "checked": false},
+    {"text": "Typecheck passes", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-005 compute PRD stats from arrays", "checked": false}
+  ],
+  "storyType": "bug",
+  "passes": false
+}

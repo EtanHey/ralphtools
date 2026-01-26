@@ -3,15 +3,42 @@
   "title": "Ralph loops forever when story has blockedBy but is in pending array",
   "description": "When a story file has blockedBy field but the story is listed in index.pending (mismatch), Ralph outputs 'Error: Blocked' but doesn't advance to next story. It retries the same blocked story until max iterations (100).",
   "acceptanceCriteria": [
-    {"text": "Find where Ralph checks blockedBy in story files", "checked": false},
-    {"text": "When blockedBy found in story file, auto-move story from pending to blocked in index", "checked": false},
-    {"text": "Update nextStory to next pending story after auto-move", "checked": false},
-    {"text": "Log: '[PRD] Auto-blocked {storyId}: {blockedBy reason}'", "checked": false},
-    {"text": "Test: Create mock story with blockedBy in file but in pending array, verify auto-move", "checked": false},
-    {"text": "Test: Verify Ralph advances to next pending story after auto-block", "checked": false},
-    {"text": "Typecheck passes", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: fix: BUG-003 auto-block stories with blockedBy field mismatch", "checked": false}
+    {
+      "text": "Find where Ralph checks blockedBy in story files",
+      "checked": true
+    },
+    {
+      "text": "When blockedBy found in story file, auto-move story from pending to blocked in index",
+      "checked": true
+    },
+    {
+      "text": "Update nextStory to next pending story after auto-move",
+      "checked": true
+    },
+    {
+      "text": "Log: '[PRD] Auto-blocked {storyId}: {blockedBy reason}'",
+      "checked": true
+    },
+    {
+      "text": "Test: Create mock story with blockedBy in file but in pending array, verify auto-move",
+      "checked": true
+    },
+    {
+      "text": "Test: Verify Ralph advances to next pending story after auto-block",
+      "checked": true
+    },
+    {
+      "text": "Typecheck passes",
+      "checked": true
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": false
+    },
+    {
+      "text": "Commit: fix: BUG-003 auto-block stories with blockedBy field mismatch",
+      "checked": false
+    }
   ],
   "storyType": "bug",
   "passes": false

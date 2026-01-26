@@ -7,6 +7,8 @@
     "BUG-002",
     "BUG-003",
     "BUG-004",
+    "BUG-005",
+    "BUG-006",
     "V-002",
     "US-128",
     "MP-128",
@@ -24,6 +26,8 @@
   "pending": [
     "BUG-003",
     "BUG-004",
+    "BUG-005",
+    "BUG-006",
     "MP-128",
     "US-116",
     "US-117",
@@ -45,9 +49,9 @@
     "US-128"
   ],
   "stats": {
-    "total": 17,
+    "total": 19,
     "completed": 3,
-    "pending": 6,
+    "pending": 8,
     "blocked": 8
   }
 }
