@@ -3,21 +3,59 @@
   "title": "Test: Session Context Implementation",
   "description": "Write tests for session context based on US-128 research and MP-128 implementation. Tests should verify the session context works as designed.",
   "acceptanceCriteria": [
-    {"text": "Read US-128 research: docs.local/research/US-128-session-context.md", "checked": false},
-    {"text": "Read MP-128 implementation in ralph-ui/src/runner/session-context.ts", "checked": false},
-    {"text": "Use /context7 to look up testing patterns for TypeScript/Bun", "checked": false},
-    {"text": "Write bun/tests/session-context.test.ts", "checked": false},
-    {"text": "Test: SessionContext.create() returns valid context", "checked": false},
-    {"text": "Test: detectRunner() returns 'ralph' when RALPH_SESSION set", "checked": false},
-    {"text": "Test: detectRunner() returns 'direct' when no RALPH_SESSION", "checked": false},
-    {"text": "Test: notifications.enabled reflects RALPH_NOTIFY env", "checked": false},
-    {"text": "Run: bun test bun/tests/session-context.test.ts - document any failures", "checked": false},
-    {"text": "Write test report to docs.local/research/TEST-128-results.md", "checked": false},
-    {"text": "If tests fail: document what MP-128 needs to fix", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: test: TEST-128 session context tests", "checked": false}
+    {
+      "text": "Read US-128 research: docs.local/research/US-128-session-context.md",
+      "checked": true
+    },
+    {
+      "text": "Read MP-128 implementation in ralph-ui/src/runner/session-context.ts",
+      "checked": true
+    },
+    {
+      "text": "Use /context7 to look up testing patterns for TypeScript/Bun",
+      "checked": false
+    },
+    {
+      "text": "Write bun/tests/session-context.test.ts",
+      "checked": false
+    },
+    {
+      "text": "Test: SessionContext.create() returns valid context",
+      "checked": false
+    },
+    {
+      "text": "Test: detectRunner() returns 'ralph' when RALPH_SESSION set",
+      "checked": false
+    },
+    {
+      "text": "Test: detectRunner() returns 'direct' when no RALPH_SESSION",
+      "checked": false
+    },
+    {
+      "text": "Test: notifications.enabled reflects RALPH_NOTIFY env",
+      "checked": false
+    },
+    {
+      "text": "Run: bun test bun/tests/session-context.test.ts - document any failures",
+      "checked": false
+    },
+    {
+      "text": "Write test report to docs.local/research/TEST-128-results.md",
+      "checked": false
+    },
+    {
+      "text": "If tests fail: document what MP-128 needs to fix",
+      "checked": false
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": false
+    },
+    {
+      "text": "Commit: test: TEST-128 session context tests",
+      "checked": false
+    }
   ],
   "storyType": "test",
-  "blockedBy": "MP-128",
   "passes": false
 }

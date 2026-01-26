@@ -121,7 +121,7 @@ export async function runSingleIteration(
   }
 
   // Get next story
-  const story = getNextStory(config.prdJsonDir);
+  let story = getNextStory(config.prdJsonDir);
 
   if (!story) {
     // Check if complete or all blocked
@@ -165,21 +165,26 @@ export async function runSingleIteration(
     startTime: runStartTime ?? startTime,
   });
 
-  // Check if story is blocked
+  // Check if story is blocked (auto-unblock if blocker is completed)
   if (story.blockedBy) {
-    // Auto-block: move from pending to blocked if needed
     const wasAutoBlocked = autoBlockStoryIfNeeded(config.prdJsonDir, story.id);
-    
-    verbose(config, `Story ${story.id} is blocked: ${story.blockedBy}${wasAutoBlocked ? " (auto-moved to blocked)" : ""}`);
-    return {
-      iteration,
-      storyId: story.id,
-      success: false,
-      hasComplete: false,
-      hasBlocked: true,
-      durationMs: Date.now() - startTime,
-      error: `Blocked: ${story.blockedBy}`,
-    };
+
+    if (wasAutoBlocked) {
+      // Story was moved to blocked array - return blocked status
+      verbose(config, `Story ${story.id} auto-blocked: ${story.blockedBy}`);
+      return {
+        iteration,
+        storyId: story.id,
+        success: false,
+        hasComplete: false,
+        hasBlocked: true,
+        durationMs: Date.now() - startTime,
+        error: `Blocked: ${story.blockedBy}`,
+      };
+    }
+    // wasAutoBlocked=false means blocker completed, story was unblocked - continue execution
+    // Re-read story to get updated state without blockedBy
+    story = getNextStory(config.prdJsonDir)!;
   }
 
   // Build context and prompt for Claude
