@@ -164,3 +164,16 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - CodeRabbit: Rate limited but TypeScript compilation passed
 - All tests passed (205 Ralph + 17 Skills + 99 Bun)
 - Established foundation for portable, reliable skill execution from any working directory
+
+## Iteration 15 - MP-130: Migrate All Skills to BASH_SOURCE Path Standard
+- Model: kiro
+- Systematically updated all golem-powers skills to use BASH_SOURCE self-detection pattern
+- Updated 7 skill categories: coderabbit, context7, test-plan, create-pr, convex, linear, archive
+- Added BASH_SOURCE pattern to 20+ shell scripts for portable execution from any working directory
+- Fixed shellcheck issues: replaced ls with find, added -r flag to read commands, improved file size detection
+- Verified all updated skills work correctly from different working directories via test script
+- Skill template generator already included BASH_SOURCE pattern - no changes needed
+- SKILL.md files already showed correct usage examples with full paths
+- CodeRabbit: Found unused SCRIPT_DIR/SKILL_DIR variables (part of standard pattern, acceptable)
+- All tests passed: Ralph (205 passed), Skills (17 passed), Bun (99 passed)
+- This establishes the foundation for reliable, portable skill execution across all environments

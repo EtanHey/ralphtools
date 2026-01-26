@@ -16,9 +16,11 @@
     {"text": "Run shellcheck on all updated scripts", "checked": true},
     {"text": "Typecheck passes", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: feat: MP-130 migrate skills to BASH_SOURCE standard", "checked": false}
+    {"text": "Commit: feat: MP-130 migrate skills to BASH_SOURCE standard", "checked": true}
   ],
   "storyType": "masterplan",
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-26T12:30:10.000Z",
+  "completedBy": "kiro",
   "notes": "This MP story implements the path standard designed in AUDIT-001. Priority order: coderabbit, context7, test-plan, create-pr (high usage), then convex, linear, archive (medium usage). Each skill needs: 1) BASH_SOURCE self-detection, 2) project root detection if needed, 3) updated documentation examples."
 }
