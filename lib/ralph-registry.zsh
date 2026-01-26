@@ -785,6 +785,123 @@ function repoGolem() {
 
     claude \"\${claude_args[@]}\"
   }"
+
+  # Create {name}OpenCode function with UNIFIED FLAGS (same as Claude)
+  # -s = skip permissions (no-op for OpenCode, it's permissive by default)
+  # -c = continue session
+  # -p = headless/print mode with prompt
+  # -m = model override
+  eval "function ${lowercase_name}OpenCode() {
+    local opencode_args=()
+    local model=\"\"
+    local headless_prompt=\"\"
+    local use_headless=false
+
+    while [[ \$# -gt 0 ]]; do
+      case \"\$1\" in
+        -m|--model)
+          model=\"\$2\"
+          shift 2
+          ;;
+        -c|--continue)
+          opencode_args+=(\"--continue\")
+          shift
+          ;;
+        -s|--skip-permissions)
+          # No-op for OpenCode (permissive by default)
+          shift
+          ;;
+        -p|--print)
+          use_headless=true
+          if [[ -n \"\$2\" && \"\$2\" != -* ]]; then
+            headless_prompt=\"\$2\"
+            shift
+          fi
+          shift
+          ;;
+        -o|--ollama)
+          model=\"ollama/qwen3-coder-64k\"
+          shift
+          ;;
+        -g|--gemini)
+          model=\"gemini/gemini-2.0-flash-exp\"
+          shift
+          ;;
+        -a|--anthropic)
+          model=\"anthropic/claude-sonnet-4-20250514\"
+          shift
+          ;;
+        *)
+          opencode_args+=(\"\$1\")
+          shift
+          ;;
+      esac
+    done
+
+    cd \"$path\" || return 1
+
+    if [[ -n \"\$model\" ]]; then
+      opencode_args=(\"--model\" \"\$model\" \"\${opencode_args[@]}\")
+    fi
+
+    if \$use_headless; then
+      echo \"OpenCode (headless): ${capitalized_name}\"
+      opencode run \"\${opencode_args[@]}\" \"\$headless_prompt\"
+    else
+      echo \"OpenCode: ${capitalized_name} (\$(pwd))\"
+      opencode \"\${opencode_args[@]}\"
+    fi
+  }"
+
+  # Create {name}Gemini function with UNIFIED FLAGS
+  eval "function ${lowercase_name}Gemini() {
+    local gemini_args=()
+    local model=\"\"
+    local headless_prompt=\"\"
+    local use_headless=false
+
+    while [[ \$# -gt 0 ]]; do
+      case \"\$1\" in
+        -m|--model)
+          model=\"\$2\"
+          shift 2
+          ;;
+        -c|--continue)
+          gemini_args+=(\"--resume\" \"latest\")
+          shift
+          ;;
+        -s|--skip-permissions)
+          gemini_args+=(\"--yolo\")
+          shift
+          ;;
+        -p|--print)
+          use_headless=true
+          if [[ -n \"\$2\" && \"\$2\" != -* ]]; then
+            headless_prompt=\"\$2\"
+            shift
+          fi
+          shift
+          ;;
+        *)
+          gemini_args+=(\"\$1\")
+          shift
+          ;;
+      esac
+    done
+
+    cd \"$path\" || return 1
+    echo \"Gemini CLI: ${capitalized_name} (\$(pwd))\"
+
+    if [[ -n \"\$model\" ]]; then
+      gemini_args=(\"--model\" \"\$model\" \"\${gemini_args[@]}\")
+    fi
+
+    if \$use_headless && [[ -n \"\$headless_prompt\" ]]; then
+      gemini \"\${gemini_args[@]}\" \"\$headless_prompt\"
+    else
+      gemini \"\${gemini_args[@]}\"
+    fi
+  }"
 }
 
 # Generate launchers from registry (new registry-based function)
@@ -961,3 +1078,96 @@ EOF
 
 # Source launchers on load
 [[ -f "$HOME/.config/ralphtools/launchers.zsh" ]] && source "$HOME/.config/ralphtools/launchers.zsh"
+
+# ═══════════════════════════════════════════════════════════════════
+# OPENCODE INTEGRATION - Alternative AI CLI with Claude Golem features
+# ═══════════════════════════════════════════════════════════════════
+# OpenCode natively supports CLAUDE.md fallback (reads ~/.claude/CLAUDE.md)
+# Commands go in ~/.config/opencode/commands/
+# ═══════════════════════════════════════════════════════════════════
+
+# Initialize OpenCode with Claude Golem skills and contexts
+# Usage: _ralph_setup_opencode
+function _ralph_setup_opencode() {
+  local opencode_config_dir="$HOME/.config/opencode"
+  local opencode_commands_dir="$opencode_config_dir/commands"
+  local skills_source="$HOME/.claude/commands/golem-powers"
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[0;33m'
+  local NC='\033[0m'
+
+  echo "Setting up OpenCode with Claude Golem features..."
+
+  # Create directories
+  mkdir -p "$opencode_commands_dir"
+
+  # Check if skills source exists
+  if [[ ! -d "$skills_source" ]]; then
+    echo "${YELLOW}Skills not found at $skills_source${NC}"
+    echo "Run the Claude Golem installer first or check your installation."
+    return 1
+  fi
+
+  # Symlink skills to OpenCode commands
+  local skill_count=0
+  for skill_dir in "$skills_source"/*; do
+    if [[ -d "$skill_dir" ]]; then
+      local skill_name=$(basename "$skill_dir")
+      local skill_md="$skill_dir/SKILL.md"
+      local target_md="$opencode_commands_dir/$skill_name.md"
+
+      # Convert SKILL.md to OpenCode command format
+      if [[ -f "$skill_md" ]]; then
+        # OpenCode uses frontmatter format
+        # Extract description from SKILL.md and create OpenCode command
+        local desc=$(grep -m1 '^description:' "$skill_md" 2>/dev/null | sed 's/^description: *//')
+        [[ -z "$desc" ]] && desc="Claude Golem skill: $skill_name"
+
+        # Create OpenCode command file
+        cat > "$target_md" << SKILLEOF
+---
+description: $desc
+---
+$(cat "$skill_md")
+SKILLEOF
+        ((skill_count++))
+      fi
+    fi
+  done
+
+  echo "${GREEN}Created $skill_count OpenCode commands from Claude Golem skills${NC}"
+
+  # Create OpenCode config with Ollama as default
+  local opencode_json="$opencode_config_dir/opencode.json"
+  if [[ ! -f "$opencode_json" ]]; then
+    cat > "$opencode_json" << 'CONFIGEOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/qwen3-coder-64k",
+  "small_model": "ollama/qwen2.5-coder:7b",
+  "instructions": [],
+  "theme": "dark"
+}
+CONFIGEOF
+    echo "${GREEN}Created OpenCode config with Ollama models${NC}"
+  fi
+
+  echo ""
+  echo "OpenCode is ready! Usage:"
+  echo "  opencode              # Start in current directory"
+  echo "  {name}OpenCode        # Launch for specific project"
+  echo "  /skill-name           # Use Claude Golem skills"
+  echo ""
+
+  return 0
+}
+
+# golemOpenCode - Launch OpenCode for claude-golem project (convenience function)
+function golemOpenCode() {
+  cd "$HOME/Gits/claude-golem" || return 1
+  echo "OpenCode: Claude Golem ($(pwd))"
+  opencode "$@"
+}
+
+# Note: OpenCode launchers ({name}OpenCode) are now generated by repoGolem()
+# alongside {name}Claude and {name}Gemini. No separate function needed.

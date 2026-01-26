@@ -2,17 +2,41 @@
   "id": "V-002",
   "title": "Verify ntfy notifications work end-to-end",
   "description": "Verification story for BUG-002 fix. Tests ntfy via unit tests and direct curl verification.",
+  "notes": "2026-01-26: User confirmed ntfy notification received successfully on their device!",
   "acceptanceCriteria": [
-    {"text": "Verify bun/tests/ntfy.test.ts exists with sendNotification tests", "checked": false},
-    {"text": "Run: bun test bun/tests/ntfy.test.ts - all tests pass", "checked": false},
-    {"text": "Direct test: curl -s ntfy.sh/etanheys-ralph-claude-golem-notify -d 'V-002 verification' - returns 200", "checked": false},
-    {"text": "Verify [NTFY] verbose log is added to sendNotification function", "checked": false},
-    {"text": "Grep codebase: notification chain has no gaps from config → runner → ntfy.ts", "checked": false},
-    {"text": "Typecheck passes", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: test: V-002 verify ntfy notifications end-to-end", "checked": false}
+    {
+      "text": "Verify bun/tests/ntfy.test.ts exists with sendNotification tests",
+      "checked": true
+    },
+    {
+      "text": "Run: bun test bun/tests/ntfy.test.ts - all tests pass",
+      "checked": true
+    },
+    {
+      "text": "Direct test: curl -s ntfy.sh/etanheys-ralph-claude-golem-notify -d 'V-002 verification' - returns 200",
+      "checked": true
+    },
+    {
+      "text": "Verify [NTFY] verbose log is added to sendNotification function",
+      "checked": true
+    },
+    {
+      "text": "Grep codebase: notification chain has no gaps from config → runner → ntfy.ts",
+      "checked": true
+    },
+    {
+      "text": "Typecheck passes",
+      "checked": true
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": true
+    },
+    {
+      "text": "Commit: test: V-002 verify ntfy notifications end-to-end",
+      "checked": false
+    }
   ],
   "storyType": "verification",
-  "blockedBy": "BUG-002",
   "passes": false
 }

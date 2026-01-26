@@ -21,3 +21,7 @@ node_modules/
 screenshot.png
 claude.scratchpad.md
 .claude/
+.aider*
+ollama-output.md
+qwen*.md
+session-*.md

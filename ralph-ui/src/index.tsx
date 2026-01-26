@@ -147,15 +147,15 @@ function parseArgs(): CLIConfig {
     } else if (arg.startsWith('--gap=')) {
       config.gap = parseInt(arg.split('=')[1], 10) || 5;
     }
-    // --model (accepts: haiku, sonnet, opus, gemini-flash, gemini-pro, kiro)
+    // --model (accepts: haiku, sonnet, opus, gemini-flash, gemini-flash-lite, gemini-3-flash, gemini-pro, kiro, ollama)
     else if (arg === '--model') {
       const modelVal = args[++i];
-      if (['haiku', 'sonnet', 'opus', 'gemini-flash', 'gemini-pro', 'kiro'].includes(modelVal)) {
+      if (['haiku', 'sonnet', 'opus', 'gemini-flash', 'gemini-flash-lite', 'gemini-3-flash', 'gemini-pro', 'kiro', 'ollama'].includes(modelVal)) {
         config.model = modelVal as Model;
       }
     } else if (arg.startsWith('--model=')) {
       const modelVal = arg.split('=')[1];
-      if (['haiku', 'sonnet', 'opus', 'gemini-flash', 'gemini-pro', 'kiro'].includes(modelVal)) {
+      if (['haiku', 'sonnet', 'opus', 'gemini-flash', 'gemini-flash-lite', 'gemini-3-flash', 'gemini-pro', 'kiro', 'ollama'].includes(modelVal)) {
         config.model = modelVal as Model;
       }
     }
@@ -237,7 +237,7 @@ Runner Mode (--run):
   --run, -r               Enable iteration runner (executes Claude in a loop)
   --iterations, -n <num>  Number of iterations to run (default: 100, env: RALPH_ITERATIONS)
   --gap, -g <seconds>     Seconds between iterations (default: 5, env: RALPH_SLEEP_SECONDS)
-  --model <model>         Model to use: haiku, sonnet, opus, kiro, gemini-flash, gemini-pro (env: RALPH_MODEL)
+  --model <model>         Model to use: haiku, sonnet, opus, gemini-flash, gemini-flash-lite, gemini-3-flash, kiro, ollama (env: RALPH_MODEL)
   --quiet, -q             Suppress UI output (runner only)
   --verbose, -v           Enable verbose logging
   --notify                Send ntfy notifications (env: RALPH_NOTIFY)

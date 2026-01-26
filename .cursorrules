@@ -1,35 +1,78 @@
-# Ralph Tooling
+# OpenCode Golem Instructions
 
-## 🚨 CRITICAL: Always Commit & Push Changes
+> This is the equivalent of CLAUDE.md for OpenCode.
+> Auto-loaded as context when OpenCode runs in this directory.
 
-**After ANY edit to files in this repo:**
+## About This Project
 
-1. `git add -A`
-2. `git commit -m "type: description"` (use feat/fix/docs/refactor)
-3. `git push`
-4. If significant change: `git tag vX.Y.Z && git push --tags`
+This is **Ralph** (claude-golem) - an autonomous AI coding loop.
 
-**Why:** This repo is version-controlled to track regressions. Uncommitted changes are invisible to future sessions.
-
----
-
-## Files
-
-| File | Purpose |
-|------|---------|
-| `ralph.zsh` | Main Ralph function + helpers |
-| `README.md` | Docs with changelog |
-| `CLAUDE.md` | This file - instructions for Claude |
-
-## Versioning
-
-- **Patch** (v1.0.X): Bug fixes, minor tweaks
-- **Minor** (v1.X.0): New features, new commands
-- **Major** (vX.0.0): Breaking changes to command interface
-
-## Testing Changes
-
-After editing `ralph.zsh`, reload in current shell:
-```bash
-source ~/.config/ralphtools/ralph.zsh
+Core loop:
 ```
+while stories remain:
+  spawn fresh AI -> read prd-json/ -> implement story -> review -> commit
+done
+```
+
+## Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `ralph.zsh` | Main entry - ALL COMMANDS |
+| `lib/` | Modular zsh library |
+| `ralph-ui/` | React Ink dashboard |
+| `bun/` | TypeScript story management |
+| `skills/golem-powers/` | Skills for Claude (reference only) |
+| `contexts/` | Shared context rules |
+| `prd-json/` | PRD stories |
+
+## Available Commands
+
+Run `./ralph.zsh --help` for full list. Key ones:
+
+| Command | Purpose |
+|---------|---------|
+| `ralph N` | Run N iterations |
+| `ralph -G` | Gemini mode |
+| `ralph -ui` | Dashboard mode |
+| `ralph --prd path/` | Use specific PRD |
+
+## JQ Escaping Workaround
+
+Use double quotes with escaped inner quotes:
+```bash
+# Correct:
+jq ".pending | map(select(. != \"FOO\"))" file.json
+
+# Use jqf helper for complex filters:
+jqf '.pending | map(select(. != "FOO"))' file.json -i
+```
+
+## Testing
+
+Always run tests before committing:
+```bash
+./tests/test-ralph.zsh
+```
+
+## Commit Rules
+
+- NEVER push without explicit permission
+- NEVER commit unless explicitly told
+- Use conventional commits: feat/fix/docs/refactor
+
+## Skills Reference
+
+Skills are in `skills/golem-powers/`. Key ones:
+- `prd` - Create/manage PRDs
+- `coderabbit` - Code review
+- `commit` - Atomic commits
+- `context-audit` - Verify context references
+
+To use: Read the SKILL.md file and follow instructions.
+
+## Files to Never Edit
+
+- `~/.claude/*` - Claude Code config (separate system)
+- `node_modules/`
+- `*.lock` files (unless fixing deps)

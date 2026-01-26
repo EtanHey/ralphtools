@@ -120,17 +120,19 @@ function ralph() {
       echo "Usage: ralph [iterations] [options]"
       echo ""
       echo "Options:"
-      echo "  -O, --opus      Use Opus model (default)"
-      echo "  -S, --sonnet    Use Sonnet model"
-      echo "  -H, --haiku     Use Haiku model"
-      echo "  -K, --kiro      Use Kiro model (kiro-cli)"
-      echo "  -G, --gemini    Use Gemini Flash model"
-      echo "  -L, --local     Use local Ollama model (via Aider)"
-      echo "  -QN, --notify   Enable ntfy notifications"
-      echo "  -q, --quiet     Quiet mode (no UI)"
-      echo "  -v, --verbose   Verbose output"
-      echo "  -V, --version   Show version"
-      echo "  --help          Show this help"
+      echo "  -O, --opus       Use Opus model (default)"
+      echo "  -S, --sonnet     Use Sonnet model"
+      echo "  -H, --haiku      Use Haiku model"
+      echo "  -G, --gemini     Use Gemini 2.5 Flash (99% quota)"
+      echo "  -GL, --gemini-lite  Use Gemini 2.5 Flash-Lite (fast, 99% quota)"
+      echo "  -G3, --gemini3   Use Gemini 3 Flash Preview (99% quota)"
+      echo "  -K, --kiro       Use Kiro model (kiro-cli)"
+      echo "  -L, --local      Use local Ollama model (via Aider)"
+      echo "  -QN, --notify    Enable ntfy notifications"
+      echo "  -q, --quiet      Quiet mode (no UI)"
+      echo "  -v, --verbose    Verbose output"
+      echo "  -V, --version    Show version"
+      echo "  --help           Show this help"
       return 0
       ;;
   esac
@@ -156,6 +158,14 @@ function ralph() {
         ;;
       -G|--gemini)
         model="gemini-flash"
+        shift
+        ;;
+      -GL|--gemini-lite)
+        model="gemini-flash-lite"
+        shift
+        ;;
+      -G3|--gemini3)
+        model="gemini-3-flash"
         shift
         ;;
       -L|--local)

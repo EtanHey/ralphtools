@@ -236,8 +236,11 @@ const MODEL_NAMES: Record<Model, string> = {
   haiku: "haiku",
   sonnet: "sonnet",
   opus: "opus",
-  "gemini-flash": "gemini-2.0-flash-exp",
-  "gemini-pro": "gemini-2.0-pro-exp",
+  // Gemini models with quota (updated 2026-01-26)
+  "gemini-flash": "gemini-2.5-flash",           // 99.6% quota left
+  "gemini-flash-lite": "gemini-2.5-flash-lite", // 99.4% quota - fast for V-* stories
+  "gemini-3-flash": "gemini-3-flash-preview",   // 99.6% quota - newest
+  "gemini-pro": "gemini-2.5-pro",               // 0% quota - exhausted
   kiro: "kiro",
   ollama: "ollama/qwen3-coder",
 };
@@ -248,7 +251,7 @@ export function getModelName(model: Model): string {
 
 // Check if model is a Gemini model
 export function isGeminiModel(model: Model): boolean {
-  return model === "gemini-flash" || model === "gemini-pro";
+  return model === "gemini-flash" || model === "gemini-flash-lite" || model === "gemini-3-flash" || model === "gemini-pro";
 }
 
 // Check if model is Kiro

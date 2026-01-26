@@ -108,6 +108,42 @@ ralph 20                         # Execute 20 iterations
 | `ralph-cleanup` | Merge changes and remove worktree |
 | `fsteps` / `fs` | View and process farther-steps queue |
 
+### Model Flags
+
+| Flag | Model | Notes |
+|------|-------|-------|
+| `-O` | Claude Opus | Default, most capable |
+| `-S` | Claude Sonnet | Balanced |
+| `-H` | Claude Haiku | Fast, cheap |
+| `-G` | Gemini 2.5 Flash | Free tier (1000 req/day) |
+| `-GL` | Gemini 2.5 Flash-Lite | Fastest free option |
+| `-G3` | Gemini 3 Flash Preview | Newest Gemini |
+| `-K` | Kiro | AWS Kiro CLI |
+| `-L` | Ollama (local) | Via Aider, no API costs |
+
+Example: `ralph 20 -G` runs 20 iterations with Gemini 2.5 Flash.
+
+### Multi-CLI Support
+
+`repoGolem` creates unified launchers for Claude, OpenCode, and Gemini CLI:
+
+```bash
+repoGolem myproject ~/Gits/myproject linear supabase
+
+# Creates:
+# - runMyproject      (dev server)
+# - openMyproject     (cd to project)
+# - myprojectClaude   (Claude Code)
+# - myprojectOpenCode (OpenCode)
+# - myprojectGemini   (Gemini CLI)
+```
+
+All three CLIs share unified flags:
+- `-s` = skip permissions
+- `-c` = continue session
+- `-p "prompt"` = headless mode
+- `-m model` = model override
+
 ### ralph-start Flags
 
 | Flag | Description |

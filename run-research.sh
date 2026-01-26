@@ -1,11 +1,13 @@
 #!/bin/bash
 #
-# Self-contained codebase research - works with Gemini or Ollama
+# Self-contained codebase research - works with Gemini, Ollama, or Aider
 # All context inlined - no file reference issues
 #
 # Usage:
-#   ./run-research.sh gemini    # Use Gemini CLI
-#   ./run-research.sh ollama    # Use Ollama (qwen2.5-coder:14b)
+#   ./run-research.sh gemini       # Use Gemini CLI (interactive)
+#   ./run-research.sh ollama       # Use Ollama large (qwen3-coder, 30B)
+#   ./run-research.sh ollama-small # Use Ollama small (qwen2.5-coder:7b, fast!)
+#   ./run-research.sh aider        # Use Aider+Ollama (can write files!)
 #
 
 cd "$(dirname "$0")" || exit 1
@@ -108,8 +110,12 @@ SYSPROMPT
 # Set prefix based on mode
 if [ "$MODE" = "ollama" ]; then
     PREFIX="ollama"
+elif [ "$MODE" = "ollama-small" ]; then
+    PREFIX="ollama-small"
 elif [ "$MODE" = "gemini" ]; then
     PREFIX="gemini"
+elif [ "$MODE" = "aider" ]; then
+    PREFIX="aider"
 else
     PREFIX="ai"
 fi
@@ -155,27 +161,77 @@ if [ "$MODE" = "ollama" ]; then
         sleep 3
     fi
 
-    # Check for model - prefer qwen3-coder if available
-    if ollama list 2>/dev/null | grep -q "qwen3-coder"; then
+    # Check for model - prefer 64k context version, then qwen3-coder
+    if ollama list 2>/dev/null | grep -q "qwen3-coder-64k"; then
+        MODEL="qwen3-coder-64k"
+    elif ollama list 2>/dev/null | grep -q "qwen3-coder"; then
         MODEL="qwen3-coder"
     else
         MODEL="qwen2.5-coder:14b"
     fi
+    MODEL_SHORT="${MODEL//:/-}"  # filename safe version
+
     if ! ollama list 2>/dev/null | grep -q "$MODEL"; then
         echo "Model $MODEL not found. Pulling (this takes a while)..."
         ollama pull "$MODEL"
     fi
 
-    echo "Launching Ollama with $MODEL..."
-    echo "Output will be saved to: ${PREFIX}-output.md"
+    echo "============================================"
+    echo "  Ollama Research (Large/Thorough)"
+    echo "  Model: $MODEL (~20GB RAM)"
+    echo "  Output: ${MODEL_SHORT}-output.md"
+    echo "============================================"
     echo ""
 
-    # Run and capture output (tee shows it AND saves it)
-    ollama run "$MODEL" "$SYSTEM_PROMPT" 2>&1 | tee "${PREFIX}-output.md"
+    # Run and capture output (strip ANSI escape codes for clean file)
+    ollama run "$MODEL" "$SYSTEM_PROMPT" 2>&1 | \
+        python3 -c "import sys,re; [print(re.sub(r'\x1b\[[0-9;?]*[a-zA-Z]|[\x0d]', '', line), end='') for line in sys.stdin]" | \
+        tee "${MODEL_SHORT}-output.md"
 
     echo ""
     echo "═══════════════════════════════════════════════════════════════"
-    echo "  Output saved to: ${PREFIX}-output.md"
+    echo "  Model: $MODEL"
+    echo "  Output saved to: ${MODEL_SHORT}-output.md"
+    echo "═══════════════════════════════════════════════════════════════"
+
+elif [ "$MODE" = "ollama-small" ]; then
+    # Small/fast Ollama model - runs alongside the big one
+    MODEL="qwen2.5-coder:7b"
+    MODEL_SHORT="${MODEL//:/-}"  # qwen2.5-coder-7b (filename safe)
+    RUN_ID=$(date +%H%M%S)        # Unique per run (e.g., 153042)
+    OUTPUT_FILE="${MODEL_SHORT}-${RUN_ID}-output.md"
+
+    # Check if Ollama is running
+    if ! ollama list &>/dev/null; then
+        echo "Starting Ollama..."
+        ollama serve &>/dev/null &
+        sleep 3
+    fi
+
+    # Pull model if needed
+    if ! ollama list 2>/dev/null | grep -q "$MODEL"; then
+        echo "Model $MODEL not found. Pulling (~4GB)..."
+        ollama pull "$MODEL"
+    fi
+
+    echo "============================================"
+    echo "  Ollama Research (Small/Fast)"
+    echo "  Model: $MODEL (~5GB RAM)"
+    echo "  Run ID: $RUN_ID"
+    echo "  Output: $OUTPUT_FILE"
+    echo "============================================"
+    echo ""
+
+    # Run with streaming (can see progress) and clean output
+    ollama run "$MODEL" "$SYSTEM_PROMPT" 2>&1 | \
+        python3 -c "import sys,re; [print(re.sub(r'\x1b\[[0-9;?]*[a-zA-Z]|[\x0d]', '', line), end='') for line in sys.stdin]" | \
+        tee "$OUTPUT_FILE"
+
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "  Model: $MODEL"
+    echo "  Run ID: $RUN_ID"
+    echo "  Output saved to: $OUTPUT_FILE"
     echo "═══════════════════════════════════════════════════════════════"
 
 elif [ "$MODE" = "gemini" ]; then
@@ -186,7 +242,148 @@ elif [ "$MODE" = "gemini" ]; then
     # Use gemini with the prompt directly
     gemini -y -p "$SYSTEM_PROMPT"
 
+elif [ "$MODE" = "aider" ]; then
+    # Check if Ollama is running
+    if ! ollama list &>/dev/null; then
+        echo "Starting Ollama..."
+        ollama serve &>/dev/null &
+        sleep 3
+    fi
+
+    # Check for model - prefer 64k context version, then qwen3-coder
+    if ollama list 2>/dev/null | grep -q "qwen3-coder-64k"; then
+        MODEL="ollama/qwen3-coder-64k"
+    elif ollama list 2>/dev/null | grep -q "qwen3-coder"; then
+        MODEL="ollama/qwen3-coder"
+    else
+        MODEL="ollama/qwen2.5-coder:14b"
+    fi
+
+    echo "============================================"
+    echo "  Aider + Ollama Research Mode"
+    echo "  Model: $MODEL"
+    echo "  Output prefix: ${PREFIX}-*"
+    echo "============================================"
+    echo ""
+    echo "Aider CAN:"
+    echo "  - Read and write files directly"
+    echo "  - Run shell commands (tree, grep, etc.)"
+    echo "  - Create multiple output files"
+    echo ""
+
+    # Create a context file with FULL skills context (same as Claude gets)
+    CONTEXT_FILE="/tmp/aider-research-context.md"
+    cat > "$CONTEXT_FILE" << 'CONTEXT'
+# Full Claude Context for Aider
+
+You have access to the same skills and tools that Claude Code uses.
+
+## Skills System
+
+Skills are reusable prompts with optional scripts. They live in:
+- `~/.claude/commands/golem-powers/` (installed)
+- `./skills/golem-powers/` (source, in this repo)
+
+Each skill has:
+- `SKILL.md` - Instructions and documentation
+- `scripts/` (optional) - Shell scripts you can run
+
+### To USE a skill:
+1. Read its SKILL.md to understand what it does
+2. Run its scripts if it has any
+
+### Key Skills for Research:
+
+| Skill | Path | Purpose |
+|-------|------|---------|
+| github-research | `skills/golem-powers/github-research/` | Systematic repo exploration |
+| context7 | `skills/golem-powers/context7/` | Library documentation lookup |
+| critique-waves | `skills/golem-powers/critique-waves/` | Multi-pass verification |
+
+### Available Scripts:
+```bash
+# Web search
+./scripts/web-search.sh "query"
+
+# GitHub research (explores repos)
+./skills/golem-powers/github-research/scripts/explore.sh . docs.local
+./skills/golem-powers/github-research/scripts/explore-related.sh
+
+# Context7 library docs (if configured)
+# Read skills/golem-powers/context7/SKILL.md for usage
+```
+
+## Your Task
+
+1. **Read the skills first** - Check `skills/golem-powers/` to see what tools you have
+2. **Use the github-research skill** - Run its scripts to explore the codebase
+3. **Create findings in docs.local/** - That's where research output goes
+4. **Be thorough** - Read actual files, run actual commands, don't guess
+
+## Related Projects to Explore
+
+| Project | Path | Purpose |
+|---------|------|---------|
+| ralph-ui | `./ralph-ui/` | React Ink dashboard |
+| bun | `./bun/` | TypeScript story management |
+| zikaron | `~/Gits/zikaron/` | Vector embeddings (if exists) |
+CONTEXT
+
+    echo "Launching Aider..."
+    echo "Type your requests, or let it work on the initial prompt."
+    echo ""
+
+    # Build read args - include skill index if it exists
+    READ_ARGS=(
+        --read "$CONTEXT_FILE"
+        --read "CLAUDE.md"
+        --read "README.md"
+    )
+    [ -f "$HOME/.claude/skill-index.md" ] && READ_ARGS+=(--read "$HOME/.claude/skill-index.md")
+    [ -f "$HOME/.claude/skill-descriptions.md" ] && READ_ARGS+=(--read "$HOME/.claude/skill-descriptions.md")
+
+    # Write message to temp file (avoids quoting issues with long prompts)
+    MSG_FILE="/tmp/aider-research-message.txt"
+    cat > "$MSG_FILE" << 'AIDERMSG'
+Research this codebase using the skills available.
+
+STEP 1: Run this command to see available skills:
+ls skills/golem-powers/
+
+STEP 2: Read the github-research skill:
+cat skills/golem-powers/github-research/SKILL.md
+
+STEP 3: Run the exploration scripts:
+./skills/golem-powers/github-research/scripts/explore.sh . docs.local
+./skills/golem-powers/github-research/scripts/explore-related.sh
+
+STEP 4: Read the generated files in docs.local/ and create your analysis:
+- docs.local/aider-codebase-audit.md - All commands and features found
+- docs.local/aider-config-issues.md - Any issues found
+- docs.local/aider-readme-improvements.md - README gaps
+- docs.local/aider-proposed-readme.md - Write a FULL improved README
+
+IMPORTANT: Actually READ files and RUN commands. Don't guess.
+AIDERMSG
+
+    # Run Aider with Ollama backend (git enabled for research, no auto-commits)
+    aider \
+        --model "$MODEL" \
+        --no-auto-commits \
+        --yes-always \
+        --no-stream \
+        --no-show-model-warnings \
+        --no-show-release-notes \
+        "${READ_ARGS[@]}" \
+        --message-file "$MSG_FILE"
+
 else
-    echo "Usage: ./run-research.sh [gemini|ollama]"
+    echo "Usage: ./run-research.sh [gemini|ollama|ollama-small|aider]"
+    echo ""
+    echo "Modes:"
+    echo "  gemini       - Gemini CLI (interactive)"
+    echo "  ollama       - Ollama large (qwen3-coder 30B, slow, thorough)"
+    echo "  ollama-small - Ollama small (qwen2.5-coder 7B, fast!)"
+    echo "  aider        - Aider + Ollama (can write files)"
     exit 1
 fi

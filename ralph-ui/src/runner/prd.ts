@@ -122,6 +122,28 @@ export function completeStory(
     index.completed.push(storyId);
   }
 
+  // Auto-unblock any stories that were blocked by this completed story
+  const storiesToUnblock: string[] = [];
+  for (const blockedId of index.blocked) {
+    const blockedStory = readStory(prdJsonDir, blockedId);
+    if (blockedStory?.blockedBy === storyId) {
+      storiesToUnblock.push(blockedId);
+    }
+  }
+
+  for (const unblockedId of storiesToUnblock) {
+    index.blocked = index.blocked.filter((id) => id !== unblockedId);
+    if (!index.pending.includes(unblockedId)) {
+      index.pending.push(unblockedId);
+    }
+    const unblockedStory = readStory(prdJsonDir, unblockedId);
+    if (unblockedStory) {
+      delete unblockedStory.blockedBy;
+      writeStory(prdJsonDir, unblockedStory);
+      console.log(`[PRD] Auto-unblocked ${unblockedId}: blocker ${storyId} completed`);
+    }
+  }
+
   // Update nextStory
   index.nextStory = index.pending.length > 0 ? index.pending[0] : undefined;
 
@@ -381,6 +403,8 @@ export function getCriteriaProgress(story: Story): {
 /**
  * Auto-block a story that has blockedBy field but is still in pending array
  * This fixes the bug where Ralph loops forever on such stories
+ *
+ * IMPORTANT: If the blocker is already completed, clear blockedBy instead of blocking
  */
 export function autoBlockStoryIfNeeded(prdJsonDir: string, storyId: string): boolean {
   const story = readStory(prdJsonDir, storyId);
@@ -392,8 +416,20 @@ export function autoBlockStoryIfNeeded(prdJsonDir: string, storyId: string): boo
 
   // Check if story has blockedBy but is in pending array
   if (story.blockedBy && index.pending.includes(storyId)) {
+    // Check if the blocker is already completed
+    const blockerIsCompleted = (index.completed ?? []).includes(story.blockedBy);
+
+    if (blockerIsCompleted) {
+      // Blocker is done - clear blockedBy and keep in pending
+      console.log(`[PRD] Auto-unblocked ${storyId}: blocker ${story.blockedBy} is completed`);
+      delete story.blockedBy;
+      writeStory(prdJsonDir, story);
+      return false; // Not blocked, can proceed
+    }
+
+    // Blocker is NOT completed - auto-block the story
     console.log(`[PRD] Auto-blocked ${storyId}: ${story.blockedBy}`);
-    
+
     // Move from pending to blocked
     index.pending = index.pending.filter((id) => id !== storyId);
     if (!index.blocked.includes(storyId)) {
