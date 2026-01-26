@@ -26,3 +26,14 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - All criteria passed successfully
 - Story marked as complete
 
+## Iteration 4 - BUG-001: Config defaultModel not respected without CLI flag
+- Model: kiro
+- Fixed RALPH_DEFAULT_MODEL assignment to use config value directly instead of fallback pattern
+- Removed 'local' keywords that were outside function scope causing zsh syntax errors
+- Verified config defaultModel now properly sets the default when no CLI flag is specified
+- Verified CLI flags (-S, -K, etc.) still override config as expected
+- All tests passed (205 passed, 0 failed)
+- CodeRabbit review passed with no issues
+- Story marked as complete
+- Root cause: The `${RALPH_DEFAULT_MODEL:-$_ralph_cfg_model}` pattern was backwards - it only used config if RALPH_DEFAULT_MODEL was unset, but it was already set to "opus" by default
+- Learning: Always check variable assignment order when debugging config precedence issues

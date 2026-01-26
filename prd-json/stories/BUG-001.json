@@ -9,7 +9,10 @@
     {"text": "Test: `ralph 5 -S` should override config and show 'Model: sonnet'", "checked": true},
     {"text": "Typecheck passes", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: fix: BUG-001 respect config defaultModel without CLI flag", "checked": false}
+    {"text": "Commit: fix: BUG-001 respect config defaultModel without CLI flag", "checked": true}
   ],
-  "storyType": "bug"
+  "storyType": "bug",
+  "passes": true,
+  "completedAt": "2026-01-26T08:50:06.727Z",
+  "completedBy": "kiro"
 }

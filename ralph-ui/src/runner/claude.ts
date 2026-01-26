@@ -159,7 +159,10 @@ export function parseJsonlOutput(output: string): ClaudeMessage[] {
   for (const line of lines) {
     try {
       const data = JSON.parse(line);
-      messages.push(data);
+      // Skip null/undefined values (can happen with "null" lines)
+      if (data != null) {
+        messages.push(data);
+      }
     } catch {
       // Skip malformed lines
     }
