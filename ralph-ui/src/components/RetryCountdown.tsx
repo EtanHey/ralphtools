@@ -34,11 +34,18 @@ export function RetryCountdown({ retryIn, isRetrying }: RetryCountdownProps) {
 
   // Progress bar showing time remaining
   const maxWidth = 20;
-  const progress = Math.ceil((secondsLeft / Math.max(retryIn, 1)) * maxWidth);
-  const bar = '▓'.repeat(progress) + '░'.repeat(maxWidth - progress);
+  const rawProgress = Math.ceil((secondsLeft / Math.max(retryIn, 1)) * maxWidth);
+  // Guard against negative, NaN, or Infinity values
+  const progress = Math.min(maxWidth, Math.max(0, Number.isFinite(rawProgress) ? rawProgress : 0));
+  const remaining = maxWidth - progress;
+  const bar = '▓'.repeat(progress) + '░'.repeat(remaining);
+
+  // Use stable key to prevent duplicate box renders during countdown
+  const stableKey = `retry-${retryIn}-${isRetrying}`;
 
   return (
     <Box
+      key={stableKey}
       borderStyle="round"
       borderColor="yellow"
       paddingX={1}
