@@ -1,0 +1,24 @@
+{
+  "id": "AUDIT-001",
+  "title": "Skill Usage Audit: Path & Context Confusion",
+  "description": "Systemic audit of golem-powers skills. Claude gets confused between skill install dir (~/.claude/commands/), repo source dir (claude-golem/skills/), and cwd. Need consistent pattern for invoking skills and their scripts. Use /context7 at each step to research best practices.",
+  "acceptanceCriteria": [
+    {"text": "Use /context7 to research Claude Code skill invocation patterns", "checked": false},
+    {"text": "Document the three contexts: skill install dir, repo source dir, user's cwd", "checked": false},
+    {"text": "Grep all skills for relative paths: ./scripts, ./prd-json, ./ patterns", "checked": false},
+    {"text": "Use /context7 to research shell script path resolution best practices", "checked": false},
+    {"text": "List each affected skill with its specific path issues", "checked": false},
+    {"text": "Use /context7 to research how other CLI tools handle script locations", "checked": false},
+    {"text": "Design standard: Option A (relative to SKILL.md), B (repo /scripts/), or C (env vars)", "checked": false},
+    {"text": "Document chosen standard in contexts/skill-authoring.md (create if needed)", "checked": false},
+    {"text": "Update /writing-skills skill with path standard", "checked": false},
+    {"text": "Fix /prd-manager to follow the standard (highest priority)", "checked": false},
+    {"text": "Create MP story for fixing remaining skills systematically", "checked": false},
+    {"text": "Typecheck passes", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: AUDIT-001 establish skill path standards", "checked": false}
+  ],
+  "storyType": "audit",
+  "passes": false,
+  "notes": "EXAMPLE OF THE PROBLEM:\n\nHow Claude tried to use /prd-manager:\n  ./scripts/run.sh --action=show --story=BUG-004\n  Result: 'Script not found' (because cwd is repo root, not skill dir)\n\nHow it should work:\n  ~/.claude/commands/golem-powers/prd-manager/scripts/run.sh --action=show --story=BUG-004\n  Result: Works (full path to installed skill)\n\nThe skill SKILL.md says './scripts/run.sh' which is ambiguous - relative to what?\nClaude reads the skill, sees './scripts/', tries to run from cwd, fails."
+}
