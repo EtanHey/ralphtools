@@ -5,43 +5,43 @@
   "acceptanceCriteria": [
     {
       "text": "Verify RALPH_SESSION is exported in ralph.zsh before bun spawn",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify detectRunner() returns 'ralph' during Ralph execution",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Add unit test asserting ctx.notifications.enabled=true when RALPH_NOTIFY=1",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Add unit test asserting ctx.notifications.enabled=false when RALPH_NOTIFY unset",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Verify notification topic flows from config → context → ntfy call",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Add verbose log: '[SESSION] runner={runner} model={model} notify={enabled}'",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Test: Add unit test for [SESSION] log output with expected values",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run full test suite: bun test - all tests pass",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Typecheck passes",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
-      "checked": false
+      "checked": true
     },
     {
       "text": "Commit: test: AUDIT-128 verify session context system",

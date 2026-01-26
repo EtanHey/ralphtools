@@ -328,6 +328,9 @@ export async function* runIterations(
     },
   });
 
+  // Log session context for debugging
+  log(config, `[SESSION] runner=${sessionContext.runner} model=${sessionContext.model} notify=${sessionContext.notifications.enabled}`);
+
   let iteration = 1;
   let retryCount = 0;
   const runStartTime = Date.now(); // Track start time for the entire run

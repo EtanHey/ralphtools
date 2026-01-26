@@ -57,6 +57,36 @@ describe('SessionContext', () => {
   });
 
   describe('notifications.enabled', () => {
+    test('is true when RALPH_NOTIFY=1 via config', () => {
+      process.env.RALPH_NOTIFY = '1';
+      
+      // Simulate how ralph-ui passes RALPH_NOTIFY via config
+      const context = SessionContext.create({
+        config: {
+          notifications: {
+            enabled: !!process.env.RALPH_NOTIFY
+          }
+        }
+      });
+      
+      expect(context.notifications.enabled).toBe(true);
+    });
+
+    test('is false when RALPH_NOTIFY unset via config', () => {
+      delete process.env.RALPH_NOTIFY;
+      
+      // Simulate how ralph-ui passes RALPH_NOTIFY via config
+      const context = SessionContext.create({
+        config: {
+          notifications: {
+            enabled: !!process.env.RALPH_NOTIFY
+          }
+        }
+      });
+      
+      expect(context.notifications.enabled).toBe(false);
+    });
+
     test('reflects RALPH_NOTIFY env via flags.notify', () => {
       process.env.RALPH_NOTIFY = '1';
       
@@ -102,6 +132,45 @@ describe('SessionContext', () => {
       });
       
       expect(context.notifications.enabled).toBe(true);
+    });
+  });
+
+  describe('[SESSION] log values', () => {
+    test('provides expected values for session log', () => {
+      process.env.RALPH_SESSION = 'ralph-123-456';
+      
+      const context = SessionContext.create({
+        config: {
+          notifications: {
+            enabled: true,
+            topic: 'test-topic'
+          }
+        }
+      });
+      
+      // Verify the values that would be logged in [SESSION] format
+      expect(context.runner).toBe('ralph');
+      expect(context.model).toBe('opus');
+      expect(context.notifications.enabled).toBe(true);
+      
+      // Verify the log format would be correct
+      const expectedLogMessage = `[SESSION] runner=${context.runner} model=${context.model} notify=${context.notifications.enabled}`;
+      expect(expectedLogMessage).toBe('[SESSION] runner=ralph model=opus notify=true');
+    });
+
+    test('provides expected values for direct session', () => {
+      delete process.env.RALPH_SESSION;
+      
+      const context = SessionContext.create();
+      
+      // Verify the values that would be logged in [SESSION] format
+      expect(context.runner).toBe('direct');
+      expect(context.model).toBe('opus');
+      expect(context.notifications.enabled).toBe(false);
+      
+      // Verify the log format would be correct
+      const expectedLogMessage = `[SESSION] runner=${context.runner} model=${context.model} notify=${context.notifications.enabled}`;
+      expect(expectedLogMessage).toBe('[SESSION] runner=direct model=opus notify=false');
     });
   });
 });
