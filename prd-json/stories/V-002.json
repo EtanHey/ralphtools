@@ -1,15 +1,13 @@
 {
   "id": "V-002",
   "title": "Verify ntfy notifications work end-to-end",
-  "description": "Verification story for BUG-002 fix. Runs full ntfy test with mock PRD and verifies notification delivery.",
+  "description": "Verification story for BUG-002 fix. Tests ntfy via unit tests and direct curl verification.",
   "acceptanceCriteria": [
-    {"text": "Create /tmp/ralph-v002-test/prd-json/stories/ directory structure", "checked": false},
-    {"text": "Create index.json with storyOrder: ['TEST-001'], pending: ['TEST-001'], stats: {total: 1, pending: 1}", "checked": false},
-    {"text": "Create stories/TEST-001.json with single criterion: 'Run: echo V-002 test passed'", "checked": false},
-    {"text": "Run: cd /tmp/ralph-v002-test && RALPH_NTFY_TOPIC=etanheys-ralph-claude-golem-notify ralph 1 -QN -v 2>&1 | tee /tmp/v002.log", "checked": false},
-    {"text": "Verify: grep -q '\\[NTFY\\]' /tmp/v002.log exits with 0", "checked": false},
-    {"text": "Verify: grep '\\[NTFY\\]' output shows non-empty topic and title", "checked": false},
-    {"text": "Cleanup: rm -rf /tmp/ralph-v002-test /tmp/v002.log", "checked": false},
+    {"text": "Verify bun/tests/ntfy.test.ts exists with sendNotification tests", "checked": false},
+    {"text": "Run: bun test bun/tests/ntfy.test.ts - all tests pass", "checked": false},
+    {"text": "Direct test: curl -s ntfy.sh/etanheys-ralph-claude-golem-notify -d 'V-002 verification' - returns 200", "checked": false},
+    {"text": "Verify [NTFY] verbose log is added to sendNotification function", "checked": false},
+    {"text": "Grep codebase: notification chain has no gaps from config → runner → ntfy.ts", "checked": false},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
     {"text": "Commit: test: V-002 verify ntfy notifications end-to-end", "checked": false}
   ],
