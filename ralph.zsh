@@ -116,6 +116,8 @@ function ralph() {
       echo "  -O, --opus      Use Opus model (default)"
       echo "  -S, --sonnet    Use Sonnet model"
       echo "  -H, --haiku     Use Haiku model"
+      echo "  -K, --kiro      Use Kiro model (kiro-cli)"
+      echo "  -G, --gemini    Use Gemini Flash model"
       echo "  -QN, --notify   Enable ntfy notifications"
       echo "  -q, --quiet     Quiet mode (no UI)"
       echo "  -v, --verbose   Verbose output"
@@ -138,6 +140,14 @@ function ralph() {
         ;;
       -H|--haiku)
         model="haiku"
+        shift
+        ;;
+      -K|--kiro)
+        model="kiro"
+        shift
+        ;;
+      -G|--gemini)
+        model="gemini-flash"
         shift
         ;;
       -QN|--notify)

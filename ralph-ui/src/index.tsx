@@ -237,7 +237,7 @@ Runner Mode (--run):
   --run, -r               Enable iteration runner (executes Claude in a loop)
   --iterations, -n <num>  Number of iterations to run (default: 100, env: RALPH_ITERATIONS)
   --gap, -g <seconds>     Seconds between iterations (default: 5, env: RALPH_SLEEP_SECONDS)
-  --model <model>         Model to use: haiku, sonnet, opus (default: sonnet, env: RALPH_MODEL)
+  --model <model>         Model to use: haiku, sonnet, opus, kiro, gemini-flash, gemini-pro (env: RALPH_MODEL)
   --quiet, -q             Suppress UI output (runner only)
   --verbose, -v           Enable verbose logging
   --notify                Send ntfy notifications (env: RALPH_NOTIFY)

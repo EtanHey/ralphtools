@@ -1,0 +1,16 @@
+{
+  "id": "BUG-002",
+  "title": "-QN notification flag not working",
+  "description": "The -QN/--notify flag doesn't enable ntfy notifications. Need to trace the flag through ralph.zsh -> ralph-ui to find where it's being lost.",
+  "acceptanceCriteria": [
+    {"text": "Trace -QN flag from ralph.zsh through to ralph-ui runner", "checked": false},
+    {"text": "Verify RALPH_NOTIFY env var is set when -QN passed", "checked": false},
+    {"text": "Verify ralph-ui reads --notify flag and enables notifications", "checked": false},
+    {"text": "Fix the broken link in the notification chain", "checked": false},
+    {"text": "Test: `ralph 5 -QN` should send ntfy notification on iteration complete", "checked": false},
+    {"text": "Typecheck passes", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-002 restore -QN notification flag functionality", "checked": false}
+  ],
+  "storyType": "bug"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "BUG-001",
+  "title": "Config defaultModel not respected without CLI flag",
+  "description": "When config.json has `defaultModel: kiro`, Ralph still uses opus unless -K flag is passed. The config value should be the default when no model flag is specified.",
+  "acceptanceCriteria": [
+    {"text": "Verify config.json defaultModel value is read correctly in ralph.zsh", "checked": false},
+    {"text": "Fix RALPH_DEFAULT_MODEL assignment to use config value as primary default", "checked": false},
+    {"text": "Test: `ralph 5` with config `defaultModel: kiro` should show 'Model: kiro'", "checked": false},
+    {"text": "Test: `ralph 5 -S` should override config and show 'Model: sonnet'", "checked": false},
+    {"text": "Typecheck passes", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-001 respect config defaultModel without CLI flag", "checked": false}
+  ],
+  "storyType": "bug"
+}
