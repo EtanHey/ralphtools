@@ -3,18 +3,21 @@
   "title": "Add hang detection logging",
   "description": "Log when Ralph detects a hang and when it breaks it. Helps post-mortem analysis of stuck iterations.",
   "acceptanceCriteria": [
-    {"text": "SETUP: Create worktree at ~/worktrees/claude-golem/us-117-hang-logging", "checked": false},
-    {"text": "SETUP: Log worktree location to execution.log", "checked": false},
-    {"text": "Log hang detection: `[ISO] HANG DETECTED: No activity for {duration}`", "checked": false},
-    {"text": "Log hang recovery: `[ISO] HANG BROKEN: Restarting Claude session`", "checked": false},
-    {"text": "Include story ID and criteria progress in hang logs", "checked": false},
-    {"text": "Send ntfy notification on hang detection (use existing notifyError)", "checked": false},
-    {"text": "Write logs to prd-json/execution.log (append mode)", "checked": false},
-    {"text": "Typecheck passes", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "CLEANUP: Commit in worktree: feat: US-117 add hang detection logging", "checked": false},
-    {"text": "CLEANUP: Push worktree branch to origin", "checked": false},
-    {"text": "CLEANUP: Return to master branch in main repo before completing", "checked": false}
+    {"text": "SETUP: Create worktree at ~/worktrees/claude-golem/us-117-hang-logging", "checked": true},
+    {"text": "SETUP: Log worktree location to execution.log", "checked": true},
+    {"text": "Log hang detection: `[ISO] HANG DETECTED: No activity for {duration}`", "checked": true},
+    {"text": "Log hang recovery: `[ISO] HANG BROKEN: Restarting Claude session`", "checked": true},
+    {"text": "Include story ID and criteria progress in hang logs", "checked": true},
+    {"text": "Send ntfy notification on hang detection (use existing notifyError)", "checked": true},
+    {"text": "Write logs to prd-json/execution.log (append mode)", "checked": true},
+    {"text": "Typecheck passes", "checked": true},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
+    {"text": "CLEANUP: Commit in worktree: feat: US-117 add hang detection logging", "checked": true},
+    {"text": "CLEANUP: Push worktree branch to origin", "checked": true},
+    {"text": "CLEANUP: Return to master branch in main repo before completing", "checked": true}
   ],
-  "storyType": "feature"
+  "storyType": "feature",
+  "passes": true,
+  "completedAt": "2026-01-26T11:51:07.965Z",
+  "completedBy": "kiro"
 }

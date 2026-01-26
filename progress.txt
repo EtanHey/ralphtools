@@ -127,3 +127,14 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - Committed changes and pushed worktree branch to origin
 - Returned to master branch and marked story complete
 - This enables better debugging of slow stories and measurement of model performance through detailed timing data
+
+## Iteration 12 - US-117: Add hang detection logging
+- Model: kiro
+- Created execution-log.ts module with hang detection logging functions
+- Added logHangDetected() and logHangBroken() functions that write to prd-json/execution.log
+- Enhanced Claude spawning timeout handler to log hang detection with story context and criteria progress
+- Added ntfy notification support for hang detection using existing notification infrastructure
+- Fixed CodeRabbit finding: wrapped async timeout handler in try/catch with finally block to ensure process cleanup
+- All acceptance criteria completed successfully including worktree setup, logging, notifications, and cleanup
+- TypeScript compilation passes, committed changes to worktree branch and pushed to origin
+- This enables better post-mortem analysis of stuck iterations with detailed timing and context data
