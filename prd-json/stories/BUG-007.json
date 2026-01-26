@@ -1,0 +1,15 @@
+{
+  "id": "BUG-007",
+  "title": "Ralph hangs when all stories blocked + auto-unblock not triggered",
+  "description": "Two issues: 1) Ralph doesn't exit/notify when 0 pending and all blocked. 2) Auto-unblock doesn't fire when Kiro completes stories (JSON updated directly, not via completeStory())",
+  "acceptanceCriteria": [
+    {"text": "Fix runner to detect 'all blocked' state and exit gracefully", "checked": false},
+    {"text": "Send ntfy notification when PRD is blocked (not just complete)", "checked": false},
+    {"text": "Add startup scan: check all blocked stories, unblock if blocker is completed", "checked": false},
+    {"text": "Test: complete a blocker, verify dependent auto-unblocks on next iteration", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: fix: BUG-007 ralph hang on all-blocked + auto-unblock scan", "checked": false}
+  ],
+  "storyType": "bug",
+  "passes": false
+}

@@ -3,17 +3,44 @@
   "title": "Fix Ink UI Rendering Stability",
   "description": "Implement fixes for UI glitches based on US-130 research. Goal: smooth, flicker-free display.",
   "acceptanceCriteria": [
-    {"text": "Read US-130 research: docs.local/research/US-130-ink-stability.md", "checked": false},
-    {"text": "Implement recommended throttling/batching for renders", "checked": false},
-    {"text": "Fix excessive re-renders in identified components", "checked": false},
-    {"text": "Add render stability to Dashboard component", "checked": false},
-    {"text": "Test manually: run ralph-ui --mode=live, verify no flashing", "checked": false},
-    {"text": "Test manually: run ralph 5, verify smooth iteration display", "checked": false},
-    {"text": "Typecheck passes", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: fix: MP-131 ink ui rendering stability", "checked": false}
+    {
+      "text": "Read US-130 research: docs.local/research/US-130-ink-stability.md",
+      "checked": false
+    },
+    {
+      "text": "Implement recommended throttling/batching for renders",
+      "checked": false
+    },
+    {
+      "text": "Fix excessive re-renders in identified components",
+      "checked": false
+    },
+    {
+      "text": "Add render stability to Dashboard component",
+      "checked": false
+    },
+    {
+      "text": "Test manually: run ralph-ui --mode=live, verify no flashing",
+      "checked": false
+    },
+    {
+      "text": "Test manually: run ralph 5, verify smooth iteration display",
+      "checked": false
+    },
+    {
+      "text": "Typecheck passes",
+      "checked": false
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": false
+    },
+    {
+      "text": "Commit: fix: MP-131 ink ui rendering stability",
+      "checked": false
+    }
   ],
   "storyType": "infrastructure",
-  "blockedBy": "US-130",
+  "blockedBy": null,
   "passes": false
 }
