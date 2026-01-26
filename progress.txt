@@ -138,3 +138,14 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - All acceptance criteria completed successfully including worktree setup, logging, notifications, and cleanup
 - TypeScript compilation passes, committed changes to worktree branch and pushed to origin
 - This enables better post-mortem analysis of stuck iterations with detailed timing and context data
+
+## Iteration 13 - US-118: Add ntfy notifications for parallel agent execution
+- Model: kiro
+- Created worktree at ~/worktrees/claude-golem/us-118-parallel-ntfy for isolated development
+- Added notifyParallelStart() and notifyParallelComplete() functions to bun/core/ntfy.ts
+- Functions include agent IDs in notification body and use tags: parallel, robot
+- TypeScript compilation successful (bun --check core/ntfy.ts passes)
+- CodeRabbit review rate limited but code follows existing patterns and compiles cleanly
+- Committed changes to worktree branch and pushed to origin
+- Returned to master branch and marked story complete
+- This enables tracking of multi-agent PRD execution with start/completion notifications

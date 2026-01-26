@@ -3,17 +3,20 @@
   "title": "Add ntfy notifications for parallel agent execution",
   "description": "Send ntfy notifications when parallel agents are spawned and when they complete. Helps track multi-agent PRD execution.",
   "acceptanceCriteria": [
-    {"text": "SETUP: Create worktree at ~/worktrees/claude-golem/us-118-parallel-ntfy", "checked": false},
-    {"text": "SETUP: Log worktree location to execution.log", "checked": false},
-    {"text": "Add notifyParallelStart(topic, agentCount, storyId) to ntfy.ts", "checked": false},
-    {"text": "Add notifyParallelComplete(topic, agentCount, successCount, storyId) to ntfy.ts", "checked": false},
-    {"text": "Include agent IDs in notification body", "checked": false},
-    {"text": "Use tags: parallel, robot for parallel notifications", "checked": false},
-    {"text": "Typecheck passes", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "CLEANUP: Commit in worktree: feat: US-118 add parallel ntfy notifications", "checked": false},
-    {"text": "CLEANUP: Push worktree branch to origin", "checked": false},
-    {"text": "CLEANUP: Return to master branch in main repo before completing", "checked": false}
+    {"text": "SETUP: Create worktree at ~/worktrees/claude-golem/us-118-parallel-ntfy", "checked": true},
+    {"text": "SETUP: Log worktree location to execution.log", "checked": true},
+    {"text": "Add notifyParallelStart(topic, agentCount, storyId) to ntfy.ts", "checked": true},
+    {"text": "Add notifyParallelComplete(topic, agentCount, successCount, storyId) to ntfy.ts", "checked": true},
+    {"text": "Include agent IDs in notification body", "checked": true},
+    {"text": "Use tags: parallel, robot for parallel notifications", "checked": true},
+    {"text": "Typecheck passes", "checked": true},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
+    {"text": "CLEANUP: Commit in worktree: feat: US-118 add parallel ntfy notifications", "checked": true},
+    {"text": "CLEANUP: Push worktree branch to origin", "checked": true},
+    {"text": "CLEANUP: Return to master branch in main repo before completing", "checked": true}
   ],
-  "storyType": "feature"
+  "storyType": "feature",
+  "passes": true,
+  "completedAt": "2026-01-26T11:55:48.001Z",
+  "completedBy": "kiro"
 }
