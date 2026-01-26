@@ -24,7 +24,6 @@
     "MP-130"
   ],
   "pending": [
-    "V-002",
     "TEST-128",
     "US-115"
   ],
@@ -43,6 +42,7 @@
     "BUG-004",
     "BUG-006",
     "MP-128",
+    "V-002",
     "US-116",
     "US-117",
     "US-118",
@@ -51,9 +51,9 @@
   ],
   "stats": {
     "total": 20,
-    "completed": 12,
-    "pending": 3,
+    "completed": 13,
+    "pending": 2,
     "blocked": 5
   },
-  "nextStory": "V-002"
+  "nextStory": "TEST-128"
 }

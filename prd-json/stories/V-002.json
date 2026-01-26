@@ -34,9 +34,11 @@
     },
     {
       "text": "Commit: test: V-002 verify ntfy notifications end-to-end",
-      "checked": false
+      "checked": true
     }
   ],
   "storyType": "verification",
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-26T15:08:22.112Z",
+  "completedBy": "kiro"
 }

@@ -177,3 +177,15 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - CodeRabbit: Found unused SCRIPT_DIR/SKILL_DIR variables (part of standard pattern, acceptable)
 - All tests passed: Ralph (205 passed), Skills (17 passed), Bun (99 passed)
 - This establishes the foundation for reliable, portable skill execution across all environments
+
+## Iteration 16 - V-002: Verify ntfy notifications work end-to-end
+- Model: kiro
+- Verified BUG-002 fix implementation end-to-end
+- Confirmed bun/tests/ntfy.test.ts exists with comprehensive sendNotification tests (8 tests pass)
+- Verified direct curl test to ntfy.sh/etanheys-ralph-claude-golem-notify returns 200
+- Confirmed [NTFY] verbose logging is present in sendNotification function
+- Traced notification chain from config → runner → ntfy.ts with no gaps
+- TypeScript compilation passes in both bun/ and ralph-ui/ directories
+- CodeRabbit review found documentation issues but no critical bugs related to ntfy functionality
+- All tests pass: Ralph (205 passed), Skills (17 passed), Bun (99 passed)
+- V-002 verification complete - BUG-002 ntfy notifications are working correctly end-to-end
