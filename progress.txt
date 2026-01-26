@@ -217,14 +217,15 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - All tests passed (205 Ralph tests)
 - Established foundation for implementing rich story completion notifications in both Ralph and interactive Claude sessions
 
-## Iteration 19 - US-115: Extend farther-steps for zikaron context proposals
+## Iteration 20 - US-130: Research: Ink UI Rendering Stability
 - Model: kiro
-- Added `fsteps preview ID` command to show diff for context-proposals with confidence/evidence display
-- Implemented smart merge in `apply` for context-proposal type with section-aware positioning (after:section, end)
-- Added `--auto-high` flag for auto-apply with confidence >= 0.9 and evidence >= 5
-- Updated scripts/farther-steps.sh with comprehensive context-proposal support
-- Enhanced README.md farther-steps section with new step types and CLI commands documentation
-- Fixed CodeRabbit finding: added proper error handling for fallback file copy operations
-- All tests pass: Ralph test suite (205 passed, 0 failed)
-- Created and tested functionality with mock context-proposal entries - all features working correctly
-- This establishes the infrastructure for zikaron active learning system integration
+- Completed comprehensive research on ralph-ui rendering issues and optimization opportunities
+- Documented current symptoms: flashing, partial renders, visual artifacts from previous bug reports
+- Researched Ink best practices: Static component, maxFps, incrementalRendering, component memoization
+- Analyzed ralph-ui components and identified high-impact re-render sources (AliveIndicator, Dashboard timers)
+- Identified specific optimization opportunities: timer synchronization, React.memo usage, batching improvements
+- Proposed concrete fixes for MP-131: maxFps=10, incrementalRendering=true, AliveIndicator optimization
+- Created comprehensive research document at docs.local/research/US-130-ink-stability.md
+- CodeRabbit: Rate limited but research documentation only, no code changes
+- All tests passed (205 Ralph + 17 Skills + 101 Bun)
+- Established foundation for implementing ralph-ui performance improvements in MP-131

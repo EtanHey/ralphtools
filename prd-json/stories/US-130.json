@@ -11,8 +11,10 @@
     {"text": "Document findings in docs.local/research/US-130-ink-stability.md", "checked": true},
     {"text": "Propose specific fixes for MP-131", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: docs: US-130 research ink ui rendering stability", "checked": false}
+    {"text": "Commit: docs: US-130 research ink ui rendering stability", "checked": true}
   ],
   "storyType": "research",
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-26T16:26:00.000Z",
+  "completedBy": "kiro"
 }

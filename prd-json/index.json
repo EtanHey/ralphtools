@@ -31,9 +31,7 @@
     "TEST-132",
     "AUDIT-132"
   ],
-  "pending": [
-    "US-130"
-  ],
+  "pending": [],
   "blocked": [
     "AUDIT-128",
     "US-129",
@@ -63,13 +61,14 @@
     "MP-130",
     "TEST-128",
     "US-132",
-    "US-115"
+    "US-115",
+    "US-130"
   ],
   "stats": {
     "total": 28,
-    "completed": 16,
-    "pending": 1,
+    "completed": 17,
+    "pending": 0,
     "blocked": 11
   },
-  "nextStory": "US-130"
+  "nextStory": null
 }
