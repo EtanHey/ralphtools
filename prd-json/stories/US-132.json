@@ -1,0 +1,19 @@
+{
+  "id": "US-132",
+  "title": "Research: Ntfy on Story Completion",
+  "description": "Research how to send rich ntfy notifications when each story completes - for both Ralph AND direct Claude sessions. Format: Title=[Ralph/Claude] {repo} {icon} | {story-id}, Body=story title, model, cost, what was done, what's next.",
+  "acceptanceCriteria": [
+    {"text": "Review current ntfy.ts implementation and RichNtfyOptions", "checked": false},
+    {"text": "Review runner/index.ts - where story completion is detected", "checked": false},
+    {"text": "Review runner/types.ts - what data is available (cost, tokens, model)", "checked": false},
+    {"text": "Design title format: [Ralph/Claude] {repo} {status-icon} | {story-id}", "checked": false},
+    {"text": "Research how repoClaude (golemClaude etc) can send ntfy on task completion", "checked": false},
+    {"text": "Design body: line1=story title + model, line2=cost/tokens, line3=next story preview", "checked": false},
+    {"text": "Document icon mapping: checkmark=done, arrows=progress, warning=blocked, x=error", "checked": false},
+    {"text": "Document findings in docs.local/research/US-132-ntfy-story-complete.md", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: docs: US-132 research ntfy on story completion", "checked": false}
+  ],
+  "storyType": "research",
+  "passes": false
+}

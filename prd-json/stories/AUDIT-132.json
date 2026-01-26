@@ -1,0 +1,17 @@
+{
+  "id": "AUDIT-132",
+  "title": "Audit: Ntfy on Story Completion",
+  "description": "Audit MP-132 implementation against US-132 research. Verify message format matches design.",
+  "acceptanceCriteria": [
+    {"text": "Read US-132 research for expected format", "checked": false},
+    {"text": "Verify title format: [Ralph] {repo} {icon} | {story-id}", "checked": false},
+    {"text": "Verify body includes: story title, model, cost, next story", "checked": false},
+    {"text": "Verify icon mapping matches design", "checked": false},
+    {"text": "Document in docs.local/research/AUDIT-132-results.md", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: audit: AUDIT-132 ntfy story completion audit", "checked": false}
+  ],
+  "storyType": "audit",
+  "blockedBy": "TEST-132",
+  "passes": false
+}

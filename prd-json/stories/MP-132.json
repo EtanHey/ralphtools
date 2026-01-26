@@ -1,0 +1,23 @@
+{
+  "id": "MP-132",
+  "title": "Ntfy Notification on Story Completion",
+  "description": "Send rich ntfy notification when each story completes - for Ralph runner AND repoClaude sessions. Title=[Ralph/Claude] {repo} {icon} | {story-id}. Body=story title, model, cost, next story preview.",
+  "acceptanceCriteria": [
+    {"text": "Read US-132 research: docs.local/research/US-132-ntfy-story-complete.md", "checked": false},
+    {"text": "Add 'story_complete' event to ntfy.ts with title format: [Ralph] {repo} {icon} | {id}", "checked": false},
+    {"text": "Build rich body: story.title, model, cost/tokens if available", "checked": false},
+    {"text": "Include next story preview in body: 'Next: {nextStory.id} - {nextStory.title}'", "checked": false},
+    {"text": "Add storyCompleted flag to IterationResult in types.ts", "checked": false},
+    {"text": "Detect story completion in runner: check if story moved to completed array", "checked": false},
+    {"text": "Wire up: call notifyStoryComplete when storyCompleted=true", "checked": false},
+    {"text": "Add ntfy support to repoClaude in lib/ralph-registry.zsh (curl on session end)", "checked": false},
+    {"text": "Test: run ralph, verify ntfy fires with rich format when story completes", "checked": false},
+    {"text": "Test: run golemClaude, verify ntfy fires on session end", "checked": false},
+    {"text": "Typecheck passes", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: feat: MP-132 ntfy notification on story completion", "checked": false}
+  ],
+  "storyType": "infrastructure",
+  "blockedBy": "US-132",
+  "passes": false
+}

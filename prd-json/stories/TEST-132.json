@@ -1,0 +1,18 @@
+{
+  "id": "TEST-132",
+  "title": "Test: Ntfy on Story Completion",
+  "description": "Write tests for story completion notifications from MP-132.",
+  "acceptanceCriteria": [
+    {"text": "Read MP-132 implementation", "checked": false},
+    {"text": "Test: notifyStoryComplete sends correct title format", "checked": false},
+    {"text": "Test: body includes story title, model, next story", "checked": false},
+    {"text": "Test: storyCompleted flag set when story moves to completed", "checked": false},
+    {"text": "Document in docs.local/research/TEST-132-results.md", "checked": false},
+    {"text": "All tests pass", "checked": false},
+    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
+    {"text": "Commit: test: TEST-132 ntfy story completion tests", "checked": false}
+  ],
+  "storyType": "test",
+  "blockedBy": "MP-132",
+  "passes": false
+}
