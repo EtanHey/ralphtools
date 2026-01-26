@@ -45,10 +45,12 @@
     },
     {
       "text": "Commit: test: AUDIT-128 verify session context system",
-      "checked": false
+      "checked": true
     }
   ],
   "storyType": "audit",
   "blockedBy": null,
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-26T16:45:53.000Z",
+  "completedBy": "kiro"
 }
