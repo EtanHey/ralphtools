@@ -10,7 +10,7 @@ Runs CodeRabbit review on staged changes, then commits if approved.
 ## Flow
 
 1. Check for staged changes
-2. Run CodeRabbit review (`cr review`)
+2. Run CodeRabbit review (`cr review --plain` for headless/Claude compatibility)
 3. Show review results
 4. If review passes → prompt for commit message → commit
 5. If review fails → show issues → ask user if they want to proceed anyway
@@ -30,7 +30,7 @@ git add <files>
 When invoked, Claude will:
 
 1. **Check staged changes**: Run `git diff --staged --stat` to show what's staged
-2. **Run CodeRabbit**: Execute `cr review` on the staged changes
+2. **Run CodeRabbit**: Execute `cr review --plain` (headless mode, works from Claude)
 3. **Evaluate results**:
    - If CR passes (no critical issues): proceed to commit
    - If CR fails: show issues and ask user for decision
@@ -42,8 +42,8 @@ When invoked, Claude will:
 # 1. Stage changes
 git add -A
 
-# 2. Run CodeRabbit
-cr review
+# 2. Run CodeRabbit (--plain for headless)
+cr review --plain
 
 # 3. If passes, commit
 git commit -m "feat: description
