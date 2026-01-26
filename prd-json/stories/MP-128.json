@@ -23,6 +23,5 @@
     {"text": "Commit: refactor: MP-128 add unified session context manager", "checked": false}
   ],
   "storyType": "infrastructure",
-  "blockedBy": "US-128",
   "passes": false
 }
