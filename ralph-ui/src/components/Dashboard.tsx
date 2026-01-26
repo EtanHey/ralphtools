@@ -15,16 +15,31 @@ import { useStatusFile } from '../hooks/useStatusFile.js';
 import type { DashboardProps, PRDStats } from '../types.js';
 
 // Live clock hook - only used in live mode
+// MP-131: Synchronized with other 1000ms timers to reduce render conflicts
 function useLiveClock(enabled: boolean): string {
   const [time, setTime] = useState(() => new Date().toLocaleTimeString());
 
   useEffect(() => {
     if (!enabled) return;
 
-    const interval = setInterval(() => {
+    // Synchronize with other 1000ms timers by starting at next second boundary
+    const now = Date.now();
+    const msUntilNextSecond = 1000 - (now % 1000);
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const initialTimeout = setTimeout(() => {
       setTime(new Date().toLocaleTimeString());
-    }, 1000);
-    return () => clearInterval(interval);
+
+      // Then update every second
+      intervalId = setInterval(() => {
+        setTime(new Date().toLocaleTimeString());
+      }, 1000);
+    }, msUntilNextSecond);
+
+    return () => {
+      clearTimeout(initialTimeout);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [enabled]);
 
   return time;
@@ -95,7 +110,7 @@ function KeyboardHandler({ onExit, onConfig, configActive }: { onExit: () => voi
   return <FallbackKeyboardHandler onExit={onExit} onConfig={onConfig} configActive={configActive} />;
 }
 
-export function Dashboard({
+export const Dashboard = React.memo(({
   mode,
   prdPath,
   iteration = 1,
@@ -103,7 +118,7 @@ export function Dashboard({
   startTime = Date.now(),
   ntfyTopic,
   onExitRequest,
-}: DashboardProps) {
+}: DashboardProps) => {
   const { stdout } = useStdout();
   const { isRawModeSupported } = useStdin();
   const { exit } = useApp();
@@ -273,4 +288,4 @@ export function Dashboard({
       </Box>
     </Box>
   );
-}
+});

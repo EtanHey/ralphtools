@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Text } from 'ink';
 import Spinner from 'ink-spinner';
 
@@ -10,39 +10,64 @@ interface AliveIndicatorProps {
 /**
  * Shows a spinner and "last activity Xs ago" indicator.
  * Helps users know Ralph is still processing.
+ * MP-131: Optimized to only re-render when display value changes.
  */
-export function AliveIndicator({ lastActivity, isRunning }: AliveIndicatorProps) {
+export const AliveIndicator = React.memo(({ lastActivity, isRunning }: AliveIndicatorProps) => {
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+  const [lastDisplayText, setLastDisplayText] = useState('');
 
-  // Update "now" every second for relative time display
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Math.floor(Date.now() / 1000));
-    }, 1000);
-    return () => clearInterval(interval);
+  // Format the time ago string - memoized to prevent recalculation
+  const formatTimeAgo = useMemo(() => {
+    return (seconds: number): string => {
+      if (seconds < 5) return 'just now';
+      if (seconds < 60) return `${seconds}s ago`;
+      if (seconds < 3600) {
+        const mins = Math.floor(seconds / 60);
+        return `${mins}m ago`;
+      }
+      const hours = Math.floor(seconds / 3600);
+      return `${hours}h ago`;
+    };
   }, []);
 
+  // Color based on how long since last activity - memoized
+  const getColor = useMemo(() => {
+    return (seconds: number): string => {
+      if (seconds < 10) return 'green';
+      if (seconds < 30) return 'yellow';
+      if (seconds < 60) return 'yellowBright';
+      return 'red';
+    };
+  }, []);
+
+  // Calculate current display values
   const secondsAgo = now - lastActivity;
+  const displayText = useMemo(() => formatTimeAgo(secondsAgo), [formatTimeAgo, secondsAgo]);
+  const displayColor = useMemo(() => getColor(secondsAgo), [getColor, secondsAgo]);
 
-  // Format the time ago string
-  const formatTimeAgo = (seconds: number): string => {
-    if (seconds < 5) return 'just now';
-    if (seconds < 60) return `${seconds}s ago`;
-    if (seconds < 3600) {
-      const mins = Math.floor(seconds / 60);
-      return `${mins}m ago`;
+  // Only update "now" when the display text would actually change
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentNow = Math.floor(Date.now() / 1000);
+      const currentSecondsAgo = currentNow - lastActivity;
+      const currentDisplayText = formatTimeAgo(currentSecondsAgo);
+      
+      // Only update state if display text would change
+      if (currentDisplayText !== lastDisplayText) {
+        setNow(currentNow);
+        setLastDisplayText(currentDisplayText);
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [lastActivity, formatTimeAgo, lastDisplayText]);
+
+  // Initialize lastDisplayText on first render
+  useEffect(() => {
+    if (!lastDisplayText) {
+      setLastDisplayText(displayText);
     }
-    const hours = Math.floor(seconds / 3600);
-    return `${hours}h ago`;
-  };
-
-  // Color based on how long since last activity
-  const getColor = (seconds: number): string => {
-    if (seconds < 10) return 'green';
-    if (seconds < 30) return 'yellow';
-    if (seconds < 60) return 'yellowBright';
-    return 'red';
-  };
+  }, [displayText, lastDisplayText]);
 
   if (!isRunning) {
     return (
@@ -57,9 +82,9 @@ export function AliveIndicator({ lastActivity, isRunning }: AliveIndicatorProps)
       <Text color="green">
         <Spinner type="dots" />
       </Text>
-      <Text color={getColor(secondsAgo)}>
-        Last activity: {formatTimeAgo(secondsAgo)}
+      <Text color={displayColor}>
+        Last activity: {displayText}
       </Text>
     </Box>
   );
-}
+});

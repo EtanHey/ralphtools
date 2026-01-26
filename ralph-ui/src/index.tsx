@@ -394,10 +394,14 @@ async function runInRunnerMode(config: CLIConfig) {
     // AIDEV-NOTE: Pass stdin/stdout explicitly - Ink may not read stdin otherwise.
     // exitOnCtrlC: false because we handle Ctrl+C via SIGINT (line ~55).
     // DO NOT add process.stdin.on('data', ...) handlers - they conflict with Ink's useInput.
+    // MP-131: Add performance optimizations for stable rendering
     inkInstance = render(<RunnerDashboard />, {
       exitOnCtrlC: false,
       stdin: process.stdin,
       stdout: process.stdout,
+      maxFps: 10,              // Reduce from default 30 FPS
+      incrementalRendering: true, // Only update changed lines
+      debug: false,
     });
 
     // Also listen for Ink's exit event to set exitRequested
@@ -512,6 +516,7 @@ async function runInDisplayMode(config: CLIConfig) {
 
   // AIDEV-NOTE: Pass stdin/stdout explicitly - Ink may not read stdin otherwise.
   // exitOnCtrlC: false because we handle Ctrl+C via SIGINT (line ~55).
+  // MP-131: Add performance optimizations for stable rendering
   inkInstance = render(
     <Dashboard
       mode={config.mode}
@@ -525,6 +530,9 @@ async function runInDisplayMode(config: CLIConfig) {
       exitOnCtrlC: false,
       stdin: process.stdin,
       stdout: process.stdout,
+      maxFps: 10,              // Reduce from default 30 FPS
+      incrementalRendering: true, // Only update changed lines
+      debug: false,
     }
   );
 
