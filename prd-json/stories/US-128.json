@@ -3,16 +3,46 @@
   "title": "Research: Session Context Architecture",
   "description": "Research how session context should work. Document current state, gaps, and recommended approach for MP-128 to implement.",
   "acceptanceCriteria": [
-    {"text": "Use /context7 to look up relevant patterns (state management, session handling)", "checked": false},
-    {"text": "Map current notification flow: ralph.zsh → env vars → ralph-ui → runner", "checked": false},
-    {"text": "Document what exists in ralph-ui/src/runner/ for session/context handling", "checked": false},
-    {"text": "Identify gaps: where does -QN flag get lost? Where is state scattered?", "checked": false},
-    {"text": "Research: How do other CLI tools handle session context?", "checked": false},
-    {"text": "Write findings to docs.local/research/US-128-session-context.md", "checked": false},
-    {"text": "Include recommended interface: SessionContext { runner, model, notifications }", "checked": false},
-    {"text": "List files that will need changes for MP-128", "checked": false},
-    {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": false},
-    {"text": "Commit: docs: US-128 research session context architecture", "checked": false}
+    {
+      "text": "Use /context7 to look up relevant patterns (state management, session handling)",
+      "checked": true
+    },
+    {
+      "text": "Map current notification flow: ralph.zsh → env vars → ralph-ui → runner",
+      "checked": true
+    },
+    {
+      "text": "Document what exists in ralph-ui/src/runner/ for session/context handling",
+      "checked": true
+    },
+    {
+      "text": "Identify gaps: where does -QN flag get lost? Where is state scattered?",
+      "checked": true
+    },
+    {
+      "text": "Research: How do other CLI tools handle session context?",
+      "checked": true
+    },
+    {
+      "text": "Write findings to docs.local/research/US-128-session-context.md",
+      "checked": true
+    },
+    {
+      "text": "Include recommended interface: SessionContext { runner, model, notifications }",
+      "checked": true
+    },
+    {
+      "text": "List files that will need changes for MP-128",
+      "checked": true
+    },
+    {
+      "text": "Run CodeRabbit review - must pass (or create BUG if unfixable)",
+      "checked": true
+    },
+    {
+      "text": "Commit: docs: US-128 research session context architecture",
+      "checked": false
+    }
   ],
   "storyType": "research",
   "passes": false
