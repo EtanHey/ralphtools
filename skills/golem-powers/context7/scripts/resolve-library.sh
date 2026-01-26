@@ -5,6 +5,10 @@ set -euo pipefail
 # Usage: ./resolve-library.sh <library-name>
 # Example: ./resolve-library.sh react
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 # Configuration
 API_BASE="https://context7.com/api"
 ENDPOINT="/v2/libs/search"

@@ -2,6 +2,10 @@
 # Generate Test Plan - Analyzes git diff and generates a manual testing checklist
 set -euo pipefail
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 # Default values
 BASE_BRANCH="main"
 

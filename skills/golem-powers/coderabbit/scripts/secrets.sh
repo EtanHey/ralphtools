@@ -4,6 +4,10 @@ set -euo pipefail
 # secrets.sh - Scan for hardcoded secrets
 # Filters CodeRabbit output for potential secrets/credentials
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 echo "## Secrets Scan Results"
 echo ""
 

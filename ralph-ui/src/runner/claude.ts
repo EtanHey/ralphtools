@@ -50,6 +50,19 @@ export function buildCliArgs(options: SpawnOptions): string[] {
     args.push("--trust-all-tools");  // Like --dangerously-skip-permissions
     args.push("--no-interactive");   // Non-interactive mode
     args.push(options.prompt);       // Prompt as positional argument
+  } else if (cli === "aider") {
+    // Aider CLI arguments for Ollama local models
+    // aider --yes --no-git --model ollama/qwen3-coder --message "prompt"
+    args.push("--yes");  // Auto-approve all edits
+    args.push("--no-git");  // Ralph handles git, not aider
+    args.push("--model", "ollama/qwen3-coder");  // Use local Ollama model
+
+    // Inject context file if provided (same context as Claude gets)
+    if (options.contextFile) {
+      args.push("--read", options.contextFile);
+    }
+
+    args.push("--message", options.prompt);
   }
 
   return args;
@@ -226,6 +239,7 @@ const MODEL_NAMES: Record<Model, string> = {
   "gemini-flash": "gemini-2.0-flash-exp",
   "gemini-pro": "gemini-2.0-pro-exp",
   kiro: "kiro",
+  ollama: "ollama/qwen3-coder",
 };
 
 export function getModelName(model: Model): string {
@@ -242,6 +256,11 @@ export function isKiroModel(model: Model): boolean {
   return model === "kiro";
 }
 
+// Check if model is Ollama (local)
+export function isOllamaModel(model: Model): boolean {
+  return model === "ollama";
+}
+
 // Get the CLI command for a specific model
 export function getCliForModel(model: Model): string {
   if (isGeminiModel(model)) {
@@ -249,6 +268,9 @@ export function getCliForModel(model: Model): string {
   }
   if (isKiroModel(model)) {
     return "kiro-cli";
+  }
+  if (isOllamaModel(model)) {
+    return "aider";
   }
   return "claude";
 }

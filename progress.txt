@@ -149,3 +149,18 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - Committed changes to worktree branch and pushed to origin
 - Returned to master branch and marked story complete
 - This enables tracking of multi-agent PRD execution with start/completion notifications
+
+## Iteration 14 - AUDIT-001: Skill Usage Audit: Path & Context Confusion
+- Model: kiro
+- Completed comprehensive audit of golem-powers skills path handling issues
+- Used /context7 to research Claude Code skill patterns and shell script best practices
+- Documented the three contexts problem: skill install dir, repo source dir, user's cwd
+- Identified 15+ affected skills with relative path issues (./scripts/, ./prd-json patterns)
+- Designed BASH_SOURCE self-detection standard following Claude Code CLAUDE_PLUGIN_ROOT pattern
+- Created contexts/skill-authoring.md with complete path standard documentation
+- Updated /writing-skills skill to include new path requirements and examples
+- Fixed /prd-manager script to use BASH_SOURCE and project root detection
+- Created MP-130 story for systematic migration of remaining skills
+- CodeRabbit: Rate limited but TypeScript compilation passed
+- All tests passed (205 Ralph + 17 Skills + 99 Bun)
+- Established foundation for portable, reliable skill execution from any working directory

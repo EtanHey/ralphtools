@@ -16,9 +16,11 @@
     {"text": "Create MP story for fixing remaining skills systematically", "checked": true, "completedAt": "2026-01-26T12:15:00.000Z"},
     {"text": "Typecheck passes", "checked": true, "completedAt": "2026-01-26T12:15:45.000Z"},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true, "completedAt": "2026-01-26T12:16:00.000Z"},
-    {"text": "Commit: fix: AUDIT-001 establish skill path standards", "checked": false}
+    {"text": "Commit: fix: AUDIT-001 establish skill path standards", "checked": true, "completedAt": "2026-01-26T12:16:30.000Z"}
   ],
   "storyType": "audit",
-  "passes": false,
+  "passes": true,
+  "completedAt": "2026-01-26T12:16:30.000Z",
+  "completedBy": "kiro",
   "notes": "COMPREHENSIVE FINDINGS:\n\n1. WHAT CLAUDE RECEIVES:\n   When skill loads, Claude sees: 'Base directory for this skill: /path/to/skill'\n   This path IS provided but Claude doesn't always use it.\n\n2. WHAT WORKS:\n   ~/.claude/commands/golem-powers/prd-manager/scripts/run.sh --action=stats\n   Result: Works (full path)\n\n3. WHAT FAILS:\n   ./scripts/run.sh --action=stats\n   Result: 'no such file' (cwd is repo root, not skill dir)\n\n4. SMART SCRIPTS (example: ralph-commit):\n   Walks up from cwd to find prd-json/ directory\n   Works from any subdirectory\n\n5. DUMB SCRIPTS (example: prd-manager):\n   Uses PRD_DIR=${PRD_DIR:-./prd-json}\n   Only works if cwd has prd-json/ OR PRD_DIR is set\n\n6. SKILLS WITH execute: FRONTMATTER:\n   coderabbit, context7, create-pr, prd-manager, test-plan, etc.\n   All use relative 'scripts/foo.sh' - assumed relative to skill dir\n\n7. THE FIX OPTIONS:\n   A) Claude always prefixes with 'Base directory' path\n   B) Scripts detect their own location via BASH_SOURCE\n   C) Scripts walk up to find project markers (prd-json/, package.json)\n\n8. SPECIFIC TO CLAUDE-GOLEM REPO:\n   This repo HAS skills/ directory locally AND prd-json/\n   Other repos only have prd-json/, not skills/\n   Confusion may be repo-specific where skill source exists alongside PRD"
 }

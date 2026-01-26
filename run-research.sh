@@ -167,10 +167,16 @@ if [ "$MODE" = "ollama" ]; then
     fi
 
     echo "Launching Ollama with $MODEL..."
+    echo "Output will be saved to: ${PREFIX}-output.md"
     echo ""
 
-    # Start interactive session with system prompt
-    ollama run "$MODEL" "$SYSTEM_PROMPT"
+    # Run and capture output (tee shows it AND saves it)
+    ollama run "$MODEL" "$SYSTEM_PROMPT" 2>&1 | tee "${PREFIX}-output.md"
+
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "  Output saved to: ${PREFIX}-output.md"
+    echo "═══════════════════════════════════════════════════════════════"
 
 elif [ "$MODE" = "gemini" ]; then
     echo "Launching Gemini CLI..."

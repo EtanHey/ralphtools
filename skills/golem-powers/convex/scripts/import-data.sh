@@ -5,6 +5,10 @@
 
 set -e
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -115,7 +119,7 @@ if ! $FORCE; then
     echo "  1. Created a backup with: export-data.sh"
     echo "  2. Verified the import file is correct"
     echo ""
-    read -p "Have you created a backup? (y/N): " backup_confirm
+    read -r -p "Have you created a backup? (y/N): " backup_confirm
     if [[ ! "$backup_confirm" =~ ^[Yy]$ ]]; then
         echo ""
         echo -e "${YELLOW}Please create a backup first:${NC}"
@@ -126,7 +130,7 @@ if ! $FORCE; then
     fi
 
     echo ""
-    read -p "Proceed with import? (y/N): " confirm
+    read -r -p "Proceed with import? (y/N): " confirm
     if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}Import cancelled${NC}"
         exit 0

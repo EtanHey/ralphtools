@@ -125,6 +125,7 @@ function ralph() {
       echo "  -H, --haiku     Use Haiku model"
       echo "  -K, --kiro      Use Kiro model (kiro-cli)"
       echo "  -G, --gemini    Use Gemini Flash model"
+      echo "  -L, --local     Use local Ollama model (via Aider)"
       echo "  -QN, --notify   Enable ntfy notifications"
       echo "  -q, --quiet     Quiet mode (no UI)"
       echo "  -v, --verbose   Verbose output"
@@ -155,6 +156,10 @@ function ralph() {
         ;;
       -G|--gemini)
         model="gemini-flash"
+        shift
+        ;;
+      -L|--local)
+        model="ollama"
         shift
         ;;
       -QN|--notify)

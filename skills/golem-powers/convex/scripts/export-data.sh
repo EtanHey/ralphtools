@@ -5,6 +5,10 @@
 
 set -e
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -76,7 +80,7 @@ echo ""
 # Check if output file exists
 if [[ -f "$OUTPUT_PATH" ]]; then
     echo -e "${YELLOW}WARNING: File already exists: $OUTPUT_PATH${NC}"
-    read -p "Overwrite? (y/N): " confirm
+    read -r -p "Overwrite? (y/N): " confirm
     if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}Export cancelled${NC}"
         exit 0
@@ -101,7 +105,7 @@ fi
 
 # Verify export
 if [[ -f "$OUTPUT_PATH" ]]; then
-    size=$(ls -lh "$OUTPUT_PATH" | awk '{print $5}')
+    size=$(stat -f%z "$OUTPUT_PATH" 2>/dev/null | awk '{printf "%.1fK", $1/1024}')
     echo ""
     echo -e "${GREEN}SUCCESS: Export complete${NC}"
     echo -e "File: ${GREEN}$OUTPUT_PATH${NC} (${size})"

@@ -5,6 +5,10 @@
 
 set -e
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -85,7 +89,7 @@ echo -e "${GREEN}[OK]${NC} Copied index.json"
 if [ -d "$PRD_DIR/stories" ]; then
     mkdir -p "$ARCHIVE_DIR/stories"
     cp "$PRD_DIR/stories"/*.json "$ARCHIVE_DIR/stories/" 2>/dev/null || true
-    STORY_COUNT=$(ls -1 "$ARCHIVE_DIR/stories"/*.json 2>/dev/null | wc -l | tr -d ' ')
+    STORY_COUNT=$(find "$ARCHIVE_DIR/stories" -name "*.json" 2>/dev/null | wc -l | tr -d ' ')
     echo -e "${GREEN}[OK]${NC} Copied $STORY_COUNT stories"
 else
     echo -e "${YELLOW}[WARN]${NC} No stories directory found"

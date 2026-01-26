@@ -4,6 +4,10 @@ set -euo pipefail
 # accessibility.sh - Accessibility (a11y) audit
 # Filters CodeRabbit output for accessibility issues
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 echo "## Accessibility Audit Results"
 echo ""
 

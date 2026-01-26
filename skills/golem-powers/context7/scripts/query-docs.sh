@@ -5,6 +5,10 @@ set -euo pipefail
 # Usage: ./query-docs.sh <library-id> <query>
 # Example: ./query-docs.sh /vercel/next.js 'how to use app router'
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 # Configuration
 API_BASE="https://context7.com/api"
 ENDPOINT="/v2/context"

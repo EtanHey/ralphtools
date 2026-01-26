@@ -5,6 +5,10 @@
 
 set -e
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 # Color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'

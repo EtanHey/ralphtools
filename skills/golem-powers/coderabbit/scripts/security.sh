@@ -4,6 +4,10 @@ set -euo pipefail
 # security.sh - Security-focused code review
 # Filters CodeRabbit output for security-related issues
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 echo "## Security Scan Results"
 echo ""
 

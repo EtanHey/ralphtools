@@ -20,7 +20,7 @@ export interface RunnerConfig {
   onStrippedOutput?: (data: string) => void; // Callback for stripped output (PTY mode)
 }
 
-export type Model = "haiku" | "sonnet" | "opus" | "gemini-flash" | "gemini-pro" | "kiro";
+export type Model = "haiku" | "sonnet" | "opus" | "gemini-flash" | "gemini-pro" | "kiro" | "ollama";
 
 export interface IterationResult {
   iteration: number;

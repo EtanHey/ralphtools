@@ -4,6 +4,10 @@ set -euo pipefail
 # review.sh - Run CodeRabbit code review
 # This runs automatically when the skill is loaded
 
+# REQUIRED: Self-detect script location (works from any cwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+
 echo "## CodeRabbit Code Review"
 echo ""
 
