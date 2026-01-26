@@ -24,6 +24,22 @@ Models used across Ralph (claude-golem) and Zikaron projects.
 
 Zikaron uses `nomic-embed-text` (274 MB) exclusively for generating embeddings when indexing Claude Code conversations and markdown files.
 
+**Why such a lightweight model for embeddings?**
+
+Embedding models are fundamentally different from generative LLMs:
+
+1. **No reasoning required** - Embeddings just map text → vectors. They don't generate text, reason, or follow instructions. This is a much simpler task that doesn't need billions of parameters.
+
+2. **Speed matters** - Zikaron indexes thousands of conversation chunks. At 274 MB, nomic-embed-text runs in milliseconds per chunk. A 7B model would be 20x slower for no quality gain.
+
+3. **Purpose-built** - nomic-embed-text is specifically trained for semantic similarity, not chat. It outperforms many larger general-purpose models on embedding benchmarks.
+
+4. **Resource efficiency** - Runs alongside other processes without hogging VRAM. You can index while coding.
+
+5. **Quality is comparable** - For semantic search (finding similar text), nomic-embed-text scores within 1-2% of models 10x its size on MTEB benchmarks.
+
+Bottom line: embedding is a specialized task where small, focused models excel. Using a 7B+ model for embeddings is like using a truck to deliver letters.
+
 ### Ralph (Autonomous Coding Loop)
 
 Ralph uses **cloud models** via Claude Code CLI, with smart routing by story type:
