@@ -9,6 +9,7 @@ import { runIterations, createConfig } from './runner/index.js';
 import { cleanupStatus } from './runner/status.js';
 import type { Model } from './runner/types.js';
 import { isPTYSupported, getPTYUnsupportedReason } from './runner/pty/index.js';
+import { loadConfig as loadRalphConfig } from './utils/config.js';
 
 // AIDEV-NOTE: This is the main entry point for ralph-ui
 // Phase 2 of MP-006 adds --run flag for iteration execution mode
@@ -103,7 +104,12 @@ function parseArgs(): CLIConfig {
   // Check if PTY is supported (not supported on Bun)
   const ptySupported = isPTYSupported();
 
-  // Defaults
+  // Load config file for notifications
+  const ralphConfig = loadRalphConfig();
+  const notifyFromConfig = ralphConfig.notifications?.enabled ?? false;
+  const ntfyTopicFromConfig = ralphConfig.notifications?.ntfyTopic;
+
+  // Defaults (config file -> env var -> hardcoded)
   const config: CLIConfig = {
     run: false,
     mode: 'live',
@@ -112,13 +118,13 @@ function parseArgs(): CLIConfig {
     model: (process.env.RALPH_MODEL as Model) || 'sonnet',
     quiet: false,
     verbose: false,
-    notify: !!process.env.RALPH_NOTIFY,
+    notify: !!process.env.RALPH_NOTIFY || notifyFromConfig,
     usePty: ptySupported, // Default to PTY mode only if supported
     prdPath: process.cwd() + '/prd-json',
     workingDir: process.cwd(),
     iteration: 1,
     startTime: Date.now(),
-    ntfyTopic: process.env.RALPH_NTFY_TOPIC,
+    ntfyTopic: process.env.RALPH_NTFY_TOPIC || ntfyTopicFromConfig,
   };
 
   for (let i = 0; i < args.length; i++) {

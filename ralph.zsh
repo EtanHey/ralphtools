@@ -42,7 +42,19 @@ RALPH_CONFIG_DIR="${RALPH_CONFIG_DIR:-$HOME/.config/ralphtools}"
 RALPH_USER_PREFS_FILE="${RALPH_USER_PREFS_FILE:-$RALPH_CONFIG_DIR/user-prefs.json}"
 [[ -f "$RALPH_CONFIG_DIR/ralph-config.local" ]] && source "$RALPH_CONFIG_DIR/ralph-config.local"
 
-# Load user preferences from JSON file (sets RALPH_DEFAULT_MODEL, RALPH_UI_MODE, RALPH_NTFY_TOPIC)
+# Load from config.json (primary config file)
+RALPH_CONFIG_FILE="${RALPH_CONFIG_DIR}/config.json"
+if [[ -f "$RALPH_CONFIG_FILE" ]]; then
+  _ralph_cfg_model=$(jq -r '.defaultModel // empty' "$RALPH_CONFIG_FILE" 2>/dev/null)
+  _ralph_cfg_ntfy_topic=$(jq -r '.notifications.ntfyTopic // empty' "$RALPH_CONFIG_FILE" 2>/dev/null)
+  _ralph_cfg_ntfy_enabled=$(jq -r '.notifications.enabled // false' "$RALPH_CONFIG_FILE" 2>/dev/null)
+  [[ -n "$_ralph_cfg_model" ]] && RALPH_DEFAULT_MODEL="${RALPH_DEFAULT_MODEL:-$_ralph_cfg_model}"
+  [[ -n "$_ralph_cfg_ntfy_topic" && "$_ralph_cfg_ntfy_topic" != "null" ]] && RALPH_NTFY_TOPIC="${RALPH_NTFY_TOPIC:-$_ralph_cfg_ntfy_topic}"
+  [[ "$_ralph_cfg_ntfy_enabled" == "true" ]] && RALPH_NOTIFY_ENABLED=1
+  unset _ralph_cfg_model _ralph_cfg_ntfy_topic _ralph_cfg_ntfy_enabled
+fi
+
+# Fallback: Load from user-prefs.json (legacy)
 if [[ -f "$RALPH_USER_PREFS_FILE" ]]; then
   _ralph_prefs_model=$(jq -r '.defaultModel // empty' "$RALPH_USER_PREFS_FILE" 2>/dev/null)
   _ralph_prefs_ntfy=$(jq -r '.ntfyTopic // empty' "$RALPH_USER_PREFS_FILE" 2>/dev/null)
@@ -82,7 +94,9 @@ function ralph() {
   local iterations="$RALPH_MAX_ITERATIONS"
   local model="$RALPH_DEFAULT_MODEL"
   local gap="$RALPH_SLEEP_SECONDS"
+  # Use config file setting as default, can be overridden by --notify flag
   local notify=""
+  [[ -n "$RALPH_NOTIFY_ENABLED" ]] && notify="--notify"
   local quiet=""
   local verbose=""
   local prd_path="$(pwd)/prd-json"
