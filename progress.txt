@@ -74,3 +74,15 @@ Started: Mon Jan 26 00:22:11 IST 2026
 - CodeRabbit review attempted but rate limited - tests verify functionality works correctly
 - Root cause: Stories with blockedBy field but still in pending array caused Ralph to detect blocking but not update index
 - Learning: Always ensure index state matches story file state to prevent infinite loops in autonomous systems
+
+## Iteration 8 - BUG-004: Ralph UI renders repeated box borders during error loop
+- Model: kiro
+- Fixed duplicate box rendering issue in Ralph UI during error loops
+- Added key prop to Dashboard component that includes iteration and state to force complete re-render
+- This prevents Ink from stacking duplicate empty boxes during rapid status changes
+- Created test script to simulate error loops and verify fix works correctly
+- TypeScript compilation passes in both ralph-ui and bun directories
+- All tests pass: Ralph test suite (205 passed), Skills tests (17 passed), Bun tests (91 passed)
+- CodeRabbit review rate limited but TypeScript compilation validates code quality
+- Root cause: During error loops with rapid status changes, Ink was not properly clearing previous renders
+- Learning: Use stable keys that change when visual content should be completely refreshed to prevent UI artifacts

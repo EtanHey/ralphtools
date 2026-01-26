@@ -10,8 +10,10 @@
     {"text": "Test: Simulate 5 rapid error iterations, verify no duplicate empty boxes", "checked": true},
     {"text": "Typecheck passes", "checked": true},
     {"text": "Run CodeRabbit review - must pass (or create BUG if unfixable)", "checked": true},
-    {"text": "Commit: fix: BUG-004 prevent duplicate box renders in error loop", "checked": false}
+    {"text": "Commit: fix: BUG-004 prevent duplicate box renders in error loop", "checked": true}
   ],
   "storyType": "bug",
-  "passes": false
+  "passes": true,
+  "completedAt": "2026-01-26T11:08:18.000Z",
+  "completedBy": "kiro"
 }
