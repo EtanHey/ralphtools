@@ -43,46 +43,49 @@ get_user() {
 # Build human-readable summary from transcript
 get_summary() {
     local transcript="$1"
-    [ -z "$transcript" ] || [ ! -f "$transcript" ] && return
+    [ -z "$transcript" ] || [ ! -f "$transcript" ] && echo "Done" && return
 
-    local summary=""
-
-    # Check for git commit (most meaningful action)
-    local commit_msg
-    commit_msg=$(grep -o 'git commit.*-m[[:space:]]*"[^"]*"' "$transcript" 2>/dev/null | tail -1 | sed 's/.*-m[[:space:]]*"//' | sed 's/"$//' | head -c 50)
-    if [ -n "$commit_msg" ]; then
-        echo "Committed: $commit_msg"
-        return
-    fi
-
-    # Check for git push
-    if grep -q 'git push' "$transcript" 2>/dev/null; then
-        summary="Pushed to remote"
-    fi
-
-    # Get edited files (unique basenames)
-    local files
-    files=$(grep -o '"file_path":"[^"]*"' "$transcript" 2>/dev/null | cut -d'"' -f4 | xargs -I{} basename {} 2>/dev/null | sort -u | head -3 | tr '\n' ', ' | sed 's/,$//')
-    if [ -n "$files" ]; then
-        if [ -n "$summary" ]; then
-            echo "$summary ($files)"
-        else
-            echo "Edited: $files"
-        fi
-        return
-    fi
-
-    # Fallback to counts
-    local edits writes
+    # Count actions
+    local edits writes commits pushes
     edits=$(grep -c '"name":"Edit"' "$transcript" 2>/dev/null || echo 0)
     writes=$(grep -c '"name":"Write"' "$transcript" 2>/dev/null || echo 0)
+    commits=$(grep -c 'git commit' "$transcript" 2>/dev/null || echo 0)
+    pushes=$(grep -c 'git push' "$transcript" 2>/dev/null || echo 0)
 
-    if [ "$edits" -gt 0 ] || [ "$writes" -gt 0 ]; then
-        echo "Made $edits edits, $writes new files"
-        return
+    # Get key files (just basenames, no paths, max 2)
+    local key_files
+    key_files=$(grep -o '"file_path":"[^"]*"' "$transcript" 2>/dev/null | \
+        cut -d'"' -f4 | \
+        xargs -I{} basename {} 2>/dev/null | \
+        grep -v '^$' | \
+        sort -u | \
+        head -2 | \
+        tr '\n' ' ' | \
+        sed 's/ $//' | \
+        sed 's/ /, /')
+
+    # Build concise message
+    local msg=""
+
+    if [ "$pushes" -gt 0 ]; then
+        msg="Pushed"
+        [ "$commits" -gt 0 ] && msg="$msg $commits commit(s)"
+    elif [ "$commits" -gt 0 ]; then
+        msg="Committed"
+    elif [ "$edits" -gt 0 ] || [ "$writes" -gt 0 ]; then
+        local total=$((edits + writes))
+        msg="$total file(s) changed"
+    else
+        msg="Done"
     fi
 
-    echo "Session complete"
+    # Add key files if we have them
+    if [ -n "$key_files" ] && [ ${#key_files} -lt 40 ]; then
+        msg="$msg: $key_files"
+    fi
+
+    # Clean any stray special chars
+    echo "$msg" | tr -d '\n\r' | sed 's/[`]//g' | head -c 60
 }
 
 # Check if Claude is waiting for user input, return type and context
