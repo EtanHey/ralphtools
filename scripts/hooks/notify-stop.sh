@@ -110,7 +110,7 @@ check_waiting_for_input() {
 
     # Check if last assistant message ends with question mark - extract it
     local last_question
-    last_question=$(tail -100 "$transcript" 2>/dev/null | grep -o '"text":"[^"]*\?"' | tail -1 | cut -d'"' -f4 | tail -c 80)
+    last_question=$(tail -100 "$transcript" 2>/dev/null | grep -o '"text":"[^"]*\?"' | tail -1 | cut -d'"' -f4 | head -c 80)
     if [ -n "$last_question" ]; then
         echo "question:$last_question"
         return 0
