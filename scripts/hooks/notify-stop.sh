@@ -39,7 +39,10 @@ get_mode() {
 # Build human-readable summary from transcript
 get_summary() {
     local transcript="$1"
-    [ -z "$transcript" ] || [ ! -f "$transcript" ] && echo "Done" && return
+    if [ -z "$transcript" ] || [ ! -f "$transcript" ]; then
+        echo "Done"
+        return
+    fi
 
     # Count actions
     local edits writes commits pushes
