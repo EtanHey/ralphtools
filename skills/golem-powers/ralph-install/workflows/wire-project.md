@@ -26,6 +26,7 @@ This will analyze your project and suggest contexts like:
 - `tech/nextjs` for Next.js projects
 - `tech/supabase` for Supabase integration
 - `workflow/rtl` for Hebrew/Arabic UI
+- `workflow/i18n` for dual-language / i18n projects
 - etc.
 
 ---
@@ -94,6 +95,7 @@ Choose contexts based on your tech stack:
 | Context | When to Use |
 |---------|-------------|
 | `workflow/rtl` | Hebrew/Arabic UI (right-to-left layouts) |
+| `workflow/i18n` | Dual-language / i18n (keys, RTL alignment) |
 | `workflow/testing` | Test-heavy projects |
 | `workflow/design-system` | Component library development |
 

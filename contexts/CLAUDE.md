@@ -51,7 +51,11 @@ contexts/
 │   └── supabase.md
 ├── workflow/            # Workflow contexts
 │   ├── interactive.md   # Interactive session rules
-│   └── ralph.md         # Ralph autonomous execution
+│   ├── ralph.md         # Ralph autonomous execution
+│   ├── rtl.md           # RTL layout rules
+│   ├── i18n.md          # i18n keys, dual-language, RTL alignment
+│   ├── testing.md
+│   └── design-system.md
 └── templates/           # Templates for new contexts
 ```
 

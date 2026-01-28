@@ -211,6 +211,7 @@ Select contexts based on your project's tech stack:
 | Supabase | `tech/supabase` |
 | Convex | `tech/convex` |
 | RTL layouts (Hebrew/Arabic) | `workflow/rtl` |
+| Dual-language / i18n | `workflow/i18n` |
 
 Run `/context-audit` in your project to detect recommended contexts.
 

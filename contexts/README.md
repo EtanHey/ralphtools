@@ -49,6 +49,7 @@ When you fix or improve a context, ALL projects using that context benefit autom
 │  │    base.md        ←── Fix discovered in Project A    │    │
 │  │    tech/nextjs.md                                    │    │
 │  │    workflow/rtl.md                                   │    │
+│  │    workflow/i18n.md                                  │    │
 │  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -87,6 +88,7 @@ git push
 | `base.md` | ALL projects |
 | `tech/nextjs.md` | All Next.js projects |
 | `workflow/rtl.md` | All Hebrew/Arabic projects |
+| `workflow/i18n.md` | All dual-language / i18n projects |
 | `skill-index.md` | All interactive Claude sessions |
 
 ---
@@ -215,6 +217,7 @@ Full Context = base + tech contexts + workflow contexts + project-specific
 @context: tech/nextjs        # Next.js patterns (~300 lines)
 @context: tech/supabase      # Supabase patterns (~150 lines)
 @context: workflow/rtl       # RTL guidelines (~100 lines)
+@context: workflow/i18n      # i18n keys, dual-language, RTL alignment (~70 lines)
 @context: workflow/testing   # Testing standards (~100 lines)
 
 ## Project-Specific
@@ -240,6 +243,7 @@ Full Context = base + tech contexts + workflow contexts + project-specific
 | `workflow/interactive` | Interactive Claude rules: CLAUDE_COUNTER, git safety | ~60 |
 | `workflow/ralph` | Ralph autonomous execution: commit rules, story handling | ~350 |
 | `workflow/rtl` | RTL layout rules for Hebrew/Arabic | ~100 |
+| `workflow/i18n` | Dual-language behavior, text keys, i18n × RTL guidelines | ~70 |
 | `workflow/testing` | Test IDs, state testing, Playwright | ~100 |
 | `workflow/design-system` | Component checking, Tailwind v4 | ~100 |
 
@@ -265,6 +269,7 @@ Use `@context:` followed by the context name. Place these in your CLAUDE.md:
 @context: skill-index
 @context: tech/nextjs
 @context: workflow/rtl
+@context: workflow/i18n
 @context: workflow/interactive
 ```
 
@@ -278,6 +283,7 @@ You can add descriptions after the context reference for clarity:
 @context: skill-index - Available skills reference
 @context: tech/nextjs - Next.js App Router patterns
 @context: workflow/rtl - RTL layout guidelines
+@context: workflow/i18n - i18n keys, dual-language, RTL alignment
 ```
 
 ### Context Naming
@@ -314,6 +320,7 @@ These formats still work but are not recommended:
 │   ├── interactive.md      # Interactive Claude sessions
 │   ├── ralph.md            # Ralph autonomous execution
 │   ├── rtl.md
+│   ├── i18n.md             # i18n keys, dual-language, RTL alignment
 │   ├── testing.md
 │   └── design-system.md
 └── README.md               # This file

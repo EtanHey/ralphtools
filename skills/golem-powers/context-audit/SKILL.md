@@ -47,6 +47,7 @@ find contexts -name "*.md" 2>/dev/null | sort
 | Convex (convex/) | `tech/convex` |
 | Supabase (supabase/) | `tech/supabase` |
 | Hebrew/Arabic UI | `workflow/rtl` |
+| Dual-language / i18n UI | `workflow/i18n` |
 | UI components | `workflow/design-system` |
 | Test files | `workflow/testing` |
 
@@ -87,6 +88,7 @@ RECOMMENDED @context: BLOCK:
   @context: skill-index
   @context: tech/nextjs
   @context: workflow/rtl
+  @context: workflow/i18n
   @context: workflow/interactive
 
 GAP SUMMARY:
